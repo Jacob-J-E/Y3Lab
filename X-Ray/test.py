@@ -19,9 +19,10 @@ y = count
 # y = np.sin(x) + np.random.random(100) * 0.2
 yhat = savgol_filter(y, 51, 3) # window size 51, polynomial order 3
 
-plt.plot(x,y)
-plt.plot(x,yhat, color='red')
+plt.plot(x,y,label="Experimental Data")
+plt.plot(x,yhat, color='red',label="Savgol Filter")
 plt.grid()
 plt.xlabel(r"Scattering Angle \ $\deg$")
 plt.ylabel(r"Count Rate \ $s^{-1}$")
+plt.legend(loc="upper right")
 plt.show()
