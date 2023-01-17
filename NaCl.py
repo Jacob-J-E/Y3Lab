@@ -20,5 +20,12 @@ ax[0].plot(angle,count_0)
 ax[1].plot(wav,count_0)
 ax[2].plot(np.sort(energy),count_0)
 
+ax[0].set_xlabel(r"Angle (deg)")
+ax[1].set_xlabel(r"Wavlength $(pm)$")
+ax[2].set_xlabel(r"Energy $KeV$")
 
+ax[0].set_ylabel(r"Count $(s^{-1})$")
+ax[1].set_ylabel(r"Count $(s^{-1})$")
+ax[2].set_ylabel(r"Count $(s^{-1})$")
+plt.tight_layout()
 plt.show()
