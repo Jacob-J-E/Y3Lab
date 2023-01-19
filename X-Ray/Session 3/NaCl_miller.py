@@ -88,17 +88,17 @@ hcp = [i for i in hcp if i <= angle_upper_threshold]
 #     else:
 #         plt.axvline(x, color = 'r', label = 'primitive lattice')
 
-for idx,x in enumerate(bcc):
-    if not(idx == len(bcc)-1):
-        plt.axvline(x, color = 'b')
-    else:
-        plt.axvline(x, color = 'b', label = 'bcc lattice')
-
-# for idx,x in enumerate(fcc_even):
-#     if not(idx == len(fcc_even)-1):
-#         plt.axvline(x, color = 'g')
+# for idx,x in enumerate(bcc):
+#     if not(idx == len(bcc)-1):
+#         plt.axvline(x, color = 'b')
 #     else:
-#         plt.axvline(x, color = 'g', label = 'fcc lattice')
+#         plt.axvline(x, color = 'b', label = 'bcc lattice')
+
+for idx,x in enumerate(fcc_even):
+    if not(idx == len(fcc_even)-1):
+        plt.axvline(x, color = 'g')
+    else:
+        plt.axvline(x, color = 'g', label = 'even fcc lattice')
 
 plt.scatter(angle,count_0, label = 'Data')
 
