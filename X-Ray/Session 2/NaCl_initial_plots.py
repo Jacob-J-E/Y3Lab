@@ -6,7 +6,7 @@ hep.style.use("ATLAS")
 
 
 # Load in data
-data = pd.read_csv(r"X-Ray\Data\16-01-2022\NaCl Full Data.csv",skiprows=0)
+data = pd.read_csv(r"X-Ray\Data\16-01-2023\NaCl Full Data.csv",skiprows=0)
 print(data)
 
 # Split data into differnt variables
@@ -19,8 +19,8 @@ count_0 = data['R_0 / 1/s']
 #Initial Plots
 fig, ax = plt.subplots(3)
 ax[0].plot(angle,count_0)
-ax[1].plot(wav,count_0)
-ax[2].plot(np.sort(energy),count_0)
+ax[1].plot(wav,count_0,color='red')
+ax[2].plot(np.sort(energy),count_0,color='black')
 
 ax[0].set_xlabel(r"Angle (deg)")
 ax[1].set_xlabel(r"Wavlength $(pm)$")
@@ -29,6 +29,13 @@ ax[2].set_xlabel(r"Energy $KeV$")
 ax[0].set_ylabel(r"Count $(s^{-1})$")
 ax[1].set_ylabel(r"Count $(s^{-1})$")
 ax[2].set_ylabel(r"Count $(s^{-1})$")
+
+ax[0].grid()
+ax[1].grid()
+ax[2].grid()
+
+fig.suptitle("NaCl Difffractometer Spectrum")
+
 plt.tight_layout()
 plt.show()
 
