@@ -16,6 +16,8 @@ angle = data_NaCl['angle']
 wav = data_NaCl['n&l / pm']
 energy = data_NaCl['E / keV']
 
+
+# Load in data for all four elements
 count_Zr = data_Zr['R_1 / 1/s']
 T_Zr =  data_Zr['T_1 / %']
 
@@ -28,12 +30,48 @@ T_Mo = data_Mo['T_3 / %']
 count_Al = data_Al['R_4 / 1/s']
 T_Al = data_Al['T_4 / %']
 
+
+"""
+Generate initial plots of Count Rate
+"""
+# fig,ax = plt.subplots(2,2, sharex=True, sharey=True)
+
+# ax[0][0].plot(wav,count_Zr,label="Zr Data")
+# ax[0][1].plot(wav,count_Ag,label="Ag Data")
+# ax[1][0].plot(wav,count_Mo,label="Mo Data")
+# ax[1][1].plot(wav,count_Al,label="Al Data")
+
+# ax[0][0].set_title("Zr Filter")
+# ax[0][1].set_title("Ag Filter")
+# ax[1][0].set_title("Mo Filter")
+# ax[1][1].set_title("Al Filter")
+
+
+# ax[1][0].set_xlabel(r"Wavelength /$pm$")
+# ax[1][1].set_xlabel(r"Wavelength /$pm$")
+# ax[0][0].set_ylabel("Count Rate /s")
+# ax[1][0].set_ylabel("Count Rate /s")
+
+# for i in range(0,2):
+#     for j in range(0,2):
+#         ax[i][j].legend(loc="upper right")
+#         ax[i][j].grid()
+#         # Figure out code to title all graphs
+
+# fig.suptitle("Wavelength Spectra of NaCl With Various Metal Filters")
+# plt.tight_layout()
+# plt.show()
+
+"""
+Generate initial plots of transmission
+"""
+# Generate initial plots of Count Rate
 fig,ax = plt.subplots(2,2, sharex=True, sharey=True)
 
-ax[0][0].plot(wav,count_Zr,label="Zr Data")
-ax[0][1].plot(wav,count_Ag,label="Ag Data")
-ax[1][0].plot(wav,count_Mo,label="Mo Data")
-ax[1][1].plot(wav,count_Al,label="Al Data")
+ax[0][0].plot(wav,T_Zr,label="Zr Data")
+ax[0][1].plot(wav,T_Ag,label="Ag Data")
+ax[1][0].plot(wav,T_Mo,label="Mo Data")
+ax[1][1].plot(wav,T_Al,label="Al Data")
 
 ax[0][0].set_title("Zr Filter")
 ax[0][1].set_title("Ag Filter")
@@ -43,8 +81,8 @@ ax[1][1].set_title("Al Filter")
 
 ax[1][0].set_xlabel(r"Wavelength /$pm$")
 ax[1][1].set_xlabel(r"Wavelength /$pm$")
-ax[0][0].set_ylabel("Count Rate /s")
-ax[1][0].set_ylabel("Count Rate /s")
+ax[0][0].set_ylabel("Transmission /%")
+ax[1][0].set_ylabel("Transmission /%")
 
 for i in range(0,2):
     for j in range(0,2):
@@ -52,8 +90,6 @@ for i in range(0,2):
         ax[i][j].grid()
         # Figure out code to title all graphs
 
-
-fig.suptitle("Wavelength Spectra of NaCl With Various Metal Filters")
+fig.suptitle("Transmission of NaCl With Various Metal Filters")
 plt.tight_layout()
 plt.show()
-
