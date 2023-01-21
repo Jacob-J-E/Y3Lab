@@ -101,10 +101,10 @@ hcp = [i for i in hcp if i <= angle_upper_threshold]
 
 for idx,x in enumerate(fcc_even):
     if not(idx == len(fcc_even)-1):
-        plt.axvline(x, color = 'black',ls='--')
-    else:
-        plt.axvline(x, color = 'black', label = 'Even FCC Lattice')
-
+        plt.axvline(x, color = 'black')
+    #else:
+        plt.axvline(x, color = 'black')
+plt.plot([0,0],[0,0],color='black',label = 'Even FCC Lattice')
 
 
 angle_line = np.concatenate((angle[(angle > 7.9) & (angle < 12.1)],angle[(angle > 4.4) & (angle < 6.1)]))
