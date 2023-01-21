@@ -5,6 +5,18 @@ import mplhep as hep
 import scipy.optimize as spo
 hep.style.use("ATLAS")
 
+"""
+We need a more robust method for background reduction.
+
+A couple thoughts:
+
+    - The exponential reduction should only be applied in the low angle range wher Bram. rad. is strong
+    - The detector background should be subtracted from the data (small change)
+    - Signal:noise is poor in 2nd/3rd order peaks, can this be fixed?
+    - Re-take data only on small peak regions with high aq. time.
+    - Jam in some ML.
+
+"""
 
 def double_Gauss(x,A1,mu1,sigma1,A2,mu2,sigma2):
     term_1 = A1 * np.exp(-(x-mu1)**2/(2*sigma1)**2)

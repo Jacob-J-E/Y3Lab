@@ -2,10 +2,14 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import mplhep as hep
+import scipy.optimize as spo
 hep.style.use("ATLAS")
 
+def exp(x,A,m,c):
+    return A * np.exp(-1 * m * x) + c
 
-data = pd.read_csv(r"X-Ray\Data\16-01-2022\NaCl Full Data.csv",skiprows=0)
+
+data = pd.read_csv(r"X-Ray\Data\16-01-2023\NaCl Full Data.csv",skiprows=0)
 print(data)
 
 
@@ -51,9 +55,10 @@ def hcp_check(h,k,l):
     return True
 
 range_max = range(0,10)
+range_one = range(0,1)
 for h in range_max:
-    for k in range_max:
-        for l in range_max:
+    for k in range_one:
+        for l in range_one:
             angle1 = calculate_angle(h,k,l,ENERGY1)
             angle2 = calculate_angle(h,k,l,ENERGY2)
             primitive.add(angle1)
@@ -96,13 +101,40 @@ hcp = [i for i in hcp if i <= angle_upper_threshold]
 
 for idx,x in enumerate(fcc_even):
     if not(idx == len(fcc_even)-1):
-        plt.axvline(x, color = 'g')
+        plt.axvline(x, color = 'black',ls='--')
     else:
-        plt.axvline(x, color = 'g', label = 'even fcc lattice')
-
-plt.scatter(angle,count_0, label = 'Data')
+        plt.axvline(x, color = 'black', label = 'Even FCC Lattice')
 
 
+
+angle_line = np.concatenate((angle[(angle > 7.9) & (angle < 12.1)],angle[(angle > 4.4) & (angle < 6.1)]))
+count_line = np.concatenate((count_0[(angle > 7.9) & (angle < 12.1)],count_0[(angle > 4.4) & (angle < 6.1)]))
+lambda_guess = len(angle_line) / sum(angle_line)
+line_guess = [max(count_line),lambda_guess,max(count_line)]
+line_params, line_cov = spo.curve_fit(exp,angle_line,count_line,line_guess)
+
+
+plt.plot(angle,count_0, label = 'Experimental Data')
+plt.xlabel("Angle (degrees)")
+plt.ylabel("Count rate /s")
+plt.plot(angle,exp(angle,*line_params),color='red',label="Exponential Background Fit-Line")
+plt.plot(angle,count_0-exp(angle,*line_params),color='green',label="Background-Reduced Data")
 plt.legend()
+plt.grid()
 plt.show()
 
+
+
+# plt.plot(angle,count_0,color='blue',label="Experimental Data")
+# plt.plot(angle,exp(angle,*line_params),color='red',label="Exponential Background Fit-Line")
+# plt.plot(angle,count_0-exp(angle,*line_params),color='black',label="Background-Reduced Data")
+# plt.grid()
+# plt.show()
+
+
+
+# fig, ax = plt.subplots(figsize=[8,5])
+
+# ax.plot(angle,count_0,color='blue',label="Experimental Data")
+
+# axins = zoomed_ins
