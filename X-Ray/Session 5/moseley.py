@@ -10,12 +10,12 @@ R_0 = 10973731.6
 def line(x,m,c):
     return m*x + c
 
-Z = np.array([40,42,47])
+Z = np.array([40,42,47,49])
 
-wav_alpha = np.array([66.5,59.5,46.5]) * 10e-12
-wav_beta = np.array([135-5,122-3,95-5])* 10e-12
+wav_alpha = np.array([66.5,59.5,46.5,42.5]) * 10e-12
+wav_beta = np.array([135-5,122-3,95-5,87])* 10e-12
 
-alpha_sigma = np.array([3,3,3])*10e-12
+alpha_sigma = np.array([3,3,3,3])*10e-12
 
 inv_sqrt_wav_alpha = 1/np.sqrt(wav_alpha) 
 inv_sqrt_wav_beta = 1/np.sqrt(wav_beta)
