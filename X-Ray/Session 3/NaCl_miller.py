@@ -19,14 +19,16 @@ energy = data['E / keV']
 count_0 = data['R_0 / 1/s']
 
 A = 564.02e-12
-ENERGY1 = 17.443e3*1.6e-19
-ENERGY2 = 19.651e3*1.6e-19
+# ENERGY1 = 17.443e3*1.6e-19
+# ENERGY2 = 19.651e3*1.6e-19
+ENERGY1 = 17330*1.6e-19
+ENERGY2 = 19549*1.6e-19
 
 def calculate_angle(h,k,l,energy):
     wavelength = (6.63e-34 * 3e8)/energy
     sin_angle = np.sqrt((wavelength**2/(4*A**2))*(h**2+k**2+l**2))
     angle = np.arcsin(sin_angle)*180/np.pi
-    return angle
+    return energy
 
 primitive = set()
 bcc = set()
@@ -107,23 +109,24 @@ for idx,x in enumerate(fcc_even):
 plt.plot([0,0],[0,0],color='black',label = 'Even FCC Lattice')
 
 
-angle_line = np.concatenate((angle[(angle > 7.9) & (angle < 12.1)],angle[(angle > 4.4) & (angle < 6.1)]))
-count_line = np.concatenate((count_0[(angle > 7.9) & (angle < 12.1)],count_0[(angle > 4.4) & (angle < 6.1)]))
-lambda_guess = len(angle_line) / sum(angle_line)
-line_guess = [max(count_line),lambda_guess,max(count_line)]
-line_params, line_cov = spo.curve_fit(exp,angle_line,count_line,line_guess)
+# angle_line = np.concatenate((angle[(angle > 7.9) & (angle < 12.1)],angle[(angle > 4.4) & (angle < 6.1)]))
+# count_line = np.concatenate((count_0[(angle > 7.9) & (angle < 12.1)],count_0[(angle > 4.4) & (angle < 6.1)]))
+# lambda_guess = len(angle_line) / sum(angle_line)
+# line_guess = [max(count_line),lambda_guess,max(count_line)]
+# line_params, line_cov = spo.curve_fit(exp,angle_line,count_line,line_guess)
 
 
-plt.plot(angle,count_0, label = 'Experimental Data')
-plt.xlabel("Angle (degrees)")
-plt.ylabel("Count rate /s")
-plt.plot(angle,exp(angle,*line_params),color='red',label="Exponential Background Fit-Line")
-plt.plot(angle,count_0-exp(angle,*line_params),color='green',label="Background-Reduced Data")
-plt.legend()
-plt.grid()
+# plt.plot(angle,count_0, label = 'Experimental Data')
+# plt.xlabel("Angle (degrees)")
+# plt.ylabel("Count rate /s")
+# plt.plot(angle,exp(angle,*line_params),color='red',label="Exponential Background Fit-Line")
+# plt.plot(angle,count_0-exp(angle,*line_params),color='green',label="Background-Reduced Data")
+# plt.legend()
+# plt.grid()
+# plt.show()
+
+plt.plot(np.sort(energy),count_0)
 plt.show()
-
-
 
 # plt.plot(angle,count_0,color='blue',label="Experimental Data")
 # plt.plot(angle,exp(angle,*line_params),color='red',label="Exponential Background Fit-Line")

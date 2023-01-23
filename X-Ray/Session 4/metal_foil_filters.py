@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import mplhep as hep
+from scipy.signal import savgol_filter
 
 hep.style.use("ATLAS")
 
@@ -68,10 +69,20 @@ Generate initial plots of transmission
 # Generate initial plots of Count Rate
 fig,ax = plt.subplots(2,2, sharex=True, sharey=True)
 
+Zr_filter = savgol_filter(T_Zr, 21, 3,mode='mirror') 
+Ag_filter = savgol_filter(T_Ag, 21, 3,mode='mirror') 
+Mo_filter = savgol_filter(T_Mo, 21, 3,mode='mirror') 
+Al_filter = savgol_filter(T_Al, 21, 3,mode='mirror') 
+
 ax[0][0].plot(wav,T_Zr,label="Zr Data")
 ax[0][1].plot(wav,T_Ag,label="Ag Data")
 ax[1][0].plot(wav,T_Mo,label="Mo Data")
 ax[1][1].plot(wav,T_Al,label="Al Data")
+
+ax[0][0].plot(wav,Zr_filter,label="Zr Filter",color='red')
+ax[0][1].plot(wav,Zr_filter,label="Ag Filter",color='red')
+ax[1][0].plot(wav,Zr_filter,label="Mo Filter",color='red')
+ax[1][1].plot(wav,Zr_filter,label="Al Filter",color='red')
 
 ax[0][0].set_title("Zr Filter")
 ax[0][1].set_title("Ag Filter")
