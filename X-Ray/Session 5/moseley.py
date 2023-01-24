@@ -4,8 +4,9 @@ import scipy.optimize as spo
 """
 Order = Zr,Ag,Mo,Al
 """
-
+1.09e7
 R_0 = 10973731.6
+print(f"New Percentage Difference: {100*(1.109e7-R_0)/R_0}")
 
 def line(x,m,c):
     return m*x + c
@@ -43,10 +44,6 @@ print(f"Screening 2: {-1*beta_params[1]/beta_params[0]}")
 
 print(f"Sigma Ryd {alpha_cov[0][0]**2}")
 print(f"Sigma Ryd Frac {100*alpha_cov[0][0]**2/alpha_params[0]**2}")
-
-av = 0.5*(alpha_params[0]**2+beta_params[0]**2)
-print(f"Value {av} Diff {100*(av-R_0)/R_0}")
-
 
 plt.scatter(Z,inv_sqrt_wav_alpha,color='red')
 plt.scatter(Z,inv_sqrt_wav_beta,color='blue')

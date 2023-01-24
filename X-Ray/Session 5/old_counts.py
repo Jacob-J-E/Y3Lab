@@ -45,14 +45,14 @@ R_Al = np.array(R_Al[(angle_Al>3) & (angle_Al<15)])
 R_Mo = np.array(R_Mo[(angle_Mo>3) & (angle_Mo<15)])
 R_Zr = np.array(R_Zr[(angle_Zr>3) & (angle_Zr<15)])
 
-
+ 
 # print(len(angle))
 # print(len(angle_Ag))
 
-print(len(wav))
-print(len(R_0))
-print(len(R_Ag))
-print(len(R_Ag/R_0))
+# print(len(wav))
+# print(len(R_0))
+# print(len(R_Ag))
+# print(len(R_Ag/R_0))
 
 
 # fig, ax = plt.subplots(2,2)
@@ -87,8 +87,13 @@ print(len(R_Ag/R_0))
 Z = np.array([40,42,47])
 wav_2 = np.array([71,61,46.5]) * 10e-12
 wav_4 = np.array([142,125,95]) * 10e-12
-grad_2 = (1/np.sqrt(wav_2[1])-1/np.sqrt(wav_2[0]))/(Z[1]-Z[0])
-grad_4 = (1/np.sqrt(wav_4[1])-1/np.sqrt(wav_4[0]))/(Z[1]-Z[0])
+grad_2 = (1/np.sqrt(wav_2[2])-1/np.sqrt(wav_2[0]))/(Z[2]-Z[0])
+grad_4 = (1/np.sqrt(wav_4[2])-1/np.sqrt(wav_4[0]))/(Z[2]-Z[0])
+
+print
+print(f"Grad squared N=2: {grad_2**2}")
+# print(f"Grad squared N=4: {line_4_params[0]**2}")
+
 line_2_guess = [grad_2,1/np.sqrt(wav_2[1])-grad_2*Z[1]]
 line_4_guess = [grad_4,1/np.sqrt(wav_4[1])-grad_4*Z[1]]
 
@@ -98,8 +103,8 @@ line_4_params,cov_4 = spo.curve_fit(line,Z,np.sqrt(1/wav_4),line_4_guess)
 # print(grad_2**2)
 # print(grad_4**2)
 
-print(f"Grad squared N=2: {line_2_params[0]**2/np.sqrt(2)}")
-print(f"Grad squared N=4: {line_4_params[0]**2/np.sqrt(4)}")
+print(f"Grad squared N=2: {line_2_params[0]**2}")
+print(f"Grad squared N=4: {line_4_params[0]**2}")
 
 plt.scatter(Z,1/np.sqrt(wav_2))
 plt.scatter(Z,1/np.sqrt(wav_4))
