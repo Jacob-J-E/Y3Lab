@@ -1,11 +1,12 @@
+import xraydb
 
-from scipy.signal import argrelextrema
-import numpy as np
+ka1 = 0
+kb1 = 0
+for name, line in xraydb.xray_lines('Ag', 'K').items():
+    if name == 'Ka1':
+        ka1 = line.energy
+    elif name == 'Kb1':
+        kb1 = line.energy
 
-# Find local maxima using the argrelextrema function, returns index of local max
-local_maxima = argrelextrema(ARRAY_OF_Y_VALUES, np.greater)
-amplitudes = []
-for x in local_maxima[0]:
-    amplitudes.append(ARRAY_OF_Y_VALUES[x])
 
-amplitudes.sort(reverse=True)
+print(f'{ka1},{kb1}')
