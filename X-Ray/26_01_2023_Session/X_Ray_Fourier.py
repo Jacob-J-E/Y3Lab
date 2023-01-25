@@ -32,7 +32,7 @@ freqs = np.fft.fftfreq(len(wav), d=dx)
 yhat = savgol_filter(fft, 99, 15) 
 
 inv_fft = np.fft.ifft(fft)
-inv_filt = np.fft.ifft(fft)
+inv_filt = np.fft.ifft(yhat)
 
 fig,ax = plt.subplots(1,4)
 ax[0].plot(wav,count_0,label="Real Space")
