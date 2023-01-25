@@ -33,8 +33,13 @@ Position = range(1,Tot + 1)
 
 
 elements = ['Cu', 'Ag', 'Zr', 'Zn', 'Ni', 'Fe', 'Ti', 'Mo']
+Z = np.array([29,47,40,30,28,26,22,42])
+A = np.array([63.5,107.87,91.224,65.38,58.693,55.845,47.867,95.95])
 print(first_run.head())
 fig = plt.figure(1)
+alpha_energies = []
+beta_energies = []
+
 for i,col_name in enumerate(columns):
     energy = first_run['E_1 / keV']
     cu_plate = first_run[col_name]
@@ -71,6 +76,12 @@ for i,col_name in enumerate(columns):
 
     guess_e1 = [amplitudes[0],mu_guess_e1,0.1,amplitudes[1],mu_guess_e2,0.1]
     params_e1, cov_e1 = spo.curve_fit(gaussian,energy_np,cu_plate_np,guess_e1)
+    if params_e1[1] > params_e1[4]:
+        alpha_energies.append(params_e1[1])
+        beta_energies.append(params_e1[4])
+    else:
+        alpha_energies.append(params_e1[4])
+        beta_energies.append(params_e1[1])
 
 
     print(f"mu_e1: {params_e1[1]}")
@@ -87,8 +98,29 @@ for i,col_name in enumerate(columns):
     # plt.plot(energy,gaussian(energy,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]},mu_e2 = {params_e1[4]})')
     # plt.legend()
     # plt.show()
-    ax = fig.add_subplot(Rows,Cols,Position[i])
-    ax.plot(energy,cu_plate, label = f'{elements[i]} Plate') 
-    ax.plot(energy,gaussian(energy,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]:.2f},mu_e2 = {params_e1[4]:.2f})')
-    ax.legend(loc="upper right")
+    plot = False
+    if plot == True:
+        ax = fig.add_subplot(Rows,Cols,Position[i])
+        ax.plot(energy,cu_plate, label = f'{elements[i]} Plate') 
+        ax.plot(energy,gaussian(energy,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]:.2f},mu_e2 = {params_e1[4]:.2f})')
+        ax.legend(loc="upper right")
+# plt.show()
+print(alpha_energies)
+print(beta_energies)
+
+alpha_wav = np.sqrt((6.63e-34 * 3e8) / np.array(alpha_energies))
+beta_wav = np.sqrt((6.63e-34 * 3e8) / np.array(beta_energies))
+
+fig,ax = plt.subplots(1,2,figsize=(6,6))
+ax[0].scatter(Z,alpha_wav,color='red',marker='x',label='Alpha Lines')
+ax[0].scatter(Z,beta_wav,color='blue',marker='x',label="Beta Lines")
+ax[0].set_xlabel("Atomic Number (Z)")
+ax[0].set_ylabel(r"$\sqrt{1/\lambda}$")
+ax[0].grid()
+
+ax[1].scatter(A,alpha_wav,color='red',marker='x',label='Alpha Lines')
+ax[1].scatter(A,beta_wav,color='blue',marker='x',label="Beta Lines")
+ax[1].set_xlabel("Atomic Weight (A)")
+ax[1].set_ylabel(r"$\sqrt{1/\lambda}$")
+ax[1].grid()
 plt.show()
