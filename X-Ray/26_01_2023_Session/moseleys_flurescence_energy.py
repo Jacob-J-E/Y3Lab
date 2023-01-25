@@ -23,10 +23,18 @@ columns.remove('Tin Maybe Plate.1')
 columns.remove('E_1 / keV')
 
 print(columns)
+print("Total number of graphs",len(columns))
+Tot = len(columns)
+Cols = 4
+Rows = Tot // Cols 
+if Tot % Cols != 0:
+    Rows += 1
+Position = range(1,Tot + 1)
+
 
 elements = ['Cu', 'Ag', 'Zr', 'Zn', 'Ni', 'Fe', 'Ti', 'Mo']
 print(first_run.head())
-
+fig = plt.figure(1)
 for i,col_name in enumerate(columns):
     energy = first_run['E_1 / keV']
     cu_plate = first_run[col_name]
@@ -75,7 +83,12 @@ for i,col_name in enumerate(columns):
     print(f"cov mu_e2: {np.sqrt(cov_e1[2][2])}")
     print(f"covsigma_e2: {np.sqrt(cov_e1[3][3])}")
 
-    plt.plot(energy,cu_plate, label = f'{elements[i]} Plate')
-    plt.plot(energy,gaussian(energy,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]},mu_e2 = {params_e1[4]})')
-    plt.legend()
-    plt.show()
+    # plt.plot(energy,cu_plate, label = f'{elements[i]} Plate')
+    # plt.plot(energy,gaussian(energy,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]},mu_e2 = {params_e1[4]})')
+    # plt.legend()
+    # plt.show()
+    ax = fig.add_subplot(Rows,Cols,Position[i])
+    ax.plot(energy,cu_plate, label = f'{elements[i]} Plate') 
+    ax.plot(energy,gaussian(energy,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]:.2f},mu_e2 = {params_e1[4]:.2f})')
+    ax.legend(loc="upper right")
+plt.show()
