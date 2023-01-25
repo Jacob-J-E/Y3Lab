@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 import mplhep as hep
 import seaborn as sns
 import scipy.optimize as spo
-hep.style.use("ATLAS")
 from scipy.signal import savgol_filter
 from scipy.signal import argrelextrema
+hep.style.use("ATLAS")
 
 
 data = pd.read_csv(r"X-Ray\Data\16-01-2023\NaCl Full Data.csv",skiprows=0)
@@ -17,52 +17,22 @@ wav = data['wav / pm']
 energy = data['E / keV']
 count_0 = data['R_0 / 1/s']
 
-
 wav = wav * 1e-12 
 
 angle_max = 5.5
 wav = wav[angle>angle_max]
 count_0 = count_0[angle>angle_max]
 
-# fft2 = np.fft.fft(count_0)
 fft = np.fft.fft(count_0)
 fft_copy = fft
-fft = np.fft.fftshift(fft)
+# fft = np.fft.fftshift(fft)
 dx = np.diff(wav)[0]
 freqs = np.fft.fftfreq(len(wav), d=dx)
 
-
-yhat = savgol_filter(fft, 15, 7) 
-
-
+yhat = savgol_filter(fft, 99, 15) 
 
 inv_fft = np.fft.ifft(fft)
-# inv_dx = np.diff(freqs)[0]
-
-
-inv_filt = np.fft.ifft(yhat)
-# inv_dx = np.diff(freqs)[0]
-
-
-local_maxima = argrelextrema(yhat, np.greater)
-amplitudes = []
-x= []
-for i in local_maxima[0]:
-    amplitudes.append(yhat[i])
-    x.append(freqs[i])
-x = np.real(np.array(x))
-inv_x = np.array(2*np.pi / x)
-
-
-
-
-
-
-
-
-
-
-
+inv_filt = np.fft.ifft(fft)
 
 fig,ax = plt.subplots(1,4)
 ax[0].plot(wav,count_0,label="Real Space")
@@ -78,12 +48,27 @@ ax[2].legend(loc="upper right")
 ax[0].set_xlabel("Wavelength (m)")
 ax[1].set_xlabel("Wavenumber (m^-1)")
 ax[2].set_xlabel("Wavenumber (m^-1)")
-ax[3].set_xlim(min(inv_x),max(inv_x))
+
+
+ax[3].set_xlabel("Wavelength (nm)")
+plt.show()
+
+# ax[3].set_xlim(min(inv_x),max(inv_x))
 
 # for x in x:
 #     ax[1].axvline(x, color = 'black')
 # for inv_x in inv_x:   
 #     ax[3].axvline(inv_x, color = 'black')
 
-ax[3].set_xlabel("Wavelength (nm)")
-plt.show()
+# local_maxima = argrelextrema(yhat, np.greater)
+# amplitudes = []
+# x= []
+# for i in local_maxima[0]:
+#     amplitudes.append(yhat[i])
+#     x.append(freqs[i])
+# x = np.real(np.array(x))
+# inv_x = np.array(2*np.pi / x)
+
+
+
+
