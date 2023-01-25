@@ -5,6 +5,7 @@ import pandas as pd
 import math
 from scipy.signal import argrelextrema
 import xraydb
+R_0 = 10973731.6
 
 def straight_line(x,m,c):
     return m * x + c
@@ -29,7 +30,7 @@ Z = np.array([29,47,40,30,28,26,22,42])
 A = np.array([63.5,107.87,91.224,65.38,58.693,55.845,47.867,95.95])
 print(first_run.head())
 
-plot = True
+plot = False
 if plot == True:
     Tot = len(columns)
     Cols = 4
@@ -98,8 +99,8 @@ for i,col_name in enumerate(columns):
         ax.legend(loc="upper right")
         
 
-alpha_plot = np.sqrt((6.63e-34 * 3e8) * np.array(alpha_energies))
-beta_plot = np.sqrt((6.63e-34 * 3e8) * np.array(beta_energies))
+alpha_plot = np.sqrt(np.array(alpha_energies)*1e3*1.6e-19 / (6.63e-34 * 3e8))
+beta_plot = np.sqrt(np.array(beta_energies)*1e3*1.6e-19 / (6.63e-34 * 3e8))
 
 fig,ax = plt.subplots(1,2,figsize=(6,6))
 ax[0].scatter(Z,alpha_plot,color='red',marker='x',label='Alpha Lines')
@@ -152,4 +153,23 @@ ax[0].plot(Z,straight_line(Z,*alpha_30_fit),color='black')
 ax[0].plot(Z,straight_line(Z,*beta_30_fit),color='black')
 
 
+print(f"Alpha 40 Fit: R = ({alpha_40_fit[0]**2:.5g} +/- {alpha_40_cov[0][0]}) m^(-1)\
+      \n sigma_k = ({alpha_40_fit[1]/alpha_40_fit[0]:.3f} +/- add) \n")
+
+print(f"Beta 40 Fit: R = ({beta_40_fit[0]**2:.5g} +/- {beta_40_cov[0][0]}) m^(-1)\
+      \n sigma_k = ({beta_40_fit[1]/beta_40_fit[0]:.3f} +/-  add) \n")
+
+print(f"Alpha 30 Fit: R = ({alpha_30_fit[0]**2:.5g} +/- {alpha_30_cov[0][0]}) m^(-1)\
+      \n sigma_k = ({alpha_30_fit[1]/alpha_30_fit[0]:.3f} +/-  add) \n")
+
+print(f"Beta 30 Fit: R = ({beta_30_fit[0]**2:.5g} +/- {beta_30_cov[0][0]}) m^(-1)\
+      \n sigma_k = ({beta_30_fit[1]/beta_30_fit[0]:.3f} +/-  add) \n")
+
+print(f"Percentage Differnce alpha 40: {100*(R_0 - alpha_40_fit[0]**2)/R_0}")
+print(f"Percentage Differnce alpha 40: {100*(R_0 - beta_40_fit[0]**2)/R_0}")
+print(f"Percentage Differnce alpha 40: {100*(R_0 - alpha_30_fit[0]**2)/R_0}")
+print(f"Percentage Differnce alpha 40: {100*(R_0 - beta_30_fit[0]**2)/R_0}")
+
 plt.show()
+
+
