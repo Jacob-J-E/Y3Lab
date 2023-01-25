@@ -28,22 +28,37 @@ mu_guess = 8.04
 cu_plate_np = np.array(cu_plate.tolist())
 energy_np = np.array(energy.tolist())
 # Find local maxima using the argrelextrema function
-local_maxima = argrelextrema(cu_plate_np, np.greater)
+local_maxima = argrelextrema(cu_plate.to_numpy(), np.greater)
 
-print(cu_plate[local_maxima[0]][0])
-print(cu_plate[local_maxima[0]][1])
+amplitudes = []
+for x in local_maxima[0]:
+    amplitudes.append(cu_plate_np[x])
 
-guess = [100,mu_guess,0.1]
-params, cov = spo.curve_fit(gaussian,energy_np,cu_plate_np,guess)
+amplitudes.sort(reverse=True)
 
 
-print(f"mu: {params[0]}")
-print(f"sigma: {params[1]}")
+guess_e1 = [amplitudes[0],mu_guess,0.1]
+params_e1, cov_e1 = spo.curve_fit(gaussian,energy_np,cu_plate_np,guess_e1)
 
-print(f"cov mu: {np.sqrt(cov[0][0])}")
-print(f"covsigma: {np.sqrt(cov[1][1])}")
+
+print(f"mu_e1: {params_e1[0]}")
+print(f"sigma_e1: {params_e1[1]}")
+
+print(f"cov mu_e1: {np.sqrt(cov_e1[0][0])}")
+print(f"covsigma_e1: {np.sqrt(cov_e1[1][1])}")
+
+guess_e2 = [amplitudes[1],mu_guess,0.1]
+params_e2, cov_e2 = spo.curve_fit(gaussian,energy_np,cu_plate_np,guess_e2)
+
+
+print(f"mu_e2: {params_e2[0]}")
+print(f"sigma_e2: {params_e2[1]}")
+
+print(f"cov mu_e2: {np.sqrt(cov_e2[0][0])}")
+print(f"covsigma_e2: {np.sqrt(cov_e2[1][1])}")
 
 plt.plot(energy,cu_plate, label = 'Cu Plate')
-plt.plot(energy,gaussian(energy,*params), label = 'Gaussian fit')
+plt.plot(energy,gaussian(energy,*params_e1), label = 'Gaussian fit E1')
+plt.plot(energy,gaussian(energy,*params_e2), label = 'Gaussian fit E2')
 plt.legend()
 plt.show()

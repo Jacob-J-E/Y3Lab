@@ -1,0 +1,2 @@
+2023-01-25:12:39:51,672 INFO     [psi4.driver.task_planner:283] PLANNING Atomic:  keywords={'DFT_RADIAL_POINTS': 50, 'DFT_SPHERICAL_POINTS': 110, 'SCF_TYPE': 'PK', 'function_kwargs': {}}
+2023-01-25:12:39:51,681 INFO     [psi4.driver.driver:524] Compute energy(): method=b3lyp, basis=sto-3g, molecule=default, nre=0.0
