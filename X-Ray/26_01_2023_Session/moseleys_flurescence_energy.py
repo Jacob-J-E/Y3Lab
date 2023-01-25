@@ -166,9 +166,9 @@ print(f"Beta 30 Fit: R = ({beta_30_fit[0]**2:.5g} +/- {beta_30_cov[0][0]}) m^(-1
       \n sigma_k = ({beta_30_fit[1]/beta_30_fit[0]:.3f} +/-  add) \n")
 
 print(f"Percentage Differnce alpha 40: {100*(R_0 - alpha_40_fit[0]**2)/R_0}")
-print(f"Percentage Differnce alpha 40: {100*(R_0 - beta_40_fit[0]**2)/R_0}")
-print(f"Percentage Differnce alpha 40: {100*(R_0 - alpha_30_fit[0]**2)/R_0}")
-print(f"Percentage Differnce alpha 40: {100*(R_0 - beta_30_fit[0]**2)/R_0}")
+print(f"Percentage Differnce beta 40: {100*(R_0 - beta_40_fit[0]**2)/R_0}")
+print(f"Percentage Differnce alpha 30: {100*(R_0 - alpha_30_fit[0]**2)/R_0}")
+print(f"Percentage Differnce beta 30: {100*(R_0 - beta_30_fit[0]**2)/R_0}")
 
 plt.show()
 
