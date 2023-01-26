@@ -30,7 +30,7 @@ Z = np.array([29,47,40,30,28,26,22,42])
 A = np.array([63.5,107.87,91.224,65.38,58.693,55.845,47.867,95.95])
 print(first_run.head())
 
-plot = False
+plot = True
 if plot == True:
     Tot = len(columns)
     Cols = 4
@@ -97,20 +97,20 @@ for i,col_name in enumerate(columns):
         ax.plot(energy,cu_plate, label = f'{elements[i]} Plate') 
         ax.plot(energy,gaussian(energy,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]:.2f},mu_e2 = {params_e1[4]:.2f})')
         ax.legend(loc="upper right")
-        
+
 
 alpha_plot = np.sqrt(np.array(alpha_energies)*1e3*1.6e-19 / (6.63e-34 * 3e8))
 beta_plot = np.sqrt(np.array(beta_energies)*1e3*1.6e-19 / (6.63e-34 * 3e8))
 
 fig,ax = plt.subplots(1,2,figsize=(6,6))
-ax[0].scatter(Z,alpha_plot,color='red',marker='x',label='Alpha Lines')
-ax[0].scatter(Z,beta_plot,color='blue',marker='x',label="Beta Lines")
+ax[0].scatter(Z,alpha_plot,color='black',marker='x',label=r'$K_ \alpha$')
+ax[0].scatter(Z,beta_plot,color='grey',marker='x',label=r'$K_{\beta}$')
 ax[0].set_xlabel("Atomic Number (Z)")
 ax[0].set_ylabel(r"$\sqrt{1/\lambda}$")
 ax[0].grid()
 
-ax[1].scatter(A,alpha_plot,color='red',marker='x',label='Alpha Lines')
-ax[1].scatter(A,beta_plot,color='blue',marker='x',label="Beta Lines")
+ax[1].scatter(A,alpha_plot,color='black',marker='x',label='Alpha Lines')
+ax[1].scatter(A,beta_plot,color='grey',marker='x',label="Beta Lines")
 ax[1].set_xlabel("Atomic Weight (A)")
 ax[1].set_ylabel(r"$\sqrt{1/\lambda}$")
 ax[1].grid()
@@ -146,30 +146,34 @@ beta_30_guess = [grad_beta_30_guess,c_beta_30_guess]
 alpha_30_fit,alpha_30_cov = spo.curve_fit(straight_line,Z_30,alpha_30,alpha_30_guess)
 beta_30_fit,beta_30_cov = spo.curve_fit(straight_line,Z_30,beta_30,beta_30_guess)
 
-ax[0].plot(Z,straight_line(Z,*alpha_40_fit),color='black')
-ax[0].plot(Z,straight_line(Z,*beta_40_fit),color='black')
+ax[0].plot(Z_40,straight_line(Z_40,*alpha_40_fit),color='green',label=r"Z>40 $K_{\alpha}$ Fit line")
+ax[0].plot(Z_40,straight_line(Z_40,*beta_40_fit),color='blue',label=r"Z>40 $K_{\beta}$ Fit line")
 
-ax[0].plot(Z,straight_line(Z,*alpha_30_fit),color='black')
-ax[0].plot(Z,straight_line(Z,*beta_30_fit),color='black')
+ax[0].plot(Z_30,straight_line(Z_30,*alpha_30_fit),color='red',label=r"Z<40 $K_{\alpha}$ Fit line",linestyle='-')
+ax[0].plot(Z_30,straight_line(Z_30,*beta_30_fit),color='orange',label=r"Z<40 $K_{\alpha}$ Fit line",linestyle='-')
 
+ax[0].set_title("Atomic number against inverse root wavelength")
+ax[1].set_title("Atomic Mass against inverse root wavelength")
 
-print(f"Alpha 40 Fit: R = ({alpha_40_fit[0]**2:.5g} +/- {alpha_40_cov[0][0]}) m^(-1)\
+print(f"Alpha 40 Fit: R = ({(4/3)*alpha_40_fit[0]**2:.5g} +/- {alpha_40_cov[0][0]}) m^(-1)\
       \n sigma_k = ({alpha_40_fit[1]/alpha_40_fit[0]:.3f} +/- add) \n")
 
-print(f"Beta 40 Fit: R = ({beta_40_fit[0]**2:.5g} +/- {beta_40_cov[0][0]}) m^(-1)\
+print(f"Beta 40 Fit: R = ({(9/8)*beta_40_fit[0]**2:.5g} +/- {beta_40_cov[0][0]}) m^(-1)\
       \n sigma_k = ({beta_40_fit[1]/beta_40_fit[0]:.3f} +/-  add) \n")
 
-print(f"Alpha 30 Fit: R = ({alpha_30_fit[0]**2:.5g} +/- {alpha_30_cov[0][0]}) m^(-1)\
+print(f"Alpha 30 Fit: R = ({(4/3)*alpha_30_fit[0]**2:.5g} +/- {alpha_30_cov[0][0]}) m^(-1)\
       \n sigma_k = ({alpha_30_fit[1]/alpha_30_fit[0]:.3f} +/-  add) \n")
 
-print(f"Beta 30 Fit: R = ({beta_30_fit[0]**2:.5g} +/- {beta_30_cov[0][0]}) m^(-1)\
+print(f"Beta 30 Fit: R = ({(9/8)*beta_30_fit[0]**2:.5g} +/- {beta_30_cov[0][0]}) m^(-1)\
       \n sigma_k = ({beta_30_fit[1]/beta_30_fit[0]:.3f} +/-  add) \n")
 
-print(f"Percentage Differnce alpha 40: {100*(R_0 - alpha_40_fit[0]**2)/R_0}")
-print(f"Percentage Differnce beta 40: {100*(R_0 - beta_40_fit[0]**2)/R_0}")
-print(f"Percentage Differnce alpha 30: {100*(R_0 - alpha_30_fit[0]**2)/R_0}")
-print(f"Percentage Differnce beta 30: {100*(R_0 - beta_30_fit[0]**2)/R_0}")
+print(f"Percentage Differnce alpha 40: {100*(R_0 - (4/3)*alpha_40_fit[0]**2)/R_0}")
+print(f"Percentage Differnce beta 40: {100*(R_0 - (4/3)*beta_40_fit[0]**2)/R_0}")
+print(f"Percentage Differnce alpha 30: {100*(R_0 - (4/3)*alpha_30_fit[0]**2)/R_0}")
+print(f"Percentage Differnce beta 30: {100*(R_0 - (4/3)*beta_30_fit[0]**2)/R_0}")
 
+ax[0].legend(loc="lower right")
+ax[1].legend(loc="lower right")
 plt.show()
 
 
