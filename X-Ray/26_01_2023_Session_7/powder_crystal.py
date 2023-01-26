@@ -2,33 +2,38 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import mplhep as hep
-import scipy.optimize as spo
+import scipy.signal as ssp
+from scipy.signal import argrelextrema
 hep.style.use("ATLAS")
 
-def exp(x,A,m,c):
-    return A * np.exp(-1 * m * x) + c
+powder_data = pd.read_csv(r"X-Ray\Data\26-01-2023\NaCl_powder.csv",skiprows=0)
+
+angle = powder_data['angle']
+wav = powder_data['wav']
+energy = powder_data['E / keV']
+no_filter_NaCl = np.array(powder_data['R_0 / 1/s'])
+with_filter_NaCl = powder_data['R_1 / 1/s']
+filter_transmission = powder_data['T_1 / %']
+
+no_filter_NaCl_savgol = ssp.savgol_filter(no_filter_NaCl,11,3)
+with_filter_NaCl_savgol = ssp.savgol_filter(with_filter_NaCl,11,3)
 
 
-data = pd.read_csv(r"X-Ray\Data\16-01-2023\NaCl Full Data.csv",skiprows=0)
-print(data)
-
-
-angle = data['angle']
-wav = data['wav / pm']
-energy = data['E / keV']
-count_0 = data['R_0 / 1/s']
 
 A = 564.02e-12
 # ENERGY1 = 17.443e3*1.6e-19
 # ENERGY2 = 19.651e3*1.6e-19
 ENERGY1 = 17330*1.6e-19
 ENERGY2 = 19549*1.6e-19
+wav_1 = (6.63e-34 * 3e8) / ENERGY1
+wav_2 = (6.63e-34 * 3e8) / ENERGY2
+
 
 def calculate_angle(h,k,l,energy):
     wavelength = (6.63e-34 * 3e8)/energy
     sin_angle = np.sqrt((wavelength**2/(4*A**2))*(h**2+k**2+l**2))
     angle = np.arcsin(sin_angle)*180/np.pi
-    return energy
+    return angle - 2
 
 primitive = set()
 bcc = set()
@@ -56,8 +61,8 @@ def hcp_check(h,k,l):
         return False
     return True
 
-range_max = range(0,10)
-range_one = range(0,1)
+range_max = range(0,6)
+range_one = range(0,6)
 for h in range_max:
     for k in range_one:
         for l in range_one:
@@ -101,43 +106,52 @@ hcp = [i for i in hcp if i <= angle_upper_threshold]
 #     else:
 #         plt.axvline(x, color = 'b', label = 'bcc lattice')
 
+
+
+
+fig,ax = plt.subplots(2,1) 
+
 for idx,x in enumerate(fcc_even):
     if not(idx == len(fcc_even)-1):
-        plt.axvline(x, color = 'black')
+        ax[1].axvline(x, color = 'black')
     #else:
-        plt.axvline(x, color = 'black')
-plt.plot([0,0],[0,0],color='black',label = 'Even FCC Lattice')
+        ax[1].axvline(x, color = 'black')
 
 
-# angle_line = np.concatenate((angle[(angle > 7.9) & (angle < 12.1)],angle[(angle > 4.4) & (angle < 6.1)]))
-# count_line = np.concatenate((count_0[(angle > 7.9) & (angle < 12.1)],count_0[(angle > 4.4) & (angle < 6.1)]))
-# lambda_guess = len(angle_line) / sum(angle_line)
-# line_guess = [max(count_line),lambda_guess,max(count_line)]
-# line_params, line_cov = spo.curve_fit(exp,angle_line,count_line,line_guess)
 
+ax[0].plot(angle,no_filter_NaCl,label="Unfiltered NaCl Power")
+ax[0].plot(angle,with_filter_NaCl,label="Zr Filter NaCl Power")
+ax[1].plot(angle,no_filter_NaCl_savgol,label="Savgol Unfiltered NaCl Power")
+ax[1].plot(angle,with_filter_NaCl_savgol,label="Savgol Zr Filter NaCl Power")
 
-# plt.plot(angle,count_0, label = 'Experimental Data')
-# plt.xlabel("Angle (degrees)")
-# plt.ylabel("Count rate /s")
-# plt.plot(angle,exp(angle,*line_params),color='red',label="Exponential Background Fit-Line")
-# plt.plot(angle,count_0-exp(angle,*line_params),color='green',label="Background-Reduced Data")
-# plt.legend()
-# plt.grid()
-# plt.show()
+for ax in ax:
+    ax.set_xlabel("Angle (degrees)")
+    ax.set_ylabel(r"Count Rate $(s^{-1})$")
+    ax.legend(loc="upper right")
+    ax.grid()
 
-plt.plot(np.sort(energy),count_0)
 plt.show()
-
-# plt.plot(angle,count_0,color='blue',label="Experimental Data")
-# plt.plot(angle,exp(angle,*line_params),color='red',label="Exponential Background Fit-Line")
-# plt.plot(angle,count_0-exp(angle,*line_params),color='black',label="Background-Reduced Data")
-# plt.grid()
-# plt.show()
+no_filter_NaCl_savgol_splice = no_filter_NaCl_savgol[angle<20]
+with_filter_NaCl_savgol_splice = with_filter_NaCl_savgol[angle<20]
 
 
+# Filter is doing some strange things here. Consider making the filter more coarse, or just using the OG datasets.
+local_maxima = argrelextrema(no_filter_NaCl_savgol_splice, np.greater)
+amplitudes = []
+peak_angles_no_filter= []
+for i in local_maxima[0]:
+    amplitudes.append(no_filter_NaCl_savgol_splice[i])
+    peak_angles_no_filter.append(angle[i])
 
-# fig, ax = plt.subplots(figsize=[8,5])
+local_maxima = argrelextrema(with_filter_NaCl_savgol_splice, np.greater)
+amplitudes = []
+peak_angles_with_filter= []
+for i in local_maxima[0]:
+    amplitudes.append(with_filter_NaCl_savgol_splice[i])
+    peak_angles_with_filter.append(angle[i])
 
-# ax.plot(angle,count_0,color='blue',label="Experimental Data")
+print(peak_angles_no_filter)
+print(peak_angles_with_filter)
 
-# axins = zoomed_ins
+
+# Need to classify the order of each peak to calculate a_0 ?
