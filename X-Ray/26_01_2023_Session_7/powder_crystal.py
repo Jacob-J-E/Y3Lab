@@ -6,6 +6,10 @@ import scipy.signal as ssp
 from scipy.signal import argrelextrema
 hep.style.use("ATLAS")
 
+def exp(x,A,m,c):
+    return A * np.exp(-1 * m * x) + c
+
+
 powder_data = pd.read_csv(r"X-Ray\Data\26-01-2023\NaCl_powder.csv",skiprows=0)
 
 angle = powder_data['angle']
@@ -119,8 +123,27 @@ for idx,x in enumerate(fcc_even):
 
 
 
+# Line Data
+# angle_line = np.concatenate((angle[(angle > 7.9) & (angle < 12.1)],angle[(angle > 4.4) & (angle < 6.1)]))
+# count_line = np.concatenate((count_0[(angle > 7.9) & (angle < 12.1)],count_0[(angle > 4.4) & (angle < 6.1)]))
+# print(min(angle_line),max(angle_line))
+import scipy.optimize as spo
+lambda_guess = len(angle) / sum(angle)
+line_guess = [max(no_filter_NaCl),lambda_guess,max(no_filter_NaCl)]
+line_params, line_cov = spo.curve_fit(exp,angle,no_filter_NaCl,line_guess)
+
+angle_filter = angle[angle < 20]
+filter_lambda_guess = len(angle_filter) / sum(angle_filter)
+filter_line_guess = [max(with_filter_NaCl[angle < 20]),filter_lambda_guess,max(with_filter_NaCl[angle < 20])]
+print(filter_line_guess)
+# filter_line_params, filter_line_cov = spo.curve_fit(exp,angle_filter,with_filter_NaCl[angle < 20],filter_line_guess)
+
 ax[0].plot(angle,no_filter_NaCl,label="Unfiltered NaCl Power")
 ax[0].plot(angle,with_filter_NaCl,label="Zr Filter NaCl Power")
+ax[0].plot(angle,exp(angle,*line_params),label="No Filter Exponential Background Fit")
+ax[0].plot(angle,with_filter_NaCl-exp(angle,*line_params),label="No Filter Background Reduced Data")
+# ax[0].plot(angle,exp(angle,*filter_line_guess),label="With Filter Exponential Background Fit")
+# ax[0].plot(angle,with_filter_NaCl-exp(angle,*filter_line_guess),label="With Filter Background Reduced Data")
 ax[1].plot(angle,no_filter_NaCl_savgol,label="Savgol Unfiltered NaCl Power")
 ax[1].plot(angle,with_filter_NaCl_savgol,label="Savgol Zr Filter NaCl Power")
 
