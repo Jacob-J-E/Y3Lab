@@ -28,7 +28,7 @@ def calculate_angle(h,k,l,energy):
     wavelength = (6.63e-34 * 3e8)/energy
     sin_angle = np.sqrt((wavelength**2/(4*A**2))*(h**2+k**2+l**2))
     angle = np.arcsin(sin_angle)*180/np.pi
-    return energy
+    return angle
 
 primitive = set()
 bcc = set()
@@ -57,7 +57,7 @@ def hcp_check(h,k,l):
     return True
 
 range_max = range(0,10)
-range_one = range(0,1)
+range_one = range(0,10)
 for h in range_max:
     for k in range_one:
         for l in range_one:
@@ -106,7 +106,7 @@ for idx,x in enumerate(fcc_even):
         plt.axvline(x, color = 'black')
     #else:
         plt.axvline(x, color = 'black')
-plt.plot([0,0],[0,0],color='black',label = 'Even FCC Lattice')
+#plt.plot([0,0],[0,0],color='black',label = 'Even FCC Lattice')
 
 
 # angle_line = np.concatenate((angle[(angle > 7.9) & (angle < 12.1)],angle[(angle > 4.4) & (angle < 6.1)]))
@@ -116,17 +116,17 @@ plt.plot([0,0],[0,0],color='black',label = 'Even FCC Lattice')
 # line_params, line_cov = spo.curve_fit(exp,angle_line,count_line,line_guess)
 
 
-# plt.plot(angle,count_0, label = 'Experimental Data')
-# plt.xlabel("Angle (degrees)")
-# plt.ylabel("Count rate /s")
-# plt.plot(angle,exp(angle,*line_params),color='red',label="Exponential Background Fit-Line")
-# plt.plot(angle,count_0-exp(angle,*line_params),color='green',label="Background-Reduced Data")
-# plt.legend()
-# plt.grid()
-# plt.show()
-
-plt.plot(np.sort(energy),count_0)
+plt.plot(angle,count_0, label = 'Experimental Data')
+plt.xlabel("Angle (degrees)")
+plt.ylabel("Count rate /s")
+#plt.plot(angle,exp(angle,*line_params),color='red',label="Exponential Background Fit-Line")
+#plt.plot(angle,count_0-exp(angle,*line_params),color='green',label="Background-Reduced Data")
+plt.legend()
+plt.grid()
 plt.show()
+
+# plt.plot(np.sort(energy),count_0)
+# plt.show()
 
 # plt.plot(angle,count_0,color='blue',label="Experimental Data")
 # plt.plot(angle,exp(angle,*line_params),color='red',label="Exponential Background Fit-Line")
