@@ -106,7 +106,11 @@ for idx,x in enumerate(fcc_even):
         plt.axvline(x, color = 'black')
     #else:
         plt.axvline(x, color = 'black')
+<<<<<<< HEAD:X-Ray/Session 3/NaCl_miller.py
 #plt.plot([0,0],[0,0],color='black',label = 'Even FCC Lattice')
+=======
+# plt.plot([0,0],[0,0],color='black',label = 'Even FCC Lattice')
+>>>>>>> 35266150294da929a8243341d3aa87f37e4ecace:X-Ray/17_01_2023_Session_3/NaCl_miller.py
 
 
 # angle_line = np.concatenate((angle[(angle > 7.9) & (angle < 12.1)],angle[(angle > 4.4) & (angle < 6.1)]))
