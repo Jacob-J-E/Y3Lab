@@ -15,7 +15,7 @@ sin_angle = np.sin(angle * np.pi / 180)
 A_mesh, E_mesh = np.meshgrid(sin_angle,energy)
 Z = E_mesh * sin_angle
 
-fig, ax = plt.subplots(1,3)
+fig, ax = plt.subplots(1,2)
 
 ax[0].contour(Z,extent=(min(angle),max(angle),min(energy),max(energy)),label="Bragg Contour")
 ax[1].contourf(Z,extent=(min(angle),max(angle),min(energy),max(energy)),label=r"m^{th} Bragg Order Ranges")
