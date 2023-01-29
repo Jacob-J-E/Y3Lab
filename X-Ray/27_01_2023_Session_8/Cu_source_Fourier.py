@@ -8,12 +8,19 @@ hep.style.use("ATLAS")
 Fourier Cleaning Algorithm
 """
 
+# Load in data
 data = pd.read_csv(r"X-Ray\Data\28-01-2023\Cu No Filter Energy-Angle run.csv",skiprows=0)
 angle = data['Angle']
 counts = data['Counts']
 sin_angle = np.sin(angle * np.pi / 180)
 
 def fourier_clean(x_data,y_data,threshold):
+    """
+    FT algorithm to clean data.
+    Takes FFT of y-data, sets high freq data to 0, takes inverse FFT
+    Input y-data, x-data, threshold.
+    """
+    
     size = len(x_data)
     fft = np.fft.fft(y_data,size)
     abs_fft = fft * np.conj(fft)/size
@@ -29,17 +36,17 @@ def fourier_clean(x_data,y_data,threshold):
 """
 Test FT cleaning algorithm on Cu energy-angle NaCl Power data
 """
-# filtered_count = fourier_clean(angle,counts,10)
-# fig, ax = plt.subplots(1,3)
-# ax[1].sharey(ax[0])
-# ax[0].plot(sin_angle,counts)
-# ax[1].plot(sin_angle,filtered_count)
-# ax[2].plot(sin_angle,np.abs(filtered_count-counts))
-# ax[0].set_ylabel(r"Counts $(s^{-1})$")
-# for ax in ax:
-#     ax.set_xlabel(r"$\sin(\theta)$ (No Units)")
-# plt.tight_layout()
-# plt.show()
+filtered_count = fourier_clean(angle,counts,10)
+fig, ax = plt.subplots(1,3)
+ax[1].sharey(ax[0])
+ax[0].plot(sin_angle,counts)
+ax[1].plot(sin_angle,filtered_count)
+ax[2].plot(sin_angle,np.abs(filtered_count-counts))
+ax[0].set_ylabel(r"Counts $(s^{-1})$")
+for ax in ax:
+    ax.set_xlabel(r"$\sin(\theta)$ (No Units)")
+plt.tight_layout()
+plt.show()
 
 
 
