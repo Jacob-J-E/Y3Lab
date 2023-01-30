@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from scipy.signal import argrelextrema
+from skimage.feature import peak_local_max
 
 def fourier_clean_2D(data,threshold):
     """
@@ -29,19 +31,68 @@ data.replace("#NAME?",0,inplace=True)
 data = np.array(data,dtype=float)
 data = np.rot90(data)
 
-print(data)
-print(data[0])
-print(data[1])
-print(data[2])
-print(data[2])
-print("AAA",data[2][4])
+# print(data)
+# print(data[0])
+# print(data[1])
+# print(data[2])
+# print(data[2])
+# print("AAA",data[2][4])
 
 
 
-print(np.shape(data))
-print(np.shape(data[0]))
-print(np.shape(data[1]))
+# print(np.shape(data))
+# print(np.shape(data[0]))
+# print(np.shape(data[1]))
 
+
+# Maxima finder
+
+# xy = peak_local_max(data, min_distance=1,threshold_abs=3)
+# print("splice",xy[1][0])
+
+# x_val = []
+# y_val = []
+# for i in range(0,len(xy)):
+#     x_val.append(xy[i][0])
+#     y_val.append(xy[i][1])
+import numpy as np
+from scipy.ndimage.filters import maximum_filter
+from scipy.ndimage.morphology import generate_binary_structure, binary_erosion
+import matplotlib.pyplot as pp
+
+
+# def detect_peaks(image):
+#     """
+#     Takes an image and detect the peaks usingthe local maximum filter.
+#     Returns a boolean mask of the peaks (i.e. 1 when
+#     the pixel's value is the neighborhood maximum, 0 otherwise)
+#     """
+
+#     # define an 8-connected neighborhood
+#     neighborhood = generate_binary_structure(2,2)
+
+#     #apply the local maximum filter; all pixel of maximal value 
+#     #in their neighborhood are set to 1
+#     local_max = maximum_filter(image, footprint=neighborhood)==image
+#     #local_max is a mask that contains the peaks we are 
+#     #looking for, but also the background.
+#     #In order to isolate the peaks we must remove the background from the mask.
+
+#     #we create the mask of the background
+#     background = (image==0)
+
+#     #a little technicality: we must erode the background in order to 
+#     #successfully subtract it form local_max, otherwise a line will 
+#     #appear along the background border (artifact of the local maximum filter)
+#     eroded_background = binary_erosion(background, structure=neighborhood, border_value=1)
+
+#     #we obtain the final mask, containing only peaks, 
+#     #by removing the background from the local_max mask (xor operation)
+#     detected_peaks = local_max ^ eroded_background
+
+#     return detected_peaks
+# peaks = detect_peaks(data)
+# print(peaks)
 
 
 # Generate data for theoretical 2D plot.
@@ -63,7 +114,9 @@ _min, _max = np.amin(combined_data), np.amax(combined_data)
 
 # Plot data.
 fig,ax = plt.subplots(1,3)
-data_2D = ax[0].imshow(data,extent=(0,90,0,150),aspect=0.5, vmin = _min, vmax = _max)
+# data_2D = ax[0].imshow(data,extent=(0,90,0,150),aspect=0.5, vmin = _min, vmax = _max)
+data_2D = ax[0].imshow(data,aspect=0.5, vmin = _min, vmax = _max)
+# ax[0].scatter(x_val,y_val,color='red')
 data_fft = ax[1].imshow(data_clean,extent=(0,90,0,150),aspect=0.5, vmin = _min, vmax = _max)
 data_differnce = ax[2].imshow(data-data_clean,extent=(0,90,0,150),aspect=0.5, vmin = _min, vmax = _max)
 ax[0].set_title("2D Energy-Angle Data")
