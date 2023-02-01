@@ -103,7 +103,7 @@ A_mesh, E_mesh = np.meshgrid(sin_angle,energy)
 Z = E_mesh * sin_angle
 
 # Fourier Transform
-data_clean = fourier_clean_2D(data,threshold=1e4)
+data_clean = fourier_clean_2D(data,threshold=0.8e4)
 # dx = np.diff(data)[0]
 # freqs = np.fft.fftfreq(len(data), d=dx)
 
