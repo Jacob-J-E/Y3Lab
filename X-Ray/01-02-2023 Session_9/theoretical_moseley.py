@@ -150,7 +150,10 @@ for i,col_name in enumerate(columns):
         ax.plot(energy,gaussian(energy,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]:.2f},mu_e2 = {params_e1[4]:.2f})')
         ax.legend(loc="upper right")
 
-
+print("Alpha energies: ",np.array(alpha_energies))
+print("Beta energies: ",np.array(beta_energies))
+print("Elements ",elements)
+print("Z Number ",Z)
 alpha_plot = np.sqrt(np.array(alpha_energies)*1e3*1.6e-19 / (6.63e-34 * 3e8))
 beta_plot = np.sqrt(np.array(beta_energies)*1e3*1.6e-19 / (6.63e-34 * 3e8))
 if plot == True:

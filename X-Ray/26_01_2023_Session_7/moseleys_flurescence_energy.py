@@ -180,13 +180,13 @@ if plot == True:
 
 
 def ryd_intercept(x,y):
-    c = y - (3/4) * np.sqrt(R_0)*x
+    c = y - np.sqrt(R_0)*x
     return c
 
 def energy_intercept(E,Z):
     return Z - np.sqrt(E/13.6)
 
-calculated_intercepts = np.array(ryd_intercept(Z_40,alpha_40))
+calculated_intercepts = np.array(ryd_intercept(Z,alpha_plot))
 print(f"Screening Constants assuming Rydburg gradient {calculated_intercepts/np.sqrt(R_0)}")
 
 fig,ax = plt.subplots(1,2,figsize=(6,6))
