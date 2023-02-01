@@ -77,13 +77,12 @@ for i,col_name in enumerate(columns):
 
     guess_e1 = [amplitudes[0],mu_guess_e1,0.1,amplitudes[1],mu_guess_e2,0.1]
     params_e1, cov_e1 = spo.curve_fit(gaussian,energy_np,cu_plate_np,guess_e1)
-    # if params_e1[1] > params_e1[4]:
-    #     alpha_energies.append(params_e1[1])
-    #     beta_energies.append(params_e1[4])
-    # else:
-    #     alpha_energies.append(params_e1[4])
-    #     beta_energies.append(params_e1[1])
-
+    if params_e1[1] < params_e1[4]:
+        alpha_energies.append(params_e1[1])
+        beta_energies.append(params_e1[4])
+    else:
+        alpha_energies.append(params_e1[4])
+        beta_energies.append(params_e1[1])
 
 
     print(f"mu_e1: {params_e1[1]}")
@@ -136,12 +135,12 @@ if plot == True:
 
 
     Z_30 = Z[Z<40]
-    Z_40 = Z[Z > 29]
+    Z_40 = Z[Z > 35]
     alpha_30 = alpha_plot[Z<40]
     beta_30 = beta_plot[Z<40]
 
-    alpha_40 = alpha_plot[Z > 29]
-    beta_40 = beta_plot[Z > 29]
+    alpha_40 = alpha_plot[Z > 35]
+    beta_40 = beta_plot[Z > 35]
 
     grad_alpha_40_guess = (alpha_40[1]-alpha_40[0]) / (Z_40[1]-Z_40[0])
     c_alpha_40_guess = alpha_40[1] - grad_alpha_40_guess * Z_40[1]
@@ -175,16 +174,16 @@ if plot == True:
     ax[1].set_title("Atomic Mass against inverse root wavelength")
 
     print(f"Alpha 40 Fit: R = ({(4/3)*alpha_40_fit[0]**2:.5g} +/- {alpha_40_cov[0][0]}) m^(-1)\
-        \n sigma_k = ({alpha_40_fit[1]/alpha_40_fit[0]:.3f} +/- add) \n")
+        \n sigma_k = ({(4/3) * alpha_40_fit[1]/alpha_40_fit[0]:.3f} +/- add) \n")
 
     print(f"Beta 40 Fit: R = ({(9/8)*beta_40_fit[0]**2:.5g} +/- {beta_40_cov[0][0]}) m^(-1)\
-        \n sigma_k = ({beta_40_fit[1]/beta_40_fit[0]:.3f} +/-  add) \n")
+        \n sigma_k = ({(9/8) * beta_40_fit[1]/beta_40_fit[0]:.3f} +/-  add) \n")
 
     print(f"Alpha 30 Fit: R = ({(4/3)*alpha_30_fit[0]**2:.5g} +/- {alpha_30_cov[0][0]}) m^(-1)\
-        \n sigma_k = ({alpha_30_fit[1]/alpha_30_fit[0]:.3f} +/-  add) \n")
+        \n sigma_k = ({(4/3) * alpha_30_fit[1]/alpha_30_fit[0]:.3f} +/-  add) \n")
 
     print(f"Beta 30 Fit: R = ({(9/8)*beta_30_fit[0]**2:.5g} +/- {beta_30_cov[0][0]}) m^(-1)\
-        \n sigma_k = ({beta_30_fit[1]/beta_30_fit[0]:.3f} +/-  add) \n")
+        \n sigma_k = ({(9/8) * beta_30_fit[1]/beta_30_fit[0]:.3f} +/-  add) \n")
 
     print(f"Percentage Differnce alpha 40: {100*(R_0 - (4/3)*alpha_40_fit[0]**2)/R_0}")
     print(f"Percentage Differnce beta 40: {100*(R_0 - (9/8)*beta_40_fit[0]**2)/R_0}")
@@ -242,3 +241,5 @@ plt.scatter(Z,-1*alpha_intercepts/np.sqrt(R_0),color='red')#/np.sqrt(R_0),color=
 print(calculated_intercepts/np.sqrt(R_0))
 print(alpha_intercepts)
 plt.show()
+
+
