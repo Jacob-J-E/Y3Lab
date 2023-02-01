@@ -32,7 +32,7 @@ Z = np.array([29,47,40,30,28,26,22,42])
 A = np.array([63.5,107.87,91.224,65.38,58.693,55.845,47.867,95.95])
 print(first_run.head())
 
-plot = False
+plot = True
 if plot == True:
     Tot = len(columns)
     Cols = 4
@@ -119,12 +119,12 @@ if plot == True:
 
 
     Z_30 = Z[Z<40]
-    Z_40 = Z[Z > 35]
+    Z_40 = Z[Z > 29]
     alpha_30 = alpha_plot[Z<40]
     beta_30 = beta_plot[Z<40]
 
-    alpha_40 = alpha_plot[Z > 35]
-    beta_40 = beta_plot[Z > 35]
+    alpha_40 = alpha_plot[Z > 29]
+    beta_40 = beta_plot[Z > 29]
 
     grad_alpha_40_guess = (alpha_40[1]-alpha_40[0]) / (Z_40[1]-Z_40[0])
     c_alpha_40_guess = alpha_40[1] - grad_alpha_40_guess * Z_40[1]
@@ -170,9 +170,9 @@ if plot == True:
         \n sigma_k = ({beta_30_fit[1]/beta_30_fit[0]:.3f} +/-  add) \n")
 
     print(f"Percentage Differnce alpha 40: {100*(R_0 - (4/3)*alpha_40_fit[0]**2)/R_0}")
-    print(f"Percentage Differnce beta 40: {100*(R_0 - (4/3)*beta_40_fit[0]**2)/R_0}")
+    print(f"Percentage Differnce beta 40: {100*(R_0 - (9/8)*beta_40_fit[0]**2)/R_0}")
     print(f"Percentage Differnce alpha 30: {100*(R_0 - (4/3)*alpha_30_fit[0]**2)/R_0}")
-    print(f"Percentage Differnce beta 30: {100*(R_0 - (4/3)*beta_30_fit[0]**2)/R_0}")
+    print(f"Percentage Differnce beta 30: {100*(R_0 - (9/8)*beta_30_fit[0]**2)/R_0}")
 
     ax[0].legend(loc="lower right")
     ax[1].legend(loc="lower right")
