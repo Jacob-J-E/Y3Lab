@@ -94,21 +94,21 @@ for i,col_name in enumerate(columns):
     print(f"covsigma_e1: {np.sqrt(cov_e1[1][1])}")
     print(f"cov mu_e2: {np.sqrt(cov_e1[2][2])}")
     print(f"covsigma_e2: {np.sqrt(cov_e1[3][3])}")
-    energy_1 = energy[int(cu_plate.tolist().index(amplitudes[0]))]
-    energy_2 = energy[int(cu_plate.tolist().index(amplitudes[1]))]
-    if elements[i] == 'Fe':
-        alpha_energies.append(energy_1)
-        beta_energies.append(7.00)
-    else:
-        if energy_1 > energy_2:
-            alpha_energies.append(energy_1)
-            beta_energies.append(energy_2)
-        else:
-            alpha_energies.append(energy_2)
-            beta_energies.append(energy_1)
+    # energy_1 = energy[int(cu_plate.tolist().index(amplitudes[0]))]
+    # energy_2 = energy[int(cu_plate.tolist().index(amplitudes[1]))]
+    # if elements[i] == 'Fe':
+    #     alpha_energies.append(energy_1)
+    #     beta_energies.append(7.00)
+    # else:
+    #     if energy_1 > energy_2:
+    #         alpha_energies.append(energy_1)
+    #         beta_energies.append(energy_2)
+    #     else:
+    #         alpha_energies.append(energy_2)
+    #         beta_energies.append(energy_1)
 
-    print(f'energy 1 : {energy_1}')
-    print(f'energy 2 : {energy_2}')
+    # print(f'energy 1 : {energy_1}')
+    # print(f'energy 2 : {energy_2}')
     if plot == True:
         ax = fig.add_subplot(Rows,Cols,Position[i])
         ax.plot(energy,cu_plate, label = f'{elements[i]} Plate') 
