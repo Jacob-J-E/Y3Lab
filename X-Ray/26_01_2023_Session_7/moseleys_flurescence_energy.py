@@ -72,16 +72,18 @@ for i,col_name in enumerate(columns):
     for x in local_maxima[0]:
         amplitudes.append(cu_plate_np[x])
 
+    not_sorted_amplitudes = amplitudes.copy()
     amplitudes.sort(reverse=True)
 
     guess_e1 = [amplitudes[0],mu_guess_e1,0.1,amplitudes[1],mu_guess_e2,0.1]
     params_e1, cov_e1 = spo.curve_fit(gaussian,energy_np,cu_plate_np,guess_e1)
-    if params_e1[1] > params_e1[4]:
-        alpha_energies.append(params_e1[1])
-        beta_energies.append(params_e1[4])
-    else:
-        alpha_energies.append(params_e1[4])
-        beta_energies.append(params_e1[1])
+    # if params_e1[1] > params_e1[4]:
+    #     alpha_energies.append(params_e1[1])
+    #     beta_energies.append(params_e1[4])
+    # else:
+    #     alpha_energies.append(params_e1[4])
+    #     beta_energies.append(params_e1[1])
+
 
 
     print(f"mu_e1: {params_e1[1]}")
@@ -93,11 +95,26 @@ for i,col_name in enumerate(columns):
     print(f"covsigma_e1: {np.sqrt(cov_e1[1][1])}")
     print(f"cov mu_e2: {np.sqrt(cov_e1[2][2])}")
     print(f"covsigma_e2: {np.sqrt(cov_e1[3][3])}")
+    energy_1 = energy[int(cu_plate.tolist().index(amplitudes[0]))]
+    energy_2 = energy[int(cu_plate.tolist().index(amplitudes[1]))]
+    if elements[i] == 'Fe':
+        alpha_energies.append(energy_1)
+        beta_energies.append(7.00)
+    else:
+        if energy_1 > energy_2:
+            alpha_energies.append(energy_1)
+            beta_energies.append(energy_2)
+        else:
+            alpha_energies.append(energy_2)
+            beta_energies.append(energy_1)
 
+    print(f'energy 1 : {energy_1}')
+    print(f'energy 2 : {energy_2}')
     if plot == True:
         ax = fig.add_subplot(Rows,Cols,Position[i])
         ax.plot(energy,cu_plate, label = f'{elements[i]} Plate') 
         ax.plot(energy,gaussian(energy,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]:.2f},mu_e2 = {params_e1[4]:.2f})')
+        ax.scatter([energy_1,energy_2],[amplitudes[0],amplitudes[1]],label = 'max peaks')
         ax.legend(loc="upper right")
 
 
