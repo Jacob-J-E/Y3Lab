@@ -52,6 +52,11 @@ for i in range(len(elements)):
     wavelength_beta.append(np.sqrt(1/wavelength_b))
 
 
+thres = 29
+energy_alpha = energy_alpha[Z > thres]
+energy_beta = energy_beta[Z > thres]
+Z = Z[Z > thres]
+
 A_alpha_guess = (3/4)*(H*C*R_0)
 B_alpha_guess= (5/16)*(1/137)**2
 grad_alpha_guess = (wavelength_alpha[1]-wavelength_alpha[0]) / (Z[1]-Z[0])

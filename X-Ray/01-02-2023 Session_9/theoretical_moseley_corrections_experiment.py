@@ -36,20 +36,29 @@ columns = first_run.columns.tolist()
 
 columns.remove('Mo Source')
 columns.remove('FeCr Alloy Plate')
-columns.remove('Tin Maybe Plate')
+#columns.remove('Tin Maybe Plate')
 columns.remove('Cu Maybe')
 columns.remove('Tin Maybe Plate.1')
 columns.remove('E_1 / keV')
 
-elements = ['Cu', 'Ag', 'Zr', 'Zn', 'Ni', 'Fe', 'Ti', 'Mo']
-Z = np.array([29,47,40,30,28,26,22,42])
+print(first_run.head())
+elements = ['Cu', 'Ag', 'Zr', 'Zn', 'Ni', 'Fe', 'Sn', 'Ti', 'Mo']
+Z = np.array([29,47,40,30,28,26,50,22,42])
 A = np.array([63.5,107.87,91.224,65.38,58.693,55.845,47.867,95.95])
+
+alpha_energies = []
+beta_energies = []
 
 wavelength_alpha = []
 wavelength_beta = []
 energy_alpha = []
 energy_beta = []
-for i in range(len(elements)):
+
+for i,col_name in enumerate(columns):
+    energy = first_run['E_1 / keV']
+    cu_plate = first_run[col_name]
+
+
     ka1 = 0
     kb1 = 0
     for name, line in xraydb.xray_lines(elements[i], 'K').items():
@@ -57,6 +66,31 @@ for i in range(len(elements)):
             ka1 = line.energy
         elif name == 'Kb1':
             kb1 = line.energy
+
+    mu_guess_e1 = ka1/1e3
+    mu_guess_e2 = kb1/1e3
+
+
+    cu_plate_np = np.array(cu_plate.tolist())
+    energy_np = np.array(energy.tolist())
+    # Find local maxima using the argrelextrema function
+    local_maxima = argrelextrema(cu_plate.to_numpy(), np.greater)
+
+    amplitudes = []
+    for x in local_maxima[0]:
+        amplitudes.append(cu_plate_np[x])
+
+    not_sorted_amplitudes = amplitudes.copy()
+    amplitudes.sort(reverse=True)
+
+    guess_e1 = [amplitudes[0],mu_guess_e1,0.1,amplitudes[1],mu_guess_e2,0.1]
+    params_e1, cov_e1 = spo.curve_fit(gaussian,energy_np,cu_plate_np,guess_e1)
+    if params_e1[1] < params_e1[4]:
+        alpha_energies.append(params_e1[1])
+        beta_energies.append(params_e1[4])
+    else:
+        alpha_energies.append(params_e1[4])
+        beta_energies.append(params_e1[1])
 
     energy_alpha.append(ka1*1.6e-19)
     energy_beta.append(kb1*1.6e-19)
@@ -66,6 +100,16 @@ for i in range(len(elements)):
 
     wavelength_alpha.append(np.sqrt(1/wavelength_a))
     wavelength_beta.append(np.sqrt(1/wavelength_b))
+
+
+
+alpha_plot = np.array(alpha_energies)*1e3*1.6e-19
+beta_plot = np.array(beta_energies)*1e3*1.6e-19
+
+thres = 29
+alpha_plot = alpha_plot[Z > thres]
+beta_plot = beta_plot[Z > thres]
+Z = Z[Z > thres]
 
 
 A_alpha_guess = (3/4)*(H*C*R_0)
@@ -80,8 +124,9 @@ grad_beta_guess = (wavelength_beta[1]-wavelength_beta[0]) / (Z[1]-Z[0])
 c_beta_guess = wavelength_beta[1] - grad_beta_guess * Z[1]
 beta_guess = [A_beta_guess,B_beta_guess, 0]
 
-alpha_fit,alpha_cov = spo.curve_fit(correction_moseley,Z,energy_alpha,alpha_guess)
-beta_fit,beta_cov = spo.curve_fit(correction_moseley,Z,energy_beta,beta_guess)
+alpha_fit,alpha_cov = spo.curve_fit(correction_moseley,Z,alpha_plot,alpha_guess)
+beta_fit,beta_cov = spo.curve_fit(correction_moseley,Z,beta_plot,beta_guess)
+
 
 print(f'[ALPHA] | A: {alpha_fit[0]} A_theory: {A_alpha_guess} | B: {alpha_fit[1]} B_theory: {B_alpha_guess} | C (Screening): {alpha_fit[2]}|')
 print(f'[BETA] | A: {beta_fit[0]} A_theory: {A_beta_guess} | B: {beta_fit[1]} B_theory: {B_beta_guess} | C (Screening): {beta_fit[2]}|')
@@ -97,12 +142,13 @@ print(f"alpha Percentage Differnce fine structure : {100*((FS) - np.sqrt((16/5)*
 print(f"beta Percentage Differnce fine structure : {100*((FS) - np.sqrt((48/13)*beta_fit[1]))/(FS)}")
 
 
+x_range = np.arange(min(Z),max(Z)+1,1)
 
 sorted_z = sorted(Z)
-plt.scatter(Z,energy_alpha,label = r'$k_/alpha$')
-plt.plot(sorted_z,correction_moseley(sorted_z,*alpha_fit), label = r'Fitted $k_/alpha$ ')
-plt.scatter(Z,energy_beta,label = r'$k_/beta$')
-plt.plot(sorted_z,correction_moseley(sorted_z,*beta_fit), label = r'Fitted $k_/beta$')
+plt.scatter(Z,alpha_plot,label = r'$k_/alpha$')
+plt.plot(x_range,correction_moseley(x_range,*alpha_fit), label = r'Fitted $k_/alpha$ ')
+plt.scatter(Z,beta_plot,label = r'$k_/beta$')
+plt.plot(x_range,correction_moseley(x_range,*beta_fit), label = r'Fitted $k_/beta$')
 plt.legend()
 plt.show()
 

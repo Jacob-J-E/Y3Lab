@@ -21,15 +21,15 @@ columns = first_run.columns.tolist()
 
 columns.remove('Mo Source')
 columns.remove('FeCr Alloy Plate')
-columns.remove('Tin Maybe Plate')
+#columns.remove('Tin Maybe Plate')
 columns.remove('Cu Maybe')
-columns.remove('Tin Maybe Plate.1')
+#columns.remove('Tin Maybe Plate.1')
 columns.remove('E_1 / keV')
 
 
-elements = ['Cu', 'Ag', 'Zr', 'Zn', 'Ni', 'Fe', 'Ti', 'Mo']
-Z = np.array([29,47,40,30,28,26,22,42])
-A = np.array([63.5,107.87,91.224,65.38,58.693,55.845,47.867,95.95])
+elements = ['Cu', 'Ag', 'Zr', 'Zn', 'Ni', 'Fe', 'Sn', 'Ti', 'Sn', 'Mo']
+Z = np.array([29,47,40,30,28,26,50,22,50,42])
+A = np.array([63.5,107.87,91.224,65.38,58.693,55.845,118.71,47.867,118.71,95.95])
 print(first_run.head())
 
 plot = True
@@ -113,7 +113,7 @@ for i,col_name in enumerate(columns):
         ax = fig.add_subplot(Rows,Cols,Position[i])
         ax.plot(energy,cu_plate, label = f'{elements[i]} Plate') 
         ax.plot(energy,gaussian(energy,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]:.2f},mu_e2 = {params_e1[4]:.2f})')
-        ax.scatter([energy_1,energy_2],[amplitudes[0],amplitudes[1]],label = 'max peaks')
+        #ax.scatter([energy_1,energy_2],[amplitudes[0],amplitudes[1]],label = 'max peaks')
         ax.legend(loc="upper right")
 
 
