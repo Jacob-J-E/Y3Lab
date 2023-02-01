@@ -115,7 +115,7 @@ _min, _max = np.amin(combined_data), np.amax(combined_data)
 # Plot data.
 fig,ax = plt.subplots(1,3)
 # data_2D = ax[0].imshow(data,extent=(0,90,0,150),aspect=0.5, vmin = _min, vmax = _max)
-data_2D = ax[0].imshow(data,aspect=0.5, vmin = _min, vmax = _max)
+data_2D = ax[0].imshow(data,extent=(0,90,0,150),aspect=0.5, vmin = _min, vmax = _max)
 # ax[0].scatter(x_val,y_val,color='red')
 data_fft = ax[1].imshow(data_clean,extent=(0,90,0,150),aspect=0.5, vmin = _min, vmax = _max)
 data_differnce = ax[2].imshow(data-data_clean,extent=(0,90,0,150),aspect=0.5, vmin = _min, vmax = _max)
