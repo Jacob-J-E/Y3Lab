@@ -25,8 +25,8 @@ for i in range(len(elements)):
         elif name == 'Kb1':
             kb1 = line.energy
 
-    wavelength_a = (H*c) / ka1*1.6e-19
-    wavelength_b = (H*c) / kb1*1.6e-19
+    wavelength_a = (H*c) / (ka1*1.6e-19)
+    wavelength_b = (H*c) / (kb1*1.6e-19)
 
     wavelength_alpha.append(np.sqrt(1/wavelength_a))
     wavelength_beta.append(np.sqrt(1/wavelength_b))
