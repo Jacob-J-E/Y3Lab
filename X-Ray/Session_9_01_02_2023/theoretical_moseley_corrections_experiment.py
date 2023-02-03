@@ -36,15 +36,15 @@ columns = first_run.columns.tolist()
 
 columns.remove('Mo Source')
 columns.remove('FeCr Alloy Plate')
-#columns.remove('Tin Maybe Plate')
+columns.remove('Tin Maybe Plate')
 columns.remove('Cu Maybe')
 columns.remove('Tin Maybe Plate.1')
 columns.remove('E_1 / keV')
 
 print(first_run.head())
-elements = ['Cu', 'Ag', 'Zr', 'Zn', 'Ni', 'Fe', 'Sn', 'Ti', 'Mo']
-Z = np.array([29,47,40,30,28,26,50,22,42])
-A = np.array([63.5,107.87,91.224,65.38,58.693,55.845,47.867,95.95])
+elements = ['Cu', 'Ag', 'Zr', 'Zn', 'Ni', 'Fe', 'Ti', 'Mo']
+Z = np.array([29,47,40,30,28,26,22,42])
+A = np.array([63.5,107.87,91.224,65.38,58.693,47.867,95.95])
 
 alpha_energies = []
 beta_energies = []
@@ -145,10 +145,10 @@ print(f"beta Percentage Differnce fine structure : {100*((FS) - np.sqrt((48/13)*
 x_range = np.arange(min(Z),max(Z)+1,1)
 
 sorted_z = sorted(Z)
-plt.scatter(Z,alpha_plot,label = r'$k_/alpha$')
-plt.plot(x_range,correction_moseley(x_range,*alpha_fit), label = r'Fitted $k_/alpha$ ')
-plt.scatter(Z,beta_plot,label = r'$k_/beta$')
-plt.plot(x_range,correction_moseley(x_range,*beta_fit), label = r'Fitted $k_/beta$')
+plt.scatter(Z,alpha_plot,label = r'$k_\alpha$')
+plt.plot(x_range,correction_moseley(x_range,*alpha_fit), label = r'Fitted $k_\alpha$ ')
+plt.scatter(Z,beta_plot,label = r'$k_\beta$')
+plt.plot(x_range,correction_moseley(x_range,*beta_fit), label = r'Fitted $k_\beta$')
 plt.legend()
 plt.show()
 
