@@ -106,10 +106,10 @@ for i,col_name in enumerate(columns):
 alpha_plot = np.array(alpha_energies)*1e3*1.6e-19
 beta_plot = np.array(beta_energies)*1e3*1.6e-19
 
-thres = 29
-alpha_plot = alpha_plot[Z > thres]
-beta_plot = beta_plot[Z > thres]
-Z = Z[Z > thres]
+# thres = 29
+# alpha_plot = alpha_plot[Z > thres]
+# beta_plot = beta_plot[Z > thres]
+# Z = Z[Z > thres]
 
 
 A_alpha_guess = (3/4)*(H*C*R_0)
