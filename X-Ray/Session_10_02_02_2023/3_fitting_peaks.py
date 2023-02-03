@@ -7,6 +7,8 @@ from scipy.signal import argrelextrema
 import xraydb
 import pickle
 
+
+
 #Loading in old low res data
 data_low_res = pd.read_csv(r"X-Ray\Data\24-01-2023\Plates Mo Source.csv",skiprows=0)
 
@@ -52,7 +54,9 @@ column_names_data_high_res_search = ['Mo plate cal',
 k_line_high_res_search = ['Mo plate cal','Indium','Pure Nickel']
 k_elements_high_res = ['Mo', 'In', 'Ni']
 
-l_line_high_res_search = ['Unknown - Tungsten (W)', 'Pb' 'Gold (Ganel’s pendant)']
+k_elements_in_order = k_elements_low_res + k_elements_high_res
+
+l_line_high_res_search = ['Unknown - Tungsten (W)', 'Pb', 'Gold (Ganel’s pendant)']
 l_elements_high_res = ['W', 'Pb', 'Au']
 
 high_res_atomic_number = [42,74,22,82, 26, 79, 50,49, 28]
@@ -60,10 +64,13 @@ high_res_atomic_number = [42,74,22,82, 26, 79, 50,49, 28]
 def gaussian(x, a, b, c,e,f,g):
     return (a * np.exp(-((x - b) ** 2) / (2 * c ** 2)) + e * np.exp(-((x - f) ** 2) / (2 * g ** 2)))
 
+def gaussian_triple(x, a, b, c,e,f,g,h,i,j):
+    return (a * np.exp(-((x - b) ** 2) / (2 * c ** 2)) + e * np.exp(-((x - f) ** 2) / (2 * g ** 2)) + h * np.exp(-((x - i) ** 2) / (2 * j ** 2)))
+
 
 plot = True
 if plot == True:
-    Tot = len(k_line_low_res_search+k_line_high_res_search)
+    Tot = len(k_line_low_res_search+k_line_high_res_search+l_line_high_res_search)
     Cols = 4
     Rows = Tot // Cols 
     if Tot % Cols != 0:
@@ -105,6 +112,7 @@ for i,col_name in enumerate(k_line_low_res_search):
 
     guess_e1 = [amplitudes[0],mu_guess_e1,0.1,amplitudes[1],mu_guess_e2,0.1]
     params_e1, cov_e1 = spo.curve_fit(gaussian,energy_np,cu_plate_np,guess_e1)
+
     if params_e1[1] < params_e1[4]:
         alpha_energies.append(params_e1[1])
         beta_energies.append(params_e1[4])
@@ -128,7 +136,7 @@ for i,col_name in enumerate(k_line_low_res_search):
         ax.plot(energy_low_res_x,cu_plate, label = f'{k_elements_low_res[i]} Plate') 
         ax.plot(energy_low_res_x,gaussian(energy_low_res_x,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]:.2f},mu_e2 = {params_e1[4]:.2f})')
         plt.axvline(mu_guess_e1, label = r'$k_{\alpha}$' + f' with energy {mu_guess_e1:.2f} keV', color = 'blue')
-        plt.axvline(mu_guess_e2, label = r'$k_{\alpha}$' + f' with energy {mu_guess_e2:.2f} keV', color = 'red')
+        plt.axvline(mu_guess_e2, label = r'$k_{\beta}$' + f' with energy {mu_guess_e2:.2f} keV', color = 'red')
         ax.legend(loc="upper right")
     j += 1
 
@@ -186,8 +194,81 @@ for i,col_name in enumerate(k_line_high_res_search):
         ax.plot(energy_high_res_x,cu_plate, label = f'{k_elements_high_res[i]} Plate') 
         ax.plot(energy_high_res_x,gaussian(energy_high_res_x,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]:.2f},mu_e2 = {params_e1[4]:.2f})')
         plt.axvline(mu_guess_e1, label = r'$k_{\alpha}$' + f' with energy {mu_guess_e1:.2f} keV', color = 'blue')
-        plt.axvline(mu_guess_e2, label = r'$k_{\alpha}$' + f' with energy {mu_guess_e2:.2f} keV', color = 'red')
+        plt.axvline(mu_guess_e2, label = r'$k_{\beta}$' + f' with energy {mu_guess_e2:.2f} keV', color = 'red')
         ax.legend(loc="upper right")
     j += 1
 
+l_alpha_energies = []
+l_beta_energies = []
+l_gamma_energies = []
+
+for i,col_name in enumerate(l_line_high_res_search):
+    cu_plate = data_high_res[col_name]
+
+
+    la1 = 0
+    lb1 = 0
+    lg1 = 0
+    for name, line in xraydb.xray_lines(l_elements_high_res[i]).items():
+        if name == 'La1':
+            la1 = line.energy
+        elif name == 'Lb1':
+            lb1 = line.energy
+        elif name == 'Lg1':
+            lg1 = line.energy
+
+    mu_guess_e1 = la1/1e3
+    mu_guess_e2 = lb1/1e3
+    mu_guess_e3 = lg1/1e3
+
+
+    cu_plate_np = np.array(cu_plate.tolist())
+    energy_np = np.array(energy_high_res_x.tolist())
+    # Find local maxima using the argrelextrema function
+    local_maxima = argrelextrema(cu_plate.to_numpy(), np.greater)
+
+    amplitudes = []
+    for x in local_maxima[0]:
+        amplitudes.append(cu_plate_np[x])
+
+    not_sorted_amplitudes = amplitudes.copy()
+    amplitudes.sort(reverse=True)
+
+    guess_e1 = [amplitudes[0],mu_guess_e1,0.1,amplitudes[1],mu_guess_e2,0.1,amplitudes[2],mu_guess_e3,0.1]
+    params_e1, cov_e1 = spo.curve_fit(gaussian_triple,energy_np,cu_plate_np,guess_e1)
+
+    energy_val = [params_e1[1],params_e1[4],params_e1[7]]
+    energy_val = sorted(energy_val)
+
+    l_alpha_energies.append(energy_val[2])
+    l_beta_energies.append(energy_val[1]) 
+    l_gamma_energies.append(energy_val[0]) 
+
+
+
+    # print(f"mu_e1: {params_e1[1]}")
+    # print(f"sigma_e1: {params_e1[2]}")
+    # print(f"mu_e2: {params_e1[4]}")
+    # print(f"sigma_e2: {params_e1[5]}")
+
+    # print(f"cov mu_e1: {np.sqrt(cov_e1[0][0])}")
+    # print(f"covsigma_e1: {np.sqrt(cov_e1[1][1])}")
+    # print(f"cov mu_e2: {np.sqrt(cov_e1[2][2])}")
+    # print(f"covsigma_e2: {np.sqrt(cov_e1[3][3])}")
+
+    if plot == True:
+        ax = fig.add_subplot(Rows,Cols,Position[j])
+        ax.plot(energy_high_res_x,cu_plate, label = f'{k_elements_high_res[i]} Plate') 
+        ax.plot(energy_high_res_x,gaussian_triple(energy_high_res_x,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]:.2f},mu_e2 = {params_e1[4]:.2f},mu_e3 = {params_e1[7]:.2f})')
+        plt.axvline(mu_guess_e1, label = r'$l_{\alpha}$' + f' with energy {mu_guess_e1:.2f} keV', color = 'blue')
+        plt.axvline(mu_guess_e2, label = r'$l_{\beta}$' + f' with energy {mu_guess_e2:.2f} keV', color = 'red')
+        plt.axvline(mu_guess_e3, label = r'$l_{\gamma}$' + f' with energy {mu_guess_e3:.2f} keV', color = 'green')
+        ax.legend(loc="upper right")
+    j += 1
+
+print(alpha_energies)
+print(beta_energies)
+print(l_alpha_energies)
+print(l_beta_energies)
+print(l_gamma_energies)
 plt.show()
