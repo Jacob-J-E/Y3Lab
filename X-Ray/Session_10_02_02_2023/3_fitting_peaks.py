@@ -265,7 +265,6 @@ for i,col_name in enumerate(l_line_high_res_search):
         plt.axvline(mu_guess_e3, label = r'$l_{\gamma}$' + f' with energy {mu_guess_e3:.2f} keV', color = 'green')
         ax.legend(loc="upper right")
     j += 1
-
 print(alpha_energies)
 print(beta_energies)
 print(l_alpha_energies)

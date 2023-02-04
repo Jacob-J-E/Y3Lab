@@ -5,6 +5,7 @@ import pandas as pd
 import math
 from scipy.signal import argrelextrema
 import xraydb
+plt.style.use('dark_background')
 
 R_0 = 10973731.6
 
@@ -88,23 +89,23 @@ k_domain_valid = np.arange(30,max(atomic_numbers_k_sorted)+1,1)
 
 l_domain_invalid = np.arange(min(atomic_numbers_k_sorted),min(atomic_numbers_l_sorted)+1,1)
 l_domain_valid = np.arange(min(atomic_numbers_l_sorted),max(atomic_numbers_l_sorted)+1,1)
+plt.figure(figsize=(10,10))
 
-plt.scatter(atomic_numbers_k_sorted,k_alpha_plot_sorted, label = r'$k_{\alpha} Data$', color = u'#1f77b4')
+plt.scatter(atomic_numbers_k_sorted,k_alpha_plot_sorted, label = r'$k_{\alpha} Data$', color = u'#1f77b4',marker='x')
 plt.plot(k_domain_valid,straight_line(k_domain_valid,*k_alpha_30_fit), label = r'$k_{\alpha} fit$', color = u'#1f77b4')
 plt.plot(k_domain_invalid,straight_line(k_domain_invalid,*k_alpha_30_fit), color = u'#1f77b4', linestyle = '--')
-plt.scatter(atomic_numbers_k_sorted,k_beta_plot_sorted, label = r'$k_{\beta}$',color = u'#ff7f0e')
+plt.scatter(atomic_numbers_k_sorted,k_beta_plot_sorted, label = r'$k_{\beta}$',color = u'#ff7f0e',marker='x')
 plt.plot(k_domain_valid,straight_line(k_domain_valid,*k_beta_30_fit), label = r'$k_{\beta} fit$', color = u'#ff7f0e')
 plt.plot(k_domain_invalid,straight_line(k_domain_invalid,*k_beta_30_fit), color = u'#ff7f0e', linestyle = '--')
-plt.scatter(atomic_numbers_l_sorted,l_alpha_plot_sorted, label = r'$l_{\alpha}$', color = u'#2ca02c')
+plt.scatter(atomic_numbers_l_sorted,l_alpha_plot_sorted, label = r'$l_{\alpha}$', color = u'#2ca02c',marker='x')
 plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_alpha_30_fit), label = r'$l_{\alpha} fit$', color = u'#2ca02c')
 plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_alpha_30_fit), color = u'#2ca02c', linestyle = '--')
-plt.scatter(atomic_numbers_l_sorted,l_beta_plot_sorted, label = r'$l_{\beta}$', color = u'#d62728')
+plt.scatter(atomic_numbers_l_sorted,l_beta_plot_sorted, label = r'$l_{\beta}$', color = u'#d62728',marker='x')
 plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_beta_30_fit), label = r'$l_{\beta} fit$', color = u'#d62728')
 plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_beta_30_fit), color = u'#d62728', linestyle = '--')
-plt.scatter(atomic_numbers_l_sorted,l_gamma_plot_sorted, label = r'$l_{\gamma}$', color = u'#9467bd')
+plt.scatter(atomic_numbers_l_sorted,l_gamma_plot_sorted, label = r'$l_{\gamma}$', color = u'#9467bd',marker='x')
 plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_gamma_30_fit), label = r'$l_{\gamma} fit$', color = u'#9467bd')
 plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_gamma_30_fit), color = u'#9467bd', linestyle = '--')
-
 
 k_alpha_rydberg = cal_rydberg(k_alpha_30_fit[0],3/4)
 k_beta_rydberg = cal_rydberg(k_beta_30_fit[0],8/9)
@@ -122,7 +123,10 @@ print(f"Percentage Differnce l_gamma: {100*(R_0 - l_gamma_rydberg)/R_0} with val
 
 
 
-
+plt.xlabel("Atomic Number")
+plt.ylabel(r"$\sqrt{\frac{1}{wavelength}}}$ $\left(m^{-1/2}\right)$")
+# plt.grid()
+plt.legend()
 plt.legend()
 plt.show()
 
