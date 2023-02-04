@@ -47,8 +47,8 @@ l_alpha = []
 l_beta = []
 l_gamma = []
 
-atomic_numbers_l = [74, 82, 79]
-l_elements_high_res = ['W', 'Pb', 'Au']
+atomic_numbers_l = [74, 82, 79, 72, 73,75,76,77,78,80,81,83,84]
+l_elements_high_res = ['W', 'Pb', 'Au', 'Hf', 'Ta', 'Re', 'Os', 'Ir', 'Pt', 'Hg', 'Tl','Bi', 'Po']
 
 for i,col_name in enumerate(atomic_numbers_l):
     la1 = 0
