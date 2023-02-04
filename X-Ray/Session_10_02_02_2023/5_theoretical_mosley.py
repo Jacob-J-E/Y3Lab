@@ -69,6 +69,11 @@ for i,col_name in enumerate(atomic_numbers_l):
     l_alpha.append(mu_guess_e1)
     l_beta.append(mu_guess_e2)
     l_gamma.append(mu_guess_e3)
+    print(l_elements_high_res[i], col_name)
+    print(la1)
+    print(lb1)
+    print(lg1)
+    print('------------------')
 
 
 
@@ -168,7 +173,11 @@ print(f"l_gamma Q value: {l_gamma_30_fit[0]**2/R_0} with value {21/100}, percent
 
 
 
-
+print(k_alpha_30_fit[0])
+print(k_beta_30_fit[0])
+print(l_alpha_30_fit[0])
+print(l_beta_30_fit[0])
+print(l_gamma_30_fit[0])
 
 
 
