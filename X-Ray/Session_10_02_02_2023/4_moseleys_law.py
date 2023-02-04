@@ -106,6 +106,8 @@ plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_gamma_30_fit), label = r
 plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_gamma_30_fit), color = u'#9467bd', linestyle = '--')
 
 
+
+
 k_alpha_rydberg = cal_rydberg(k_alpha_30_fit[0],3/4)
 k_beta_rydberg = cal_rydberg(k_beta_30_fit[0],8/9)
 l_alpha_rydberg = cal_rydberg(l_alpha_30_fit[0],5/36)
@@ -118,6 +120,12 @@ print(f"Percentage Differnce k_beta: {100*(R_0 - k_beta_rydberg)/R_0 }with value
 print(f"Percentage Differnce l_alpha: {100*(R_0 - l_alpha_rydberg)/R_0} with value {l_alpha_rydberg}")
 print(f"Percentage Differnce l_beta: {100*(R_0 - l_beta_rydberg)/R_0} with value {l_beta_rydberg}")
 print(f"Percentage Differnce l_gamma: {100*(R_0 - l_gamma_rydberg)/R_0} with value {l_gamma_rydberg}")
+
+print(f"k_alpha Q value: {k_alpha_30_fit[0]**2/R_0}. Expected Value:  {3/4}, percentage difference: {100*((3/4) - (k_alpha_30_fit[0]**2/R_0))/(3/4)} ")
+print(f"k_beta Q value: {k_beta_30_fit[0]**2/R_0} with value {8/9}, percentage difference: {100*((8/9) - (k_beta_30_fit[0]**2/R_0))/(8/9)} ")
+print(f"l_alpha Q value: {l_alpha_30_fit[0]**2/R_0} with value {5/36}, percentage difference: {100*((5/36) - (l_alpha_30_fit[0]**2)/R_0)/(5/36)} ")
+print(f"l_beta Q value: {l_beta_30_fit[0]**2/R_0} with value {3/16}, percentage difference: {100*((3/16) - (l_beta_30_fit[0]**2)/R_0)/(3/16)} ")
+print(f"l_gamma Q value: {l_gamma_30_fit[0]**2/R_0} with value {21/100}, percentage difference: {100*((21/100) - (l_gamma_30_fit[0]**2/R_0))/(21/100)} ")
 
 
 
