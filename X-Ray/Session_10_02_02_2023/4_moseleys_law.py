@@ -5,6 +5,8 @@ import pandas as pd
 import math
 from scipy.signal import argrelextrema
 import xraydb
+import mplhep as hep
+hep.style.use("ATLAS")
 plt.style.use('dark_background')
 
 R_0 = 10973731.6
@@ -117,26 +119,38 @@ plt.figure(figsize=(10,10))
 # plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_gamma_30_fit), label = r'$l_{\gamma} fit$', color = u'#9467bd')
 # plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_gamma_30_fit), color = u'#9467bd', linestyle = '--')
 
-plt.scatter(atomic_numbers_k_sorted,k_alpha_plot_sorted, label = r'$k_{\alpha} Data$',marker='x',color='#44a4f4')
-plt.plot(k_domain_valid,straight_line(k_domain_valid,*k_alpha_30_fit), label = r'$k_{\alpha} fit$',color='#44a4f4')
-plt.plot(k_domain_invalid,straight_line(k_domain_invalid,*k_alpha_30_fit), linestyle = '--',color='#44a4f4')
 
-plt.scatter(atomic_numbers_k_sorted,k_beta_plot_sorted, label = r'$k_{\beta}$',marker='x',color='#fc3967')
-plt.plot(k_domain_valid,straight_line(k_domain_valid,*k_beta_30_fit), label = r'$k_{\beta} fit$',color='#fc3967')
-plt.plot(k_domain_invalid,straight_line(k_domain_invalid,*k_beta_30_fit), linestyle = '--',color='#fc3967')
+# plt.plot(Z,moseley,label="Moseley's Law",color="#46bddf")
+
+# # plt.plot(Z,K_alpha,label=r"$K_{\alpha} Line$",color="#e4e5e7")
+# plt.plot(Z,K_beta,label=r"$K_{\beta} Line$",color="#f05464")
+
+# plt.plot(Z,L_alpha,label=r"$L_{\alpha} Line$",color="#e87454")
+
+# plt.plot(Z,L_beta,label=r"$L_{\beta} Line$",color="#58d474")
+
+# plt.plot(Z,L_gamma,label=r"$L_{\gamma} Line$",color="#e8c454")
+plt.figure(1,figsize=(14,10))
+plt.scatter(atomic_numbers_k_sorted,k_alpha_plot_sorted, label = r'$k_{\alpha} Data$',marker='x',color='#46bddf')
+plt.plot(k_domain_valid,straight_line(k_domain_valid,*k_alpha_30_fit), label = r'$k_{\alpha} fit$',color='#46bddf')
+plt.plot(k_domain_invalid,straight_line(k_domain_invalid,*k_alpha_30_fit), linestyle = '--',color='#46bddf')
+
+plt.scatter(atomic_numbers_k_sorted,k_beta_plot_sorted, label = r'$k_{\beta}$',marker='x',color='#f05464')
+plt.plot(k_domain_valid,straight_line(k_domain_valid,*k_beta_30_fit), label = r'$k_{\beta} fit$',color='#f05464')
+plt.plot(k_domain_invalid,straight_line(k_domain_invalid,*k_beta_30_fit), linestyle = '--',color='#f05464')
 
 
-plt.scatter(atomic_numbers_l_sorted,l_alpha_plot_sorted, label = r'$l_{\alpha}$',marker='x',color='#1cd3a4')
-plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_alpha_30_fit), label = r'$l_{\alpha} fit$',color='#1cd3a4')
-plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_alpha_30_fit), linestyle = '--',color='#1cd3a4')
+plt.scatter(atomic_numbers_l_sorted,l_alpha_plot_sorted, label = r'$l_{\alpha}$',marker='x',color='#e87454')
+plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_alpha_30_fit), label = r'$l_{\alpha} fit$',color='#e87454')
+plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_alpha_30_fit), linestyle = '--',color='#e87454')
 
-plt.scatter(atomic_numbers_l_sorted,l_beta_plot_sorted, label = r'$l_{\beta}$',marker='x',color='#ff5200')
-plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_beta_30_fit), label = r'$l_{\beta} fit$',color='#ff5200')
-plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_beta_30_fit), linestyle = '--',color='#ff5200')
+plt.scatter(atomic_numbers_l_sorted,l_beta_plot_sorted, label = r'$l_{\beta}$',marker='x',color='#58d474')
+plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_beta_30_fit), label = r'$l_{\beta} fit$',color='#58d474')
+plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_beta_30_fit), linestyle = '--',color='#58d474')
 
-plt.scatter(atomic_numbers_l_sorted,l_gamma_plot_sorted, label = r'$l_{\gamma}$', marker='x',color='yellow')
-plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_gamma_30_fit), label = r'$l_{\gamma} fit$',color='yellow')
-plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_gamma_30_fit), linestyle = '--',color='yellow')
+plt.scatter(atomic_numbers_l_sorted,l_gamma_plot_sorted, label = r'$l_{\gamma}$', marker='x',color='#e8c454')
+plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_gamma_30_fit), label = r'$l_{\gamma} fit$',color='#e8c454')
+plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_gamma_30_fit), linestyle = '--',color='#e8c454')
 
 
 
@@ -150,15 +164,15 @@ atomic_name_ordered_l = ['W', 'Au', 'Pb']
 for i,name in enumerate(atomic_name_ordered):
     plt.text(atomic_numbers_k_sorted[i]- 0.5, k_beta_plot_sorted[i], name, horizontalalignment='right', size='medium', color='white', weight='semibold')
 
-plt.text(atomic_numbers_k_sorted[9]+ 1, k_beta_plot_sorted[9], r'$k_{\beta}$', horizontalalignment='left', size='large', color=u'#ff7f0e', weight='semibold')
-plt.text(atomic_numbers_k_sorted[9] + 1, k_alpha_plot_sorted[9], r'$k_{\alpha}$', horizontalalignment='left', size='large', color=u'#1f77b4', weight='semibold')
+plt.text(atomic_numbers_k_sorted[9]+ 1, k_beta_plot_sorted[9], r'$k_{\beta}$', horizontalalignment='left', size='large', color=u'#f05464', weight='semibold')
+plt.text(atomic_numbers_k_sorted[9] + 1, k_alpha_plot_sorted[9], r'$k_{\alpha}$', horizontalalignment='left', size='large', color=u'#46bddf', weight='semibold')
 
 for i,name in enumerate(atomic_name_ordered_l):
     plt.text(atomic_numbers_l_sorted[i]- 0.5, l_alpha_plot_sorted[i], name, horizontalalignment='right', size='medium', color='white', weight='semibold')
 
-plt.text(atomic_numbers_l_sorted[2]+ 1, l_beta_plot_sorted[2], r'$L_{\beta}$', horizontalalignment='left', size='large', color=u'#d62728', weight='bold')
-plt.text(atomic_numbers_l_sorted[2] + 1, l_alpha_plot_sorted[2], r'$L_{\alpha}$', horizontalalignment='left', size='large', color=u'#2ca02c', weight='bold')
-plt.text(atomic_numbers_l_sorted[2] + 1, l_gamma_plot_sorted[2], r'$L_{\gamma}$', horizontalalignment='left', size='large', color=u'#9467bd', weight='bold')
+plt.text(atomic_numbers_l_sorted[2]+ 1, l_beta_plot_sorted[2], r'$L_{\beta}$', horizontalalignment='left', size='large', color=u'#58d474', weight='bold')
+plt.text(atomic_numbers_l_sorted[2] + 1, l_alpha_plot_sorted[2], r'$L_{\alpha}$', horizontalalignment='left', size='large', color=u'#e87454', weight='bold')
+plt.text(atomic_numbers_l_sorted[2] + 1, l_gamma_plot_sorted[2], r'$L_{\gamma}$', horizontalalignment='left', size='large', color=u'#e8c454', weight='bold')
 
 
 k_alpha_rydberg = cal_rydberg(k_alpha_30_fit[0],3/4)
@@ -190,8 +204,9 @@ print(f"l_gamma Q value: {l_gamma_30_fit[0]**2/R_0} with value {21/100}, percent
 
 
 
-plt.xlabel("Atomic Number")
-plt.ylabel(r"$\sqrt{\frac{1}{wavelength}}}$ $\left(m^{-1/2}\right)$")
+plt.xlabel("Atomic Number",fontsize=20,labelpad=10)
+plt.ylabel(r"$\sqrt{\frac{1}{\lambda}}$   $\left(m^{-1/2}\right)$",fontsize=20,labelpad=10)
+plt.grid(alpha=0.5)
 # plt.grid()
 #plt.legend()
 #plt.legend()

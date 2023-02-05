@@ -5,6 +5,12 @@ import pandas as pd
 import math
 from scipy.signal import argrelextrema
 import xraydb
+import mplhep as hep
+from scipy.signal import argrelextrema
+# hep.style.use("ATLAS")
+# plt.style.use('dark_background')
+# plt.rcParams['text.latex.preamble']=[r"\usepackage{amsmath}"]
+# plt.rcParams["text.usetex"]
 R_0 = 10973731.6
 
 def straight_line(x,m,c):

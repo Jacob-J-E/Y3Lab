@@ -5,7 +5,13 @@ import pandas as pd
 import math
 from scipy.signal import argrelextrema
 import xraydb
-
+import mplhep as hep
+hep.style.use("ATLAS")
+# from matplotlib import rc
+# rc('text', usetex=True)
+plt.style.use('dark_background')
+plt.rcParams['text.latex.preamble']=[r"\usepackage{amsmath}"]
+plt.rcParams["text.usetex"]
 R_0 = 10973731.6
 H = 6.63e-34
 C = 3e8
@@ -101,21 +107,31 @@ print(f"Percentage Differnce beta : {100*(R_0 - beta_fit[0]/((8/9)*(H*C)))/R_0}"
 
 
 
-
+keV = 1e3*1.6e-19
 sorted_z = sorted(Z)
-plt.scatter(Z,energy_alpha,label = r'$k_/alpha$')
-plt.plot(sorted_z,correction_moseley_alpha(sorted_z,*alpha_fit), label = r'Fitted $k_/alpha$')
-plt.scatter(Z,energy_beta,label = r'$k_/beta$')
-plt.plot(sorted_z,correction_moseley_beta(sorted_z,*beta_fit), label = r'Fitted $k_/beta$')
+plt.scatter(Z,energy_alpha/keV,label = r'$k_/alpha$',color="#46bddf",marker='x')
+plt.plot(sorted_z,correction_moseley_alpha(sorted_z,*alpha_fit)/keV, label = r'Fitted $k_/alpha$',color="#46bddf")
+plt.scatter(Z,energy_beta/keV,label = r'$k_/beta$',color="#f05464",marker='x')
+plt.plot(sorted_z,correction_moseley_beta(sorted_z,*beta_fit)/keV, label = r'Fitted $k_/beta$',color="#f05464")
 
 atomic_numbers_ordered = [21,26,28,29,30,40,42,47,49,50] 
 atomic_name_ordered = ['Ti','Fe','Ni','Cu','Zn','Zr','Mo','Ag','In','Sn'] 
 
 for i,name in enumerate(atomic_name_ordered):
-    plt.text(Z[i]- 1, energy_alpha[i], name, horizontalalignment='right', size='medium', color='white', weight='semibold')
+    plt.text(Z[i] - .5, energy_beta[i]/keV, name, horizontalalignment='right', size='medium', color='white', weight='semibold')
 
-plt.legend()
+plt.text(atomic_numbers_ordered[-1]+1, energy_alpha[-4]/keV, r'$K_{\alpha}$', horizontalalignment='left', size='large', color=u"#46bddf", weight='bold')
+plt.text(atomic_numbers_ordered[-1]+1, energy_beta[-4]/keV, r'$K_{\beta}$', horizontalalignment='left', size='large', color=u"#f05464", weight='bold')
+# plt.legend()
+plt.xlim(20,55)
+plt.xlabel("Atomic Number")
+plt.ylabel(r"Energy (keV)")
+plt.grid(alpha=0.5)
 plt.show()
+
+# plt.plot(Z_plot,moseley,label="Moseley's Law",color="#46bddf")
+# plt.plot(Z_plot,K_alpha,label=r"$K_{\alpha} Line$",color="#e4e5e7")
+# plt.plot(Z_plot,K_beta,label=r"$K_{\beta} Line$",color="#f05464")
 
 # A_alpha_guess = (3/4)*(H*C*R_0)
 # grad_alpha_guess = (wavelength_alpha[1]-wavelength_alpha[0]) / (Z[1]-Z[0])
