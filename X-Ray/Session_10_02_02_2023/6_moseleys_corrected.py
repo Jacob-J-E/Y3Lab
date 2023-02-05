@@ -11,8 +11,11 @@ H = 6.63e-34
 C = 3e8
 FS = 0.00729735
 
-def correction_moseley(x,A,B,C):
-    return A*((x-C)**2 + B*(x-C)**4)
+def correction_moseley_alpha(x,A,C):
+    return A*((x-C)**2 + (5/16)*(FS**2)*(x-C)**4)
+
+def correction_moseley_beta(x,A,C):
+    return A*((x-C)**2 + (13/48)*(FS**2)*(x-C)**4)
 
 def correction_moseley_quad(x,A,S):
     return A*((x-S)**2)
@@ -25,36 +28,33 @@ def correction_moseley_noB_beta(x,A,S):
     B = (5/16)*(1/137)**2
     return A*((x-S)**2 + B*(x-S)**2)
 
-elements = ['Cu', 'Ag', 'Zr', 'Zn', 'Ni', 'Fe', 'Ti', 'Mo']
-Z = np.array([29,47,40,30,28,26,22,42])
+# elements = ['Cu', 'Ag', 'Zr', 'Zn', 'Ni', 'Fe', 'Ti', 'Mo']
+# Z = np.array([29,47,40,30,28,26,22,42])
 
-elements = ['Ag', 'Zr','Mo']
-Z = np.array([47,40,42])
+elements = ['Cu', 'Ag', 'Zr', 'Zn','Ti', 'Fe', 'Sn','Mo', 'In', 'Ni']
+Z = np.array([29, 47, 40, 30, 22, 26, 50, 42, 49, 28])
+
+# elements = ['Ag', 'Zr','Mo']
+# Z = np.array([47,40,42])
 wavelength_alpha = []
 wavelength_beta = []
 energy_alpha = []
 energy_beta = []
 
-for i in range(len(elements)):
-    ka1 = 0
-    kb1 = 0
-    for name, line in xraydb.xray_lines(elements[i], 'K').items():
-        if name == 'Ka1':
-            ka1 = line.energy
-        elif name == 'Kb1':
-            kb1 = line.energy
+energy_alpha = [8.080748431650838, 22.372552420613246, 16.044092033837604, 8.715570846388037, 4.57752299496841, 6.4190948273611665, 25.324555158862026, 17.421595970841373, 23.893491144556645, 7.681898645165174]
+energy_beta = [8.95544201799072, 25.105444424220387, 17.982645794347498, 9.695802325558363, 5.097266130416366, 7.072766943625728, 28.42222963004282, 19.53560367390865, 26.785539971006223, 8.403630082046032]
 
-    energy_alpha.append(ka1*1.6e-19)
-    energy_beta.append(kb1*1.6e-19)
+energy_alpha = np.array(energy_alpha)*1e3*1.6e-19
+energy_beta = np.array(energy_beta)*1e3*1.6e-19
 
-    wavelength_a = (H*C) / (ka1*1.6e-19)
-    wavelength_b = (H*C) / (kb1*1.6e-19)
+wavelength_a = (H*C) / (energy_alpha)
+wavelength_b = (H*C) / (energy_beta)
 
-    wavelength_alpha.append(np.sqrt(1/wavelength_a))
-    wavelength_beta.append(np.sqrt(1/wavelength_b))
+wavelength_alpha = np.sqrt(1/wavelength_a)
+wavelength_beta = np.sqrt(1/wavelength_b)
 
 
-thres = 29
+thres = 20
 energy_alpha = energy_alpha[Z > thres]
 energy_beta = energy_beta[Z > thres]
 Z = Z[Z > thres]
@@ -63,37 +63,57 @@ A_alpha_guess = (3/4)*(H*C*R_0)
 B_alpha_guess= (5/16)*(1/137)**2
 grad_alpha_guess = (wavelength_alpha[1]-wavelength_alpha[0]) / (Z[1]-Z[0])
 c_alpha_guess = wavelength_alpha[1] - grad_alpha_guess * Z[1]
-alpha_guess = [A_alpha_guess,B_alpha_guess, 0]
+#alpha_guess = [A_alpha_guess,B_alpha_guess, 0]
+alpha_guess = [A_alpha_guess, 0]
 
 A_beta_guess = (8/9)*(H*C*R_0)
 B_beta_guess= (13/48)*(1/137)**2
 grad_beta_guess = (wavelength_beta[1]-wavelength_beta[0]) / (Z[1]-Z[0])
 c_beta_guess = wavelength_beta[1] - grad_beta_guess * Z[1]
-beta_guess = [A_beta_guess,B_beta_guess, 0]
+#beta_guess = [A_beta_guess,B_beta_guess, 0]
+beta_guess = [A_beta_guess, 0]
 
-alpha_fit,alpha_cov = spo.curve_fit(correction_moseley,Z,energy_alpha,alpha_guess)
-beta_fit,beta_cov = spo.curve_fit(correction_moseley,Z,energy_beta,beta_guess)
+alpha_fit,alpha_cov = spo.curve_fit(correction_moseley_alpha,Z,energy_alpha,alpha_guess)
+beta_fit,beta_cov = spo.curve_fit(correction_moseley_beta,Z,energy_beta,beta_guess)
 
-print(f'[ALPHA] | A: {alpha_fit[0]} A_theory: {A_alpha_guess} | B: {alpha_fit[1]} B_theory: {B_alpha_guess} | C (Screening): {alpha_fit[2]}|')
-print(f'[BETA] | A: {beta_fit[0]} A_theory: {A_beta_guess} | B: {beta_fit[1]} B_theory: {B_beta_guess} | C (Screening): {beta_fit[2]}|')
+# print(f'[ALPHA] | A: {alpha_fit[0]} A_theory: {A_alpha_guess} | B: {alpha_fit[1]} B_theory: {B_alpha_guess} | C (Screening): {alpha_fit[2]}|')
+# print(f'[BETA] | A: {beta_fit[0]} A_theory: {A_beta_guess} | B: {beta_fit[1]} B_theory: {B_beta_guess} | C (Screening): {beta_fit[2]}|')
 
-print(f'[ALPHA] | R: {alpha_fit[0]/((3/4)*(H*C))} | fine structure: {np.sqrt((16/5)*alpha_fit[1])} ')
-print(f'[BETA] | R: {beta_fit[0]/((8/9)*(H*C))} | fine structure: {np.sqrt((48/13)*beta_fit[1])} ')
+# print(f'[ALPHA] | R: {alpha_fit[0]/((3/4)*(H*C))} | fine structure: {np.sqrt((16/5)*alpha_fit[1])} ')
+# print(f'[BETA] | R: {beta_fit[0]/((8/9)*(H*C))} | fine structure: {np.sqrt((48/13)*beta_fit[1])} ')
+
+# print(f"Percentage Differnce alpha : {100*(R_0 - alpha_fit[0]/((3/4)*(H*C)))/R_0}")
+# print(f"Percentage Differnce beta : {100*(R_0 - beta_fit[0]/((8/9)*(H*C)))/R_0}")
+
+
+# print(f"alpha Percentage Differnce fine structure : {100*((FS) - np.sqrt((16/5)*alpha_fit[1]))/(FS)}")
+# print(f"beta Percentage Differnce fine structure : {100*((FS) - np.sqrt((48/13)*beta_fit[1]))/(FS)}")
+
+print(f'[ALPHA] | A: {alpha_fit[0]} A_theory: {A_alpha_guess}| C (Screening): {alpha_fit[1]}|')
+print(f'[BETA] | A: {beta_fit[0]} A_theory: {A_beta_guess}| C (Screening): {beta_fit[1]}|')
+
+print(f'[ALPHA] | R: {alpha_fit[0]/((3/4)*(H*C))}')
+print(f'[BETA] | R: {beta_fit[0]/((8/9)*(H*C))}')
 
 print(f"Percentage Differnce alpha : {100*(R_0 - alpha_fit[0]/((3/4)*(H*C)))/R_0}")
 print(f"Percentage Differnce beta : {100*(R_0 - beta_fit[0]/((8/9)*(H*C)))/R_0}")
 
 
-print(f"alpha Percentage Differnce fine structure : {100*((FS) - np.sqrt((16/5)*alpha_fit[1]))/(FS)}")
-print(f"beta Percentage Differnce fine structure : {100*((FS) - np.sqrt((48/13)*beta_fit[1]))/(FS)}")
 
 
 
 sorted_z = sorted(Z)
 plt.scatter(Z,energy_alpha,label = r'$k_/alpha$')
-plt.plot(sorted_z,correction_moseley(sorted_z,*alpha_fit), label = r'Fitted $k_/alpha$')
+plt.plot(sorted_z,correction_moseley_alpha(sorted_z,*alpha_fit), label = r'Fitted $k_/alpha$')
 plt.scatter(Z,energy_beta,label = r'$k_/beta$')
-plt.plot(sorted_z,correction_moseley(sorted_z,*beta_fit), label = r'Fitted $k_/beta$')
+plt.plot(sorted_z,correction_moseley_beta(sorted_z,*beta_fit), label = r'Fitted $k_/beta$')
+
+atomic_numbers_ordered = [21,26,28,29,30,40,42,47,49,50] 
+atomic_name_ordered = ['Ti','Fe','Ni','Cu','Zn','Zr','Mo','Ag','In','Sn'] 
+
+for i,name in enumerate(atomic_name_ordered):
+    plt.text(Z[i]- 1, energy_alpha[i], name, horizontalalignment='right', size='medium', color='white', weight='semibold')
+
 plt.legend()
 plt.show()
 
