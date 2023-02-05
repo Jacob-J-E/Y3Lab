@@ -101,21 +101,42 @@ l_domain_invalid = np.arange(min(atomic_numbers_k_sorted),min(atomic_numbers_l_s
 l_domain_valid = np.arange(min(atomic_numbers_l_sorted),max(atomic_numbers_l_sorted)+1,1)
 plt.figure(figsize=(10,10))
 
-plt.scatter(atomic_numbers_k_sorted,k_alpha_plot_sorted, label = r'$k_{\alpha} Data$', color = u'#1f77b4',marker='x')
-plt.plot(k_domain_valid,straight_line(k_domain_valid,*k_alpha_30_fit), label = r'$k_{\alpha} fit$', color = u'#1f77b4')
-plt.plot(k_domain_invalid,straight_line(k_domain_invalid,*k_alpha_30_fit), color = u'#1f77b4', linestyle = '--')
-plt.scatter(atomic_numbers_k_sorted,k_beta_plot_sorted, label = r'$k_{\beta}$',color = u'#ff7f0e',marker='x')
-plt.plot(k_domain_valid,straight_line(k_domain_valid,*k_beta_30_fit), label = r'$k_{\beta} fit$', color = u'#ff7f0e')
-plt.plot(k_domain_invalid,straight_line(k_domain_invalid,*k_beta_30_fit), color = u'#ff7f0e', linestyle = '--')
-plt.scatter(atomic_numbers_l_sorted,l_alpha_plot_sorted, label = r'$l_{\alpha}$', color = u'#2ca02c',marker='x')
-plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_alpha_30_fit), label = r'$l_{\alpha} fit$', color = u'#2ca02c')
-plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_alpha_30_fit), color = u'#2ca02c', linestyle = '--')
-plt.scatter(atomic_numbers_l_sorted,l_beta_plot_sorted, label = r'$l_{\beta}$', color = u'#d62728',marker='x')
-plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_beta_30_fit), label = r'$l_{\beta} fit$', color = u'#d62728')
-plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_beta_30_fit), color = u'#d62728', linestyle = '--')
-plt.scatter(atomic_numbers_l_sorted,l_gamma_plot_sorted, label = r'$l_{\gamma}$', color = u'#9467bd',marker='x')
-plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_gamma_30_fit), label = r'$l_{\gamma} fit$', color = u'#9467bd')
-plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_gamma_30_fit), color = u'#9467bd', linestyle = '--')
+# plt.scatter(atomic_numbers_k_sorted,k_alpha_plot_sorted, label = r'$k_{\alpha} Data$', color = u'#1f77b4',marker='x')
+# plt.plot(k_domain_valid,straight_line(k_domain_valid,*k_alpha_30_fit), label = r'$k_{\alpha} fit$', color = u'#1f77b4')
+# plt.plot(k_domain_invalid,straight_line(k_domain_invalid,*k_alpha_30_fit), color = u'#1f77b4', linestyle = '--')
+# plt.scatter(atomic_numbers_k_sorted,k_beta_plot_sorted, label = r'$k_{\beta}$',color = u'#ff7f0e',marker='x')
+# plt.plot(k_domain_valid,straight_line(k_domain_valid,*k_beta_30_fit), label = r'$k_{\beta} fit$', color = u'#ff7f0e')
+# plt.plot(k_domain_invalid,straight_line(k_domain_invalid,*k_beta_30_fit), color = u'#ff7f0e', linestyle = '--')
+# plt.scatter(atomic_numbers_l_sorted,l_alpha_plot_sorted, label = r'$l_{\alpha}$', color = u'#2ca02c',marker='x')
+# plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_alpha_30_fit), label = r'$l_{\alpha} fit$', color = u'#2ca02c')
+# plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_alpha_30_fit), color = u'#2ca02c', linestyle = '--')
+# plt.scatter(atomic_numbers_l_sorted,l_beta_plot_sorted, label = r'$l_{\beta}$', color = u'#d62728',marker='x')
+# plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_beta_30_fit), label = r'$l_{\beta} fit$', color = u'#d62728')
+# plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_beta_30_fit), color = u'#d62728', linestyle = '--')
+# plt.scatter(atomic_numbers_l_sorted,l_gamma_plot_sorted, label = r'$l_{\gamma}$', color = u'#9467bd',marker='x')
+# plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_gamma_30_fit), label = r'$l_{\gamma} fit$', color = u'#9467bd')
+# plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_gamma_30_fit), color = u'#9467bd', linestyle = '--')
+
+plt.scatter(atomic_numbers_k_sorted,k_alpha_plot_sorted, label = r'$k_{\alpha} Data$',marker='x',color='#44a4f4')
+plt.plot(k_domain_valid,straight_line(k_domain_valid,*k_alpha_30_fit), label = r'$k_{\alpha} fit$',color='#44a4f4')
+plt.plot(k_domain_invalid,straight_line(k_domain_invalid,*k_alpha_30_fit), linestyle = '--',color='#44a4f4')
+
+plt.scatter(atomic_numbers_k_sorted,k_beta_plot_sorted, label = r'$k_{\beta}$',marker='x',color='#fc3967')
+plt.plot(k_domain_valid,straight_line(k_domain_valid,*k_beta_30_fit), label = r'$k_{\beta} fit$',color='#fc3967')
+plt.plot(k_domain_invalid,straight_line(k_domain_invalid,*k_beta_30_fit), linestyle = '--',color='#fc3967')
+
+
+plt.scatter(atomic_numbers_l_sorted,l_alpha_plot_sorted, label = r'$l_{\alpha}$',marker='x',color='#1cd3a4')
+plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_alpha_30_fit), label = r'$l_{\alpha} fit$',color='#1cd3a4')
+plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_alpha_30_fit), linestyle = '--',color='#1cd3a4')
+
+plt.scatter(atomic_numbers_l_sorted,l_beta_plot_sorted, label = r'$l_{\beta}$',marker='x',color='#ff5200')
+plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_beta_30_fit), label = r'$l_{\beta} fit$',color='#ff5200')
+plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_beta_30_fit), linestyle = '--',color='#ff5200')
+
+plt.scatter(atomic_numbers_l_sorted,l_gamma_plot_sorted, label = r'$l_{\gamma}$', marker='x',color='yellow')
+plt.plot(l_domain_valid,straight_line(l_domain_valid,*l_gamma_30_fit), label = r'$l_{\gamma} fit$',color='yellow')
+plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_gamma_30_fit), linestyle = '--',color='yellow')
 
 
 
