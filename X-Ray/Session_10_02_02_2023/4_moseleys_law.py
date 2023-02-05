@@ -18,11 +18,21 @@ def cal_rydberg(m,factor):
 k_alpha = [8.080748431650838, 22.372552420613246, 16.044092033837604, 8.715570846388037, 4.57752299496841, 6.4190948273611665, 25.324555158862026, 17.421595970841373, 23.893491144556645, 7.681898645165174]
 k_beta = [8.95544201799072, 25.105444424220387, 17.982645794347498, 9.695802325558363, 5.097266130416366, 7.072766943625728, 28.42222963004282, 19.53560367390865, 26.785539971006223, 8.403630082046032]
 
+
 k_alpha_plot = np.sqrt(np.array(k_alpha)*1e3*1.6e-19 / (6.63e-34 * 3e8))
 k_beta_plot = np.sqrt(np.array(k_beta)*1e3*1.6e-19 / (6.63e-34 * 3e8))
 
-#atomic_numbers_k = ['Cu', 'Ag', 'Zr', 'Zn','Ti', 'Fe', 'Sn','Mo', 'In', 'Ni']
-atomic_numbers_k = [29, 47, 40, 30, 21, 26, 50, 42, 49, 28]
+#atomic_numbers_k_name = ['Cu', 'Ag', 'Zr', 'Zn','Ti', 'Fe', 'Sn','Mo', 'In', 'Ni']
+
+
+atomic_numbers_k_name = ['Cu', 'Ag', 'Zr', 'Zn','Ti', 'Fe', 'Sn','Mo', 'In', 'Ni']
+atomic_numbers_k = [29, 47, 40, 30, 22, 26, 50, 42, 49, 28]
+
+
+atomic_numbers_ordered = [21,26,28,29,30,40,42,47,49,50] 
+
+atomic_name_ordered = ['Ti','Fe','Ni','Cu','Zn','Zr','Mo','Ag','In','Sn'] 
+
 
 l_alpha = [11.357273788806593, 14.856025841377411, 13.453359107827593]
 l_beta = [9.792511388784876, 12.588079827993488, 11.485332462914121]
@@ -109,12 +119,33 @@ plt.plot(l_domain_invalid,straight_line(l_domain_invalid,*l_gamma_30_fit), color
 
 
 
+atomic_numbers_ordered = [21,26,28,29,30,40,42,47,49,50] 
+
+atomic_name_ordered = ['Ti','Fe','Ni','Cu','Zn','Zr','Mo','Ag','In','Sn'] 
+
+atomic_numbers_ordered_l = [74, 79, 82]
+atomic_name_ordered_l = ['W', 'Au', 'Pb']
+
+for i,name in enumerate(atomic_name_ordered):
+    plt.text(atomic_numbers_k_sorted[i]- 0.5, k_beta_plot_sorted[i], name, horizontalalignment='right', size='medium', color='white', weight='semibold')
+
+plt.text(atomic_numbers_k_sorted[9]+ 1, k_beta_plot_sorted[9], r'$k_{\beta}$', horizontalalignment='left', size='large', color=u'#ff7f0e', weight='semibold')
+plt.text(atomic_numbers_k_sorted[9] + 1, k_alpha_plot_sorted[9], r'$k_{\alpha}$', horizontalalignment='left', size='large', color=u'#1f77b4', weight='semibold')
+
+for i,name in enumerate(atomic_name_ordered_l):
+    plt.text(atomic_numbers_l_sorted[i]- 0.5, l_alpha_plot_sorted[i], name, horizontalalignment='right', size='medium', color='white', weight='semibold')
+
+plt.text(atomic_numbers_l_sorted[2]+ 1, l_beta_plot_sorted[2], r'$L_{\beta}$', horizontalalignment='left', size='large', color=u'#d62728', weight='bold')
+plt.text(atomic_numbers_l_sorted[2] + 1, l_alpha_plot_sorted[2], r'$L_{\alpha}$', horizontalalignment='left', size='large', color=u'#2ca02c', weight='bold')
+plt.text(atomic_numbers_l_sorted[2] + 1, l_gamma_plot_sorted[2], r'$L_{\gamma}$', horizontalalignment='left', size='large', color=u'#9467bd', weight='bold')
+
 
 k_alpha_rydberg = cal_rydberg(k_alpha_30_fit[0],3/4)
 k_beta_rydberg = cal_rydberg(k_beta_30_fit[0],8/9)
 l_alpha_rydberg = cal_rydberg(l_alpha_30_fit[0],5/36)
 l_beta_rydberg = cal_rydberg(l_beta_30_fit[0],3/16)
 l_gamma_rydberg = cal_rydberg(l_gamma_30_fit[0],21/100)
+
 print(l_beta_30_fit[0])
 print(l_alpha_30_fit)
 print(f"Percentage Differnce k_alpha: {100*(R_0 - k_alpha_rydberg)/R_0} with value {k_alpha_rydberg}")
@@ -141,8 +172,8 @@ print(f"l_gamma Q value: {l_gamma_30_fit[0]**2/R_0} with value {21/100}, percent
 plt.xlabel("Atomic Number")
 plt.ylabel(r"$\sqrt{\frac{1}{wavelength}}}$ $\left(m^{-1/2}\right)$")
 # plt.grid()
-plt.legend()
-plt.legend()
+#plt.legend()
+#plt.legend()
 plt.show()
 
 
