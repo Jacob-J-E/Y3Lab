@@ -4,12 +4,16 @@ import scipy.optimize as spo
 import pandas as pd
 import math
 from scipy.signal import argrelextrema
+from scipy.stats import chisquare
 import xraydb
 import mplhep as hep
 hep.style.use("ATLAS")
 plt.style.use('dark_background')
 
 R_0 = 10973731.6
+H = 6.63e-34
+C = 3e8
+FS = 0.00729735
 
 def straight_line(x,m,c):
     return m * x + c
@@ -20,9 +24,17 @@ def cal_rydberg(m,factor):
 k_alpha = [8.080748431650838, 22.372552420613246, 16.044092033837604, 8.715570846388037, 4.57752299496841, 6.4190948273611665, 25.324555158862026, 17.421595970841373, 23.893491144556645, 7.681898645165174]
 k_beta = [8.95544201799072, 25.105444424220387, 17.982645794347498, 9.695802325558363, 5.097266130416366, 7.072766943625728, 28.42222963004282, 19.53560367390865, 26.785539971006223, 8.403630082046032]
 
+k_alpha = np.array(k_alpha)
+k_beta = np.array(k_beta)
 
 k_alpha_plot = np.sqrt(np.array(k_alpha)*1e3*1.6e-19 / (6.63e-34 * 3e8))
 k_beta_plot = np.sqrt(np.array(k_beta)*1e3*1.6e-19 / (6.63e-34 * 3e8))
+
+y_error_k_a = (0.05)*1e3*1.6e-19*(np.sqrt(H*C)/2)*(1/(np.sqrt(k_alpha*1e3*1.6e-19)**3))
+y_error_k_b = (0.05)*1e3*1.6e-19*(np.sqrt(H*C)/2)*(1/(np.sqrt(k_beta*1e3*1.6e-19)**3))
+
+
+
 
 #atomic_numbers_k_name = ['Cu', 'Ag', 'Zr', 'Zn','Ti', 'Fe', 'Sn','Mo', 'In', 'Ni']
 
@@ -40,9 +52,18 @@ l_alpha = [11.357273788806593, 14.856025841377411, 13.453359107827593]
 l_beta = [9.792511388784876, 12.588079827993488, 11.485332462914121]
 l_gamma = [8.579884420912107, 10.59672656896353, 9.77571560579842]
 
+l_alpha = np.array(l_alpha)
+l_beta = np.array(l_beta)
+l_gamma = np.array(l_gamma)
+
 l_alpha_plot = np.sqrt(np.array(l_alpha)*1e3*1.6e-19 / (6.63e-34 * 3e8))
 l_beta_plot = np.sqrt(np.array(l_beta)*1e3*1.6e-19 / (6.63e-34 * 3e8))
 l_gamma_plot = np.sqrt(np.array(l_gamma)*1e3*1.6e-19 / (6.63e-34 * 3e8))
+
+y_error_l_a = 0.5*1e3*1.6e-19*(np.sqrt(H*C)/2)*(1/(np.sqrt(l_alpha*1e3*1.6e-19)**3))
+print(y_error_l_a)
+y_error_l_b = 0.5*1e3*1.6e-19*(np.sqrt(H*C)/2)*(1/(np.sqrt(l_beta*1e3*1.6e-19)**3))
+y_error_l_g = 0.5*1e3*1.6e-19*(np.sqrt(H*C)/2)*(1/(np.sqrt(l_gamma*1e3*1.6e-19)**3))
 
 
 atomic_numbers_l = [74, 82, 79]
@@ -62,6 +83,10 @@ l_gamma_plot_sorted = np.array(l_gamma_plot_sorted)
 k_alpha_plot_sorted_30 = k_alpha_plot_sorted[atomic_numbers_k_sorted >= 30]
 k_beta_plot_sorted_30 = k_beta_plot_sorted[atomic_numbers_k_sorted >= 30]
 atomic_numbers_k_sorted_30 = atomic_numbers_k_sorted[atomic_numbers_k_sorted >= 30]
+y_error_k_a_30 = y_error_k_a[atomic_numbers_k_sorted >= 30]
+y_error_k_b_30 = y_error_k_b[atomic_numbers_k_sorted >= 30]
+
+
 
 l_alpha_plot_sorted_30 = l_alpha_plot_sorted[atomic_numbers_l_sorted >= 30]
 l_beta_plot_sorted_30 = l_beta_plot_sorted[atomic_numbers_l_sorted >= 30]
@@ -90,11 +115,13 @@ l_grad_gamma_30_guess = (l_gamma_plot_sorted_30[1]-l_gamma_plot_sorted_30[0]) / 
 l_c_gamma_30_guess = l_gamma_plot_sorted_30[1] - l_grad_gamma_30_guess * atomic_numbers_l_sorted_30[1]
 l_gamma_30_guess = [l_grad_gamma_30_guess,l_c_gamma_30_guess]
 
-k_alpha_30_fit,k_alpha_30_cov = spo.curve_fit(straight_line,atomic_numbers_k_sorted_30,k_alpha_plot_sorted_30,k_alpha_30_guess)
-k_beta_30_fit,k_beta_30_cov = spo.curve_fit(straight_line,atomic_numbers_k_sorted_30,k_beta_plot_sorted_30,k_beta_30_guess)
-l_alpha_30_fit,l_alpha_30_cov = spo.curve_fit(straight_line,atomic_numbers_l_sorted_30,l_alpha_plot_sorted_30,l_alpha_30_guess)
-l_beta_30_fit,l_beta_30_cov = spo.curve_fit(straight_line,atomic_numbers_l_sorted_30,l_beta_plot_sorted_30,l_beta_30_guess)
-l_gamma_30_fit,l_gamma_30_cov = spo.curve_fit(straight_line,atomic_numbers_l_sorted_30,l_gamma_plot_sorted_30,l_gamma_30_guess)
+abol = False
+
+k_alpha_30_fit,k_alpha_30_cov = spo.curve_fit(straight_line,atomic_numbers_k_sorted_30,k_alpha_plot_sorted_30,k_alpha_30_guess,sigma = y_error_k_a_30,absolute_sigma = abol)
+k_beta_30_fit,k_beta_30_cov = spo.curve_fit(straight_line,atomic_numbers_k_sorted_30,k_beta_plot_sorted_30,k_beta_30_guess,sigma = y_error_k_b_30,absolute_sigma = abol)
+l_alpha_30_fit,l_alpha_30_cov = spo.curve_fit(straight_line,atomic_numbers_l_sorted_30,l_alpha_plot_sorted_30,l_alpha_30_guess,sigma = y_error_l_a,absolute_sigma = abol)
+l_beta_30_fit,l_beta_30_cov = spo.curve_fit(straight_line,atomic_numbers_l_sorted_30,l_beta_plot_sorted_30,l_beta_30_guess,sigma = y_error_l_b,absolute_sigma = abol)
+l_gamma_30_fit,l_gamma_30_cov = spo.curve_fit(straight_line,atomic_numbers_l_sorted_30,l_gamma_plot_sorted_30,l_gamma_30_guess,sigma = y_error_l_g,absolute_sigma = abol)
 
 k_domain_invalid = np.arange(min(atomic_numbers_k_sorted),31,1)
 k_domain_valid = np.arange(30,max(atomic_numbers_k_sorted)+1,1)
@@ -181,13 +208,33 @@ l_alpha_rydberg = cal_rydberg(l_alpha_30_fit[0],5/36)
 l_beta_rydberg = cal_rydberg(l_beta_30_fit[0],3/16)
 l_gamma_rydberg = cal_rydberg(l_gamma_30_fit[0],21/100)
 
+
+def chi_square(obs,exp):
+    obs = np.array(obs)
+    exp = np.array(exp)
+    chi_val = (obs-exp)**2/exp**2
+    return sum(chi_val)
+
+def chi_square_reduced(obs,exp,sigma):
+    obs = np.array(obs)
+    exp = np.array(exp)
+    chi_val = (obs-exp)**2/sigma**2
+    return sum(chi_val)
+
+
+# observe = [1,5,1]
+# expected = [1,2,3]
+
+# print(chi_square(observe,expected))
+
+
 print(l_beta_30_fit[0])
 print(l_alpha_30_fit)
-print(f"Percentage Differnce k_alpha: {100*(R_0 - k_alpha_rydberg)/R_0} with value {k_alpha_rydberg}")
-print(f"Percentage Differnce k_beta: {100*(R_0 - k_beta_rydberg)/R_0 }with value {k_beta_rydberg}")
-print(f"Percentage Differnce l_alpha: {100*(R_0 - l_alpha_rydberg)/R_0} with value {l_alpha_rydberg}")
-print(f"Percentage Differnce l_beta: {100*(R_0 - l_beta_rydberg)/R_0} with value {l_beta_rydberg}")
-print(f"Percentage Differnce l_gamma: {100*(R_0 - l_gamma_rydberg)/R_0} with value {l_gamma_rydberg}")
+print(f"Percentage Differnce k_alpha: {(100*(R_0 - k_alpha_rydberg)/R_0):.4g} with value {k_alpha_rydberg:.4g} with error, {cal_rydberg(np.sqrt(k_alpha_30_cov[0][0]),3/4):.4g}, chi - {chi_square(k_alpha_plot_sorted,straight_line(atomic_numbers_k_sorted,*k_alpha_30_fit)):.4g}")
+print(f"Percentage Differnce k_beta: {(100*(R_0 - k_beta_rydberg)/R_0):.4g} with value {k_beta_rydberg:.4g} with error, {cal_rydberg(np.sqrt(k_beta_30_cov[0][0]),8/9):.4g}, chi - {chi_square(k_beta_plot_sorted,straight_line(atomic_numbers_k_sorted,*k_beta_30_fit)):.4g}")
+print(f"Percentage Differnce l_alpha: {(100*(R_0 - l_alpha_rydberg)/R_0):.4g} with value {l_alpha_rydberg:.4g} with error, {cal_rydberg(np.sqrt(l_alpha_30_cov[0][0]),5/36):.4g}, chi - {chi_square(l_alpha_plot_sorted,straight_line(atomic_numbers_l_sorted,*l_alpha_30_fit)):.4g}")
+print(f"Percentage Differnce l_beta: {(100*(R_0 - l_beta_rydberg)/R_0):.4g} with value {l_beta_rydberg:.4g} with error, {cal_rydberg(np.sqrt(l_beta_30_cov[0][0]),3/16):.4g}, chi - {chi_square(l_beta_plot_sorted,straight_line(atomic_numbers_l_sorted,*l_beta_30_fit)):.4g}")
+print(f"Percentage Differnce l_gamma: {(100*(R_0 - l_gamma_rydberg)/R_0):.4g} with value {l_gamma_rydberg:.4g} with error, {cal_rydberg(np.sqrt(l_gamma_30_cov[0][0]),21/100):.4g}, chi - {chi_square(l_gamma_plot_sorted,straight_line(atomic_numbers_l_sorted,*l_gamma_30_fit)):.4g}")
 
 print(f"k_alpha Q value: {k_alpha_30_fit[0]**2/R_0}. Expected Value:  {3/4}, percentage difference: {100*((3/4) - (k_alpha_30_fit[0]**2/R_0))/(3/4)} ")
 print(f"k_beta Q value: {k_beta_30_fit[0]**2/R_0} with value {8/9}, percentage difference: {100*((8/9) - (k_beta_30_fit[0]**2/R_0))/(8/9)} ")
