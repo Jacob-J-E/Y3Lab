@@ -106,13 +106,19 @@ print(f"Percentage Differnce beta : {100*(R_0 - beta_fit[0]/((8/9)*(H*C)))/R_0}"
 
 
 
-
+sigma_E = 0.05 
+plot_sigma = np.zeros_like(energy_alpha) + 0.05
 keV = 1e3*1.6e-19
 sorted_z = sorted(Z)
+Z_plot = np.arange(min(sorted_z),max(sorted_z),0.1)
+plt.figure(1,figsize=(12.5,10))
 plt.scatter(Z,energy_alpha/keV,label = r'$k_/alpha$',color="#46bddf",marker='x')
-plt.plot(sorted_z,correction_moseley_alpha(sorted_z,*alpha_fit)/keV, label = r'Fitted $k_/alpha$',color="#46bddf")
+plt.plot(Z_plot,correction_moseley_alpha(Z_plot,*alpha_fit)/keV, label = r'Fitted $k_/alpha$',color="#46bddf")
 plt.scatter(Z,energy_beta/keV,label = r'$k_/beta$',color="#f05464",marker='x')
-plt.plot(sorted_z,correction_moseley_beta(sorted_z,*beta_fit)/keV, label = r'Fitted $k_/beta$',color="#f05464")
+plt.plot(Z_plot,correction_moseley_beta(Z_plot,*beta_fit)/keV, label = r'Fitted $k_/beta$',color="#f05464")
+plt.errorbar(Z,energy_alpha/keV,yerr=sigma_E,color="#46bddf",ls='none',capsize=5)
+plt.errorbar(Z,energy_beta/keV,yerr=sigma_E,color="#f05464",ls='none',capsize=5)
+
 
 atomic_numbers_ordered = [21,26,28,29,30,40,42,47,49,50] 
 atomic_name_ordered = ['Ti','Fe','Ni','Cu','Zn','Zr','Mo','Ag','In','Sn'] 
@@ -122,11 +128,14 @@ for i,name in enumerate(atomic_name_ordered):
 
 plt.text(atomic_numbers_ordered[-1]+1, energy_alpha[-4]/keV, r'$K_{\alpha}$', horizontalalignment='left', size='large', color=u"#46bddf", weight='bold')
 plt.text(atomic_numbers_ordered[-1]+1, energy_beta[-4]/keV, r'$K_{\beta}$', horizontalalignment='left', size='large', color=u"#f05464", weight='bold')
+# plt.text()
 # plt.legend()
-plt.xlim(20,55)
+plt.xlim(17,55)
+plt.ylim(2,35)
 plt.xlabel("Atomic Number")
 plt.ylabel(r"Energy (keV)")
 plt.grid(alpha=0.5)
+plt.savefig(r"X-Ray\Plots and Figs\correct_moseley.png",dpi=400,format="png")
 plt.show()
 
 # plt.plot(Z_plot,moseley,label="Moseley's Law",color="#46bddf")
