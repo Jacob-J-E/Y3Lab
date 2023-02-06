@@ -7,8 +7,6 @@ import scipy.optimize as spo
 from scipy.signal import savgol_filter
 from scipy.signal import argrelextrema
 hep.style.use("ATLAS")
-# from matplotlib import rc
-# rc('text', usetex=True)
 plt.style.use('dark_background')
 plt.rcParams['text.latex.preamble']=[r"\usepackage{amsmath}"]
 plt.rcParams["text.usetex"]
@@ -20,7 +18,7 @@ def straight_line(x,m,c):
 def cal_rydberg(m,factor):
     return (1/factor)*m**2
 
-Z = np.arange(40,90,1)
+Z = np.arange(30,90,1)
 Z_plot = Z[Z<80]
 sigma_moseley_alpha = 1
 sigma_moseley_beta = 7.4
@@ -47,16 +45,18 @@ plt.ylabel(r"$\sqrt{\frac{1}{\lambda}}$   $\left(m^{-1/2}\right)$",fontsize=20,l
 
 
 
-plt.text(Z_plot[-1]+1.2, moseley[-1], r"Moseley's Law", horizontalalignment='left', size='large', color=u'#46bddf', weight='semibold')
-plt.text(Z_plot[-1] + 1, K_alpha[-1], r'$K_{\alpha}$', horizontalalignment='left', size='large', color=u'#e4e5e7', weight='semibold')
-plt.text(Z_plot[-1]+ 1, K_beta[-1], r'$K_{\beta}$', horizontalalignment='left', size='large', color=u'#f05464', weight='bold')
+plt.text(Z_plot[-1]+1.2, moseley[-1], r"Moseley's Law", horizontalalignment='left', fontsize=18, color=u'#46bddf', weight='semibold')
+plt.text(Z_plot[-1] + 1, K_alpha[-1], r'$K_{\alpha}$', horizontalalignment='left', fontsize=18, color=u'#e4e5e7', weight='semibold')
+plt.text(Z_plot[-1]+ 1, K_beta[-1], r'$K_{\beta}$', horizontalalignment='left', fontsize=18, color=u'#f05464', weight='bold')
 
-plt.text((Z_plot[-1] + 1),(L_alpha[-1]+0*1e8), r'$L_{\alpha}$', horizontalalignment='left', size='large', color=u'#e87454', weight='bold')
-plt.text((Z_plot[-1] + 1),(L_beta[-1]+0*1e8), r'$L_{\beta}$', horizontalalignment='left', size='large', color=u'#58d474', weight='bold')
-plt.text((Z_plot[-1] + 1),(L_gamma[-1]+0.2*1e8), r'$L_{\gamma}$', horizontalalignment='left', size='large', color=u'#e8c454', weight='bold')
+plt.text((Z_plot[-1] + 1),(L_alpha[-1]-0.2*1e8), r'$L_{\alpha}$', horizontalalignment='left', fontsize=18, color=u'#e87454', weight='bold')
+plt.text((Z_plot[-1] + 1),(L_beta[-1]+0*1e8), r'$L_{\beta}$', horizontalalignment='left', fontsize=18, color=u'#58d474', weight='bold')
+plt.text((Z_plot[-1] + 1),(L_gamma[-1]+0.3*1e8), r'$L_{\gamma}$', horizontalalignment='left', fontsize=18, color=u'#e8c454', weight='bold')
 
 
 
-plt.xlim(35,89)
+plt.xlim(25,92)
+plt.ylim(0,1e9)
 plt.grid(alpha=0.5)
+plt.savefig(r"X-Ray\Plots and Figs\theo_moseley.png",dpi=400,format='png')
 plt.show()

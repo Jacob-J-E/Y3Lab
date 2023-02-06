@@ -142,7 +142,8 @@ print(f"Percentage Differnce k_beta: {(100*(R_0 - k_beta_rydberg)/R_0):.4g} with
 
 
 
-
+sigma_E = 0.05 
+plot_sigma = np.zeros_like(energy_alpha) + 0.05
 keV = 1e3*1.6e-19
 
 
@@ -167,11 +168,14 @@ for i,name in enumerate(atomic_name_ordered):
 
 plt.text(atomic_numbers_ordered[-1]+1, energy_alpha[-4]/keV, r'$K_{\alpha}$', horizontalalignment='left', size='large', color=u"#46bddf", weight='bold')
 plt.text(atomic_numbers_ordered[-1]+1, energy_beta[-4]/keV, r'$K_{\beta}$', horizontalalignment='left', size='large', color=u"#f05464", weight='bold')
+# plt.text()
 # plt.legend()
-plt.xlim(20,55)
+plt.xlim(17,55)
+plt.ylim(2,35)
 plt.xlabel("Atomic Number")
 plt.ylabel(r"Energy (keV)")
 plt.grid(alpha=0.5)
+plt.savefig(r"X-Ray\Plots and Figs\correct_moseley.png",dpi=400,format="png")
 plt.show()
 
 # plt.plot(Z_plot,moseley,label="Moseley's Law",color="#46bddf")

@@ -6,7 +6,11 @@ import math
 from scipy.signal import argrelextrema
 import xraydb
 import pickle
-
+import mplhep as hep
+hep.style.use("ATLAS")
+plt.style.use('dark_background')
+plt.rcParams['text.latex.preamble']=[r"\usepackage{amsmath}"]
+plt.rcParams["text.usetex"]
 
 #Loading in old low res data
 data_low_res = pd.read_csv(r"X-Ray\Data\24-01-2023\Plates Mo Source.csv",skiprows=0)
@@ -64,17 +68,17 @@ else:
     beta_energies_ag = params_e1[1]
 
 
-
-
-
 plt.figure(1)
-plt.plot(energy_low_res_x,ag_plate, label = f'Ag Plate') 
-plt.plot(energy_low_res_x,gaussian(energy_low_res_x,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]:.2f},mu_e2 = {params_e1[4]:.2f})')
-plt.axvline(mu_guess_e1, label = r'$k_{\alpha}$' + f' with theoretical energy {mu_guess_e1:.2f} keV', color = 'blue')
-plt.axvline(mu_guess_e2, label = r'$k_{\beta}$' + f' with theoretical energy {mu_guess_e2:.2f} keV', color = 'red')
+plt.plot(energy_low_res_x,ag_plate, label = f'Ag Plate',color="silver") 
+# plt.plot(energy_low_res_x,gaussian(energy_low_res_x,*params_e1), label = f'Gaussian fit ($\mu_1$ = {params_e1[1]:.2f}, $\mu_2$ = {params_e1[4]:.2f})',color="#46bddf")
+# plt.axvline(mu_guess_e1, label = r'$k_{\alpha}$' + f' with theoretical energy {mu_guess_e1:.2f} keV', color = 'blue')
+# plt.axvline(mu_guess_e2, label = r'$k_{\beta}$' + f' with theoretical energy {mu_guess_e2:.2f} keV', color = 'red')
 plt.xlim(left = 2, right = 35)
+plt.ylim(0,1.5*max(ag_plate))
 plt.legend(loc="upper right")
-
+plt.xlabel("Energy (keV)")
+plt.ylabel(r"Counts  $(s^{-1})$")
+plt.grid(alpha=0.5)
 au_plate = data_high_res[au]
 
 
@@ -117,11 +121,16 @@ l_beta_energies = energy_val[1]
 l_gamma_energies = energy_val[0]
 
 plt.figure(2)
-plt.plot(energy_high_res_x,au_plate, label = f'Au Plate') 
-plt.plot(energy_high_res_x,gaussian_triple(energy_high_res_x,*params_e1), label = f'Gaussian fit (mu_e1 = {params_e1[1]:.2f},mu_e2 = {params_e1[4]:.2f},mu_e3 = {params_e1[7]:.2f})')
+plt.plot(energy_high_res_x,au_plate, label = f'Au Plate',color="gold") 
+plt.plot(energy_high_res_x,gaussian_triple(energy_high_res_x,*params_e1), label = f'Gaussian fit ($\mu_1$ = {params_e1[1]:.2f}, $\mu_2$ = {params_e1[4]:.2f}, $\mu_3$ = {params_e1[7]:.2f})',color="#46bddf")
 plt.axvline(mu_guess_e1, label = r'$l_{\alpha}$' + f' with energy {mu_guess_e1:.2f} keV', color = 'blue')
 plt.axvline(mu_guess_e2, label = r'$l_{\beta}$' + f' with energy {mu_guess_e2:.2f} keV', color = 'red')
 plt.axvline(mu_guess_e3, label = r'$l_{\gamma}$' + f' with energy {mu_guess_e3:.2f} keV', color = 'green')
 plt.legend(loc="upper right")
 plt.xlim(left = 2, right = 35)
+plt.ylim(0,1.5*max(au_plate))
+plt.xlabel("Energy (keV)")
+plt.ylabel(r"Counts  $(s^{-1})$")
+plt.grid(alpha=0.5)
 plt.show()
+
