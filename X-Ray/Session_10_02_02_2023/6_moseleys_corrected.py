@@ -164,7 +164,7 @@ atomic_numbers_ordered = [21,26,28,29,30,40,42,47,49,50]
 atomic_name_ordered = ['Ti','Fe','Ni','Cu','Zn','Zr','Mo','Ag','In','Sn'] 
 
 for i,name in enumerate(atomic_name_ordered):
-    plt.text(Z[i] - .5, energy_beta[i]/keV, name, horizontalalignment='right', size='medium', color='white', weight='semibold')
+    plt.text(atomic_numbers_ordered[i] - 0.5, energy_beta_sorted[i]/keV, name, horizontalalignment='right', size='medium', color='white', weight='semibold')
 
 plt.text(atomic_numbers_ordered[-1]+1, energy_alpha[-4]/keV, r'$K_{\alpha}$', horizontalalignment='left', size='large', color=u"#46bddf", weight='bold')
 plt.text(atomic_numbers_ordered[-1]+1, energy_beta[-4]/keV, r'$K_{\beta}$', horizontalalignment='left', size='large', color=u"#f05464", weight='bold')
