@@ -24,8 +24,7 @@ wav = wav[angle>angle_max]
 count_0 = count_0[angle>angle_max]
 
 fft = np.fft.fft(count_0)
-fft_copy = fft
-# fft = np.fft.fftshift(fft)
+fft = np.fft.fftshift(fft)
 dx = np.diff(wav)[0]
 freqs = np.fft.fftfreq(len(wav), d=dx)
 
