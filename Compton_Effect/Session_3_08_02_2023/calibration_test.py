@@ -10,8 +10,26 @@ import xraydb
 import mplhep as hep
 from matplotlib import pyplot as plt
 import numpy as np
-
 hep.style.use("ATLAS")
+
+def batch(data: np.array ,batches: int):
+
+    data = np.array(data)
+
+    length = len(data)
+    if length % batches != 0:
+        print("Invalid batching shape")
+        exit()
+
+    new_channel = [i for i in range(0,int(length/batches))]
+    new_count = []
+    
+    for i in range(0,length,batches):
+        new_count.append(np.sum(data[i:i+batches]))
+
+    return [np.array(new_channel),np.array(new_count)]
+
+
 
 data = pd.read_csv(r"Compton_Effect\Data\Session_3_08_02_2023\Cs Co Am Ba Na Na_2.csv",skiprows=0)
 
@@ -23,7 +41,19 @@ Ba = data['N_4']
 Na = data['N_5']
 Na_2 = data['N_6']
 Na = Na.to_numpy() + Na_2.to_numpy()
+data = [Cs, Co, Am, Ba, Na]
 
+new_data = []
+bins = batch(data[0],4)[0]
+for data in data:
+    new_data.append(batch(data,4)[1])
+
+
+Cs = new_data[0]
+Co = new_data[1]
+Am = new_data[2]
+Ba = new_data[3]
+Na = new_data[4]
 
 
 def gaussian(x, a, b, c,e):
@@ -45,14 +75,14 @@ def chi_square(obs,exp):
 
 bounds_para = [(0, np.inf),(0, np.inf),(0, np.inf),(0, np.inf)]
 
-guess_Cs_1 = [530,1800,1,0]
-params_Cs_1, cov_Cs_1 = spo.curve_fit(gaussian,bins[1530:2047],Cs[1530:2047],guess_Cs_1, bounds = (0, np.inf))
+guess_Cs_1 = [530*4,1800/4,1,0]
+params_Cs_1, cov_Cs_1 = spo.curve_fit(gaussian,bins[int(1530/4):int(2047/4)],Cs[int(1530/4):int(2047/4)],guess_Cs_1, bounds = (0, np.inf))
 
-guess_Cs_2 = [300,110,1,0]
-params_Cs_2, cov_Cs_2 = spo.curve_fit(gaussian,bins[:170],Cs[:170],guess_Cs_2, bounds = (0, np.inf))
+guess_Cs_2 = [300*4,110/4,1,0]
+params_Cs_2, cov_Cs_2 = spo.curve_fit(gaussian,bins[:int(170/4)],Cs[:int(170/4)],guess_Cs_2, bounds = (0, np.inf))
 
-guess_Cs_3 = [165,240,1,0]
-params_Cs_3, cov_Cs_3 = spo.curve_fit(gaussian,bins[169:380],Cs[169:380],guess_Cs_3, bounds = (0, np.inf))
+guess_Cs_3 = [165*4,240/4,1,0]
+params_Cs_3, cov_Cs_3 = spo.curve_fit(gaussian,bins[int(169/4):int(380/4)],Cs[int(169/4):int(380/4)],guess_Cs_3, bounds = (0, np.inf))
 
 
 plt.figure("Cs")
@@ -76,7 +106,7 @@ print(f'{params_Cs_3[1]:.4g} +/- {np.sqrt(cov_Cs_3[1][1]):.4g}')
 
 
 
-guess_Co_1 = [58,367,1,0]
+guess_Co_1 = [58*4,367/4,1,0]
 params_Co_1, cov_Co_1 = spo.curve_fit(gaussian,bins,Co,guess_Co_1, bounds = (0, np.inf))
 plt.figure("Co")
 plt.plot(bins,Co)
@@ -89,10 +119,10 @@ plt.ylim(bottom = 0)
 print(f'{params_Co_1[1]:.4g} +/- {np.sqrt(cov_Co_1[1][1]):.4g}')
 
 
-guess_Am_1 = [3430,190,1,0]
+guess_Am_1 = [3430*4,190/4,1,0]
 params_Am_1, cov_Am_1 = spo.curve_fit(gaussian,bins,Am,guess_Am_1, bounds = (0, np.inf))
 
-guess_Am_2 = [600,100,1,0]
+guess_Am_2 = [600*4,100/4,1,0]
 params_Am_2, cov_Am_2 = spo.curve_fit(gaussian,bins,Am,guess_Am_2, bounds = (0, np.inf))
 plt.figure("Am")
 plt.plot(bins,Am)
@@ -107,7 +137,7 @@ plt.ylim(bottom = 0)
 print(f'{params_Am_1[1]:.4g} +/- {np.sqrt(cov_Am_1[1][1]):.4g}')
 print(f'{params_Am_2[1]:.4g} +/- {np.sqrt(cov_Am_2[1][1]):.4g}')
 
-guess_Na_1 = [180,1400,1,0]
+guess_Na_1 = [180*4,1400/4,1,0]
 params_Na_1, cov_Na_1 = spo.curve_fit(gaussian,bins,Na,guess_Na_1, bounds = (0, np.inf))
 plt.figure("Na")
 plt.plot(bins,Na)
@@ -148,8 +178,8 @@ plt.xlim(left = 0 , right = 2047)
 plt.legend()
 
 
-bin_numbers_energy = np.array([102.4,195.9,243,369.7,1422,1822])
-bin_numbers_energy_error = np.array([2.517,0.07103,0.9579,0.2318,1.56,0.3189])
+bin_numbers_energy = np.array([102.4,195.9,243,369.7,1422,1822])/4
+bin_numbers_energy_error = np.array([2.517,0.07103,0.9579,0.2318,1.56,0.3189])/4
 energy_vals = np.array([30.85,59.54,81.0,122,511,661.7])
 
 m = (energy_vals[-1]-energy_vals[0])/(bin_numbers_energy[-1]-bin_numbers_energy[0])
