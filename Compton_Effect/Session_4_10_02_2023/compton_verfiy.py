@@ -39,7 +39,7 @@ def energy_compton(x,E_0, m_e = 9.11e-31, c=3e8):
 
 # For 512 bins
 def energy_convert(x):
-    return 1.47491391 * x - -11.41351443
+    return 1.47491391 * x - 11.41351443
 
 
 def gaussian(x, a, b, c, e):
@@ -97,6 +97,8 @@ for i in range(0,len(compton)):
 angle_plot = np.arange(10,100,0.1)
 angle = np.array([10, 20, 30 ,40 ,50 ,60 ,70 ,80, 90, 100]) * np.pi / 180
 params, cov = spo.curve_fit(energy_compton,np.cos(angle),fit_means,[622])
+plt.figure(len(compton))
+
 print(params)
 chi = chi_square(fit_means,energy_compton((np.cos(angle)),E_0=params))
 print("Chi Squared Value" , chi)
@@ -107,7 +109,13 @@ print("Theoretical Chi^2 ",chi_2)
 plt.plot(np.cos(angle_plot),energy_compton(np.cos(angle_plot),622),label='Theoretical')
 plt.scatter(np.cos(angle),fit_means,marker='x',color='black',label='Experimental data')
 plt.plot(np.cos(angle_plot),energy_compton((np.cos(angle_plot)),E_0=params),label='Fit to data')
-plt.errorbar(np.cos(angle),fit_means,energy_error,ls='None',color='black',capsize=5) 
+
+# Using Gaussian fit errors
+plt.errorbar(np.cos(angle),fit_means,np.array(energy_error),ls='None',color='black',capsize=5,label=r"$1\sigma$ error") 
+
+# Using Compton curve-fit errors
+plt.errorbar(np.cos(angle),fit_means,np.zeros_like(fit_means)+np.sqrt(cov[0][0]),ls='None',color='blue',capsize=5,label=r"$1\sigma$ error C") 
+
 plt.xlim(-0.2,1)
 plt.xlabel(r"$\cos \theta$")
 plt.ylabel("Energy (keV)")
