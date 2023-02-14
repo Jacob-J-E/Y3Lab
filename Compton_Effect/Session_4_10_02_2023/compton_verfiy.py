@@ -7,6 +7,22 @@ import scipy.optimize as spo
 import scipy as sp 
 hep.style.use("CMS")
 
+def batch(data: np.array ,batches: int):
+
+    data = np.array(data)
+
+    length = len(data)
+    if length % batches != 0:
+        print("Invalid batching shape")
+        exit()
+
+    new_channel = [i for i in range(0,int(length/batches))]
+    new_count = []
+    
+    for i in range(0,length,batches):
+        new_count.append(np.sum(data[i:i+batches]))
+
+    return np.array(new_channel),np.array(new_count)
 
 def chi_square(obs,exp):
     obs = np.array(obs)
@@ -17,59 +33,65 @@ def chi_square(obs,exp):
 def energy_compton(x,E_0, m_e = 9.11e-31, c=3e8):
     return E_0 / (1+((E_0)/(511))*(1-x))
 
+# For 2048 bins
+# def energy_convert(x):
+#     return 0.36788261 * x - 10.41037249
 
+# For 512 bins
 def energy_convert(x):
-    return 0.36788261 * x - 10.41037249
+    return 1.47491391 * x - -11.41351443
+
 
 def gaussian(x, a, b, c, e):
     return (a * np.exp(-((x - b) ** 2) / (2 * c ** 2)) + e)
 
 data_cs = pd.read_csv(r"Compton_Effect\Data\Session_4_10_02_2023\80_degrees.csv",skiprows=0)
-channel = np.array(data_cs['n_1'])
-channel = energy_convert(channel)
+compton_initial_load = np.array(data_cs['compton'])
+new_channel = batch(compton_initial_load,4)[0]
+new_channel = energy_convert(new_channel)
 
 compton = []
 straight = [] 
 for i in range(1,11):
     path = "Compton_Effect\Data\Session_4_10_02_2023/"+str(10*i)+"_degrees.csv"
     data = pd.read_csv(path,skiprows=0)
-    compton.append(data['compton'])
-    straight.append(data['straight'])
+    compton.append(batch(data['compton'],4)[1])
+    straight.append(batch(data['straight'],4)[1])
 
 fit_means = []
 energy_error = []
 for i in range(0,len(compton)):
     plt.figure(i)
     # plt.figure(i)
-    compton_savgol = savgol_filter(compton[i]-straight[i],window_length=301,polyorder=3)
+    compton_savgol = savgol_filter(compton[i]-straight[i],window_length=91,polyorder=4)
     compton_reduced = compton[i]-straight[i]
     y_error = np.sqrt(np.array(compton[i])+np.array(straight[i]))
-    if i==3:
-        channel_splice = channel[(channel>450) & (channel < 650)]
-        y_axis_splice = compton_reduced[(channel>450) & (channel < 650)]
-        compton_savgol_spliced = compton_savgol[(channel>450) & (channel < 650)]
-        index_splice = np.argmax(compton_savgol_spliced)
-        y_error_splice = y_error[(channel>450) & (channel < 650)]
-        sigma_guess_splice = 50
-        params_splice, cov_splice = spo.curve_fit(gaussian,channel_splice,y_axis_splice,[compton_savgol_spliced[index_splice],channel_splice[index_splice],sigma_guess_splice,0],sigma=y_error_splice)
-        print("Mean energy splice = ",params_splice[1])
+    # if i==3:
+    #     channel_splice = new_channel[(new_channel>450) & (new_channel < 650)]
+    #     y_axis_splice = compton_reduced[(new_channel>450) & (new_channel < 650)]
+    #     compton_savgol_spliced = compton_savgol[(new_channel>450) & (new_channel < 650)]
+    #     index_splice = np.argmax(compton_savgol_spliced)
+    #     y_error_splice = y_error[(new_channel>450) & (new_channel < 650)]
+    #     sigma_guess_splice = 50
+    #     params_splice, cov_splice = spo.curve_fit(gaussian,channel_splice,y_axis_splice,[compton_savgol_spliced[index_splice],channel_splice[index_splice],sigma_guess_splice,0],sigma=y_error_splice)
+    #     print("Mean energy splice = ",params_splice[1])
 
 
 
 
   
     index = np.argmax(compton_savgol)
-    length = len(channel)
+    length = len(new_channel)
     sigma_guess = 10
     print("REEEE",sigma_guess)
-    params, cov = spo.curve_fit(gaussian,channel,compton_reduced,[compton_savgol[index],channel[index],sigma_guess,0],sigma=y_error)
+    params, cov = spo.curve_fit(gaussian,new_channel,compton_reduced,[compton_savgol[index],new_channel[index],sigma_guess,0],sigma=y_error)
     if i == 3:
         print("Non-Splice mean ", params[1])
     fit_means.append(params[1])
     energy_error.append(params[2])
-    plt.plot(channel,compton_reduced)
-    plt.plot(channel,compton_savgol)
-    plt.plot(channel,gaussian(channel,*params))
+    plt.plot(new_channel,compton_reduced,alpha=0.5)
+    plt.plot(new_channel,compton_savgol)
+    plt.plot(new_channel,gaussian(new_channel,*params),color='black')
     # plt.show()
 
 angle_plot = np.arange(10,100,0.1)
