@@ -8,10 +8,13 @@ import scipy as sp
 hep.style.use("CMS")
 
 def batch(data: np.array ,batches: int):
+    length = len(data)
+    if batches == 1:
+        return np.array([i for i in range(0,int(length/batches))]),np.array(data)
 
     data = np.array(data)
 
-    length = len(data)
+    
     if length % batches != 0:
         print("Invalid batching shape")
         exit()
@@ -34,18 +37,27 @@ def energy_compton(x,E_0, m_e = 9.11e-31, c=3e8):
     return E_0 / (1+((E_0)/(511))*(1-x))
 
 # For 2048 bins
-# def energy_convert(x):
-#     return 0.36788261 * x - 10.41037249
-
-# For 256 bins
 def energy_convert(x):
-    return 2.95468636 * x -10.83309361
+    return 0.36788261 * x - 10.41037249
 
+
+# [0.00687486 0.82356101
+# # For 256 bins
+
+
+# LEAST SQUARES: Error in straight line parameters: [0.015527269920733291,1.867815177988752]
+# LEAST SQUARES: straight line parameters: [ 2.94316695 -9.10739353]
+
+# def energy_convert(x):
+#     return (2.95468636+0.00687486) * x -10.83309361 + 0.82356101
+
+# def energy_convert(x):
+#     return (2.94316695/8-0.015527269920733291) * x -9.10739353+1.867815177988752
 
 def gaussian(x, a, b, c, e):
     return (a * np.exp(-((x - b) ** 2) / (2 * c ** 2)) + e)
 
-batch_size = 8
+batch_size = 1
 
 data_cs = pd.read_csv(r"Compton_Effect\Data\Session_4_10_02_2023\80_degrees.csv",skiprows=0)
 compton_initial_load = np.array(data_cs['compton'])
@@ -65,7 +77,7 @@ energy_error = []
 for i in range(0,len(compton)):
     plt.figure(f"{10+i*10} degrees")
     # plt.figure(i)
-    compton_savgol = savgol_filter(compton[i]-straight[i],window_length=55,polyorder=4)
+    compton_savgol = savgol_filter(compton[i]-straight[i],window_length=251,polyorder=4)
     compton_reduced = compton[i]-straight[i]
     y_error = np.sqrt(np.array(compton[i])+np.array(straight[i]))
     # if i==3:
@@ -98,20 +110,32 @@ for i in range(0,len(compton)):
 
 angle_plot = np.arange(10,100,0.1)
 angle = np.array([10, 20, 30 ,40 ,50 ,60 ,70 ,80, 90, 100]) * np.pi / 180
-params, cov = spo.curve_fit(energy_compton,np.cos(angle),fit_means,[622],sigma=np.array(energy_error),absolute_sigma=False)
+params, cov = spo.curve_fit(energy_compton,np.cos(angle),fit_means,[661.7],sigma=np.array(energy_error),absolute_sigma=False)
 plt.figure("Mega Plot")
+
+data_human = pd.read_csv(r"Compton_Effect\Data\Session_5_02_2023\Human_guess_compton_scat.csv",skiprows=0)
+params_humam, cov_human = spo.curve_fit(energy_compton,np.cos(angle),data_human['Value'],[661.7],sigma=np.array(data_human['Error']),absolute_sigma=False)
 
 print(params)
 chi = chi_square(fit_means,energy_compton((np.cos(angle)),E_0=params))
 print("Chi Squared Value" , chi)
 
-chi_2 = chi_square(fit_means, energy_compton(np.cos(angle),622))
+chi_2 = chi_square(fit_means, energy_compton(np.cos(angle),661.7))
 print("Theoretical Chi^2 ",chi_2)
 
-plt.plot(np.cos(angle_plot),energy_compton(np.cos(angle_plot),622),label='Theoretical')
-plt.scatter(np.cos(angle),fit_means,marker='x',color='black',label='Experimental data')
-plt.plot(np.cos(angle_plot),energy_compton((np.cos(angle_plot)),E_0=params),label='Fit to data')
+chi_3 = chi_square(data_human['Value'], energy_compton(np.cos(angle),661.7))
+print("Theoretical Chi^2 human  ",chi_2)
 
+chi_4 = chi_square(data_human['Value'], energy_compton(np.cos(angle),params_humam))
+print("Human Experimental Chi^2 ",chi_4)
+
+plt.plot(np.cos(angle_plot),energy_compton(np.cos(angle_plot),661.7),label='Theoretical')
+plt.scatter(np.cos(angle),fit_means,marker='x',color='black',label='Experimental data')
+# plt.scatter(np.cos(angle),data_human['Value'],color='green',marker='x')
+plt.plot(np.cos(angle_plot),energy_compton((np.cos(angle_plot)),E_0=params),label='Fit to data')
+# plt.plot(np.cos(angle_plot),energy_compton(np.cos(angle_plot),E_0=params_humam),color="blue",label="Human fit")
+print("Exp params",params)
+print("Human params",params_humam)
 # Using Gaussian fit errors
 plt.errorbar(np.cos(angle),fit_means,np.array(energy_error),ls='None',color='black',capsize=5,label=r"$1\sigma$ error") 
 
@@ -124,3 +148,13 @@ plt.ylabel("Energy (keV)")
 plt.grid(alpha=0.8)
 plt.legend(loc="upper left")
 plt.show()
+
+
+
+
+
+
+
+
+
+

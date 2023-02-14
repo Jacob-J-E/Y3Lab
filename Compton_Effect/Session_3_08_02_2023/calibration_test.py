@@ -190,9 +190,9 @@ params_sl_3, cov_sl_3 = spo.curve_fit(straight_line,bin_numbers_energy,energy_va
 print(params_sl_3)
 domain = np.arange(0,max(bins),1)
 
-print(f' LEAST SQUARES: straight line parameters: [{np.sqrt(cov_sl_3[0][0])},{np.sqrt(cov_sl_3[1][1])}]')
-print(f' LEAST SQUARES: Error in straight line parameters: {params_sl_3}')
-%
+print(f'  LEAST SQUARES: Error in straight line parameters: [{np.sqrt(cov_sl_3[0][0])},{np.sqrt(cov_sl_3[1][1])}]')
+print(f' LEAST SQUARES: straight line parameters: {params_sl_3}')
+
 
 quad_line_guess = [0,params_sl_3[0],params_sl_3[1]]
 params_ql_3, cov_ql_3 = spo.curve_fit(quad_line,bin_numbers_energy,energy_vals,quad_line_guess)
@@ -235,5 +235,3 @@ plt.ylabel("Energy (keV)")
 
 
 plt.show()
-
-d:
