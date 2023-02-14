@@ -37,17 +37,19 @@ def energy_compton(x,E_0, m_e = 9.11e-31, c=3e8):
 # def energy_convert(x):
 #     return 0.36788261 * x - 10.41037249
 
-# For 512 bins
+# For 256 bins
 def energy_convert(x):
-    return 1.47491391 * x - 11.41351443
+    return 2.95468636 * x -10.83309361
 
 
 def gaussian(x, a, b, c, e):
     return (a * np.exp(-((x - b) ** 2) / (2 * c ** 2)) + e)
 
+batch_size = 8
+
 data_cs = pd.read_csv(r"Compton_Effect\Data\Session_4_10_02_2023\80_degrees.csv",skiprows=0)
 compton_initial_load = np.array(data_cs['compton'])
-new_channel = batch(compton_initial_load,4)[0]
+new_channel = batch(compton_initial_load,batch_size)[0]
 new_channel = energy_convert(new_channel)
 
 compton = []
@@ -55,15 +57,15 @@ straight = []
 for i in range(1,11):
     path = "Compton_Effect\Data\Session_4_10_02_2023/"+str(10*i)+"_degrees.csv"
     data = pd.read_csv(path,skiprows=0)
-    compton.append(batch(data['compton'],4)[1])
-    straight.append(batch(data['straight'],4)[1])
+    compton.append(batch(data['compton'],batch_size)[1])
+    straight.append(batch(data['straight'],batch_size)[1])
 
 fit_means = []
 energy_error = []
 for i in range(0,len(compton)):
-    plt.figure(i)
+    plt.figure(f"{10+i*10} degrees")
     # plt.figure(i)
-    compton_savgol = savgol_filter(compton[i]-straight[i],window_length=91,polyorder=4)
+    compton_savgol = savgol_filter(compton[i]-straight[i],window_length=55,polyorder=4)
     compton_reduced = compton[i]-straight[i]
     y_error = np.sqrt(np.array(compton[i])+np.array(straight[i]))
     # if i==3:
@@ -96,8 +98,8 @@ for i in range(0,len(compton)):
 
 angle_plot = np.arange(10,100,0.1)
 angle = np.array([10, 20, 30 ,40 ,50 ,60 ,70 ,80, 90, 100]) * np.pi / 180
-params, cov = spo.curve_fit(energy_compton,np.cos(angle),fit_means,[622])
-plt.figure(len(compton))
+params, cov = spo.curve_fit(energy_compton,np.cos(angle),fit_means,[622],sigma=np.array(energy_error),absolute_sigma=False)
+plt.figure("Mega Plot")
 
 print(params)
 chi = chi_square(fit_means,energy_compton((np.cos(angle)),E_0=params))
