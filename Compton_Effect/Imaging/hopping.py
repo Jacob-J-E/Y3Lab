@@ -30,8 +30,45 @@ Y_guess = ((d_test[0]-s_test[0]))/(np.tan(alpha_test[0]))
 print("X Guess ", X_guess)
 print("Y Guess ", Y_guess)
 
-result = spo.basinhopping(func=loss_function, x0=[X_guess,Y_guess], niter=500, minimizer_kwargs = {"args":(alpha_test,d_test,s_test),"method":'BFGS'})
-print(result)
+res_x = []
+res_y = []
+
+X_guess = 5
+Y_guess = 10
+
+for i in range(0,30):
+    result = spo.basinhopping(func=loss_function, x0=[X_guess,Y_guess], niter=1000, T=0, minimizer_kwargs = {"args":(alpha_test,d_test,s_test),"method":'BFGS'})
+    res_x.append(result.x[0])
+    res_y.append(result.x[1])
+
+print(np.mean(res_x))
+print(np.mean(res_y))
+
+
+
+res_x =  np.array(res_x)
+res_y = np.array(res_y)
+
+res_x = res_x[res_x > 0]
+res_y = res_y[res_y > 0]
+
+
+X_high = np.percentile(res_x,75)
+X_low = np.percentile(res_x,25)
+Y_high = np.percentile(res_y,75)
+Y_low = np.percentile(res_y,25)
+
+X_cut = 1.5*(X_high - X_low)
+Y_cut = 1.5*(Y_high - Y_low)
+
+X_lower, X_upper = X_low - X_cut, X_high + X_cut
+X_bounded = res_x[(res_x > X_lower) & (res_x < X_upper)]
+
+Y_lower, Y_upper = Y_low - Y_cut, Y_high + Y_cut
+Y_bounded = res_y[(res_y > Y_lower) & (res_y < Y_upper)]
+
+print("X bounded mean", np.mean(X_bounded))
+print("Y bouned mean", np.mean(Y_bounded))
 
 # X = 5 
 # Y = 10

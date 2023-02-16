@@ -21,13 +21,16 @@ def loss_function(coordinates: list, alpha: np.array, d:np.array, s:np.array):
 alpha_test = np.array([0.6719631716,0.6719631716,0.6719631716,0.6719631716])
 d_test = np.array([8,8,8,8])
 s_test = np.array([1,1,1,1])
+# result = spo.basinhopping(func=loss_function, x0=[10,20], niter=500, T=0, minimizer_kwargs = {"args":(alpha_test,d_test,s_test),"method":'BFGS'})
+# print(result)
 
 # result = spo.minimize(fun=loss_function, x0=[3,12], args=(alpha_test,d_test,s_test),tol=1e-5)
 X_calc = []
 Y_calc = []
-for i in range(0,50):
-    for j in range(0,50):
-        result = spo.minimize(fun=loss_function, x0=[0.5*i,0.5*j], args=(alpha_test,d_test,s_test),tol=1e-5,method='BFGS')
+for i in range(5,25):
+    for j in range(5,25):
+        x_val = np.random.rand()
+        result = spo.basinhopping(func=loss_function, niter=200, x0=[0.5*i,0.5*j], minimizer_kwargs = {"args":(alpha_test,d_test,s_test),"method":'BFGS'})
         val = result.x
         X_calc.append(val[0])
         Y_calc.append(val[1])
