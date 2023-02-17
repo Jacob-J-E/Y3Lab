@@ -13,20 +13,31 @@ def loss_function(coordinates: list, alpha: np.array, d:np.array, s:np.array):
     inner_value = np.pi - alpha - theta - phi
     return np.sum(np.abs(inner_value)**2)
 
+# X = 6
+# Y = 4 
+# s = 2
+# d = 10
+# alpha = 90 deg
+# theta = 45 deg
+# phi = 45 deg
 
 # alpha_test = np.array([0.5,0.5,0.5,0.5])
 # d_test = np.array([2,2,2,2])
 # s_test = np.array([2,2,2,2])
 
-alpha_test = np.array([0.6719631716,0.6719631716,0.6719631716,0.6719631716])
-d_test = np.array([8,8,8,8])
-s_test = np.array([1,1,1,1])
+zero_arr = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+alpha_test = zero_arr+np.pi/2
+d_test = zero_arr+10
+s_test = zero_arr+2
 
 X_guess = (d_test[0]+s_test[0])/2
 # X_guess = d_test[0]-s_test[0]
 
+# Right angle guess
 Y_guess = ((d_test[0]-s_test[0]))/(np.tan(alpha_test[0]))
 
+# Isosoles guess
+Y_guess = (d_test[0]-s_test[0])/2
 print("X Guess ", X_guess)
 print("Y Guess ", Y_guess)
 
@@ -40,10 +51,11 @@ x_err = []
 y_err = []
 
 # 
-# Y_guess -= 7
+Y_guess -= 2
+X_guess += 1
 
 for i in range(0,4):
-    result = spo.basinhopping(func=loss_function, x0=[X_guess,Y_guess], niter=800, T=0, minimizer_kwargs = {"args":(alpha_test,d_test,s_test),"bounds":([min(s_test),max(d_test)],[5, 11])})
+    result = spo.basinhopping(func=loss_function, x0=[X_guess,Y_guess], niter=800, T=0, minimizer_kwargs = {"args":(alpha_test,d_test,s_test),"bounds":([min(s_test),max(d_test)],[1, 11])})
     hessian = result.lowest_optimization_result.hess_inv.todense()
     print(hessian)
     res_x.append(result.x[0])
@@ -55,8 +67,6 @@ res_x =  np.array(res_x)
 res_y = np.array(res_y)
 print("",np.mean(res_x)," +/- ",np.mean(x_err))
 print("",np.mean(res_y)," +/- ",np.mean(y_err))
-
-
 res_x = res_x[res_x > 0]
 res_y = res_y[res_y > 0]
 
@@ -78,12 +88,12 @@ res_y = res_y[res_y > 0]
 # print("X bounded mean", np.mean(X_bounded))
 # print("Y bouned mean", np.mean(Y_bounded))
 
-# X = 5 
-# Y = 10
-# s = 1
-# d = 8
-# alpha = 0.67
-# theta = 1.28
-# phi = 1.19
+# X = 6
+# Y = 4 
+# s = 2
+# d = 10
+# alpha = 90 deg
+# theta = 45 deg
+# phi = 45 deg
 
 
