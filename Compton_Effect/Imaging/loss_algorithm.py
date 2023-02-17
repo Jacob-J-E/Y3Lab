@@ -28,12 +28,12 @@ s_test = np.array([1,1,1,1])
 X_calc = []
 Y_calc = []
 for i in range(5,25):
-    for j in range(5,25):
-        x_val = np.random.rand()
-        result = spo.basinhopping(func=loss_function, niter=200, x0=[0.5*i,0.5*j], minimizer_kwargs = {"args":(alpha_test,d_test,s_test),"method":'BFGS'})
-        val = result.x
-        X_calc.append(val[0])
-        Y_calc.append(val[1])
+    x_val = np.random.uniform(1,8)
+    y_val = np.random.uniform(1,20)
+    result = spo.basinhopping(func=loss_function, niter=200, x0=[0.5*i,0.5*j], minimizer_kwargs = {"args":(alpha_test,d_test,s_test),"method":'BFGS'})
+    val = result.x
+    X_calc.append(val[0])
+    Y_calc.append(val[1])
 
 X_calc = np.array(X_calc)
 Y_calc = np.array(Y_calc)
