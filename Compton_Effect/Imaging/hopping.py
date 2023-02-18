@@ -44,12 +44,13 @@ y_err = []
 
 for i in range(0,4):
     result = spo.basinhopping(func=loss_function, x0=[X_guess,Y_guess], niter=800, T=0, minimizer_kwargs = {"args":(alpha_test,d_test,s_test),"bounds":([min(s_test),max(d_test)],[5, 11])})
-    hessian = result.lowest_optimization_result.hess_inv.todense()
-    print(hessian)
+    inv_hessian = result.lowest_optimization_result.hess_inv.todense()
+    print(inv_hessian)
+    det_inv_hessian = inv_hessian[0][0] * inv_hessian[1][1] - inv_hessian[0][1] * inv_hessian[1][0]
     res_x.append(result.x[0])
     res_y.append(result.x[1])
-    x_err.append(np.sqrt(hessian[0][0]))
-    y_err.append(np.sqrt(hessian[1][1]))
+    x_err.append(np.sqrt(inv_hessian[1][1]/det_inv_hessian))
+    y_err.append(np.sqrt(inv_hessian[0][0]/det_inv_hessian))
 
 res_x =  np.array(res_x)
 res_y = np.array(res_y)
