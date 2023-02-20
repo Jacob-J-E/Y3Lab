@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import mplhep as hep
 import scipy.optimize as spo
 import scipy.signal as ssp
+import umap
 hep.style.use("CMS")
 
 def loss_function(coordinates: list, alpha: np.array, d:np.array, s:np.array):
@@ -38,10 +39,12 @@ geometries = []
 six_alpha_temp = []
 six_s_temp = []
 six_d_temp = []
+six_label = []
 
 two_alpha_temp = []
 two_s_temp = []
 two_d_temp = []
+two_label = []
 
 valid_geometry = []
 for x in range(X_bounds[0],X_bounds[1]+1):
@@ -57,6 +60,7 @@ for x in range(X_bounds[0],X_bounds[1]+1):
                     six_d_temp.append(d)
                     six_s_temp.append(s)
                     six_alpha_temp.append(valid_alpha)
+                    six_label.append(6)
 
                 if (x == 2) and (y==4):
                     valid_alpha = alpha_calc(x,y,d,s)
@@ -64,6 +68,7 @@ for x in range(X_bounds[0],X_bounds[1]+1):
                     two_d_temp.append(d)
                     two_s_temp.append(s)
                     two_alpha_temp.append(valid_alpha)
+                    two_label.append(2)
 
 print(f'length of two alpha {len(two_alpha_temp)}')
 print(f'length of six alpha {len(six_alpha_temp)}')
@@ -72,19 +77,22 @@ combined_alpha = np.array(two_alpha_temp + six_alpha_temp)
 print(f'length of combined alpha {len(combined_alpha)}')
 combined_s = np.array(two_s_temp + six_s_temp)
 combined_d = np.array(two_d_temp + six_d_temp)
+combined_labels = six_label + two_label
 
 
-
-np.random.shuffle(combined_alpha)
-np.random.shuffle(combined_s)
-np.random.shuffle(combined_d)
 
 print(combined_alpha)
 
-d = {'combined_s':combined_s,'combined_d':combined_d,'combined_alpha':combined_alpha,}
+d = {'combined_s':combined_s,'combined_d':combined_d,'combined_alpha':combined_alpha,'labels':combined_labels}
 dataframe = pd.DataFrame(data = d)
+dataframe = dataframe.sample(frac=1).reset_index(drop=True)
+y_train = dataframe.labels
+X_train = dataframe.drop(columns='labels')
 
-print(dataframe)
+trans = umap.UMAP(n_neighbors=5, random_state=42).fit(X_train)
+plt.scatter(trans.embedding_[:, 0], trans.embedding_[:, 1], s= 5, c=y_train, cmap='Spectral')
+plt.title('Embedding of the training set by UMAP', fontsize=24)
+plt.show()
 
 
 
