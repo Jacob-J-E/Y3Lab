@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import mplhep as hep
 import scipy.optimize as spo
 import scipy.signal as ssp
+import umap
 hep.style.use("CMS")
 
 def loss_function(coordinates: list, alpha: np.array, d:np.array, s:np.array):
@@ -35,9 +36,15 @@ X_bounds = [1,10]
 Y_bounds = [1,10]
 geometries = []
 
-alpha_temp = []
-s_temp = []
-d_temp = []
+six_alpha_temp = []
+six_s_temp = []
+six_d_temp = []
+six_label = []
+
+two_alpha_temp = []
+two_s_temp = []
+two_d_temp = []
+two_label = []
 
 valid_geometry = []
 for x in range(X_bounds[0],X_bounds[1]+1):
@@ -50,23 +57,47 @@ for x in range(X_bounds[0],X_bounds[1]+1):
                 if (x == 6) and (y==4):
                     valid_alpha = alpha_calc(x,y,d,s)
                     valid_geometry.append([x,y,d,s,valid_alpha])
-                    d_temp.append(d)
-                    s_temp.append(s)
-                    alpha_temp.append(valid_alpha)
+                    six_d_temp.append(d)
+                    six_s_temp.append(s)
+                    six_alpha_temp.append(valid_alpha)
+                    six_label.append(6)
 
-print(valid_geometry)
+                if (x == 2) and (y==4):
+                    valid_alpha = alpha_calc(x,y,d,s)
+                    valid_geometry.append([x,y,d,s,valid_alpha])
+                    two_d_temp.append(d)
+                    two_s_temp.append(s)
+                    two_alpha_temp.append(valid_alpha)
+                    two_label.append(2)
 
-valid_geometry = valid_geometry
+print(f'length of two alpha {len(two_alpha_temp)}')
+print(f'length of six alpha {len(six_alpha_temp)}')
 
-print(d_temp)
-print('-------')
-print(s_temp)
-print('-------')
-print(alpha_temp)
-print('-------')
+combined_alpha = np.array(two_alpha_temp + six_alpha_temp)
+print(f'length of combined alpha {len(combined_alpha)}')
+combined_s = np.array(two_s_temp + six_s_temp)
+combined_d = np.array(two_d_temp + six_d_temp)
+combined_labels = six_label + two_label
 
-# # X_guess = (valid_geometry[0][1]+valid_geometry[0][2])/2
-# # X_guess = valid_geometry[0][1]-valid_geometry[0][2]
+
+
+print(combined_alpha)
+
+d = {'combined_s':combined_s,'combined_d':combined_d,'combined_alpha':combined_alpha,'labels':combined_labels}
+dataframe = pd.DataFrame(data = d)
+dataframe = dataframe.sample(frac=1).reset_index(drop=True)
+y_train = dataframe.labels
+X_train = dataframe.drop(columns='labels')
+
+trans = umap.UMAP(n_neighbors=5, random_state=42).fit(X_train)
+plt.scatter(trans.embedding_[:, 0], trans.embedding_[:, 1], s= 5, c=y_train, cmap='Spectral')
+plt.title('Embedding of the training set by UMAP', fontsize=24)
+plt.show()
+
+
+
+# X_guess = (valid_geometry[0][1]+valid_geometry[0][2])/2
+# X_guess = valid_geometry[0][1]-valid_geometry[0][2]
 # X_guess = 8
 
 # # Y_guess = ((valid_geometry[0][1]-valid_geometry[0][2]))/(np.tan(valid_geometry[0][0]))
@@ -85,7 +116,7 @@ print('-------')
 # for i in range(0,5):
 #     result = spo.basinhopping(func=loss_function, x0=[X_guess,Y_guess], niter=1000, T=0, minimizer_kwargs = {"args":(valid_geometry[0],valid_geometry[1],valid_geometry[2]),"bounds":([1,10],[5, 11])})
 #     # result = spo.basinhopping(func=loss_function, x0=[X_guess,Y_guess], niter=400, T=0, minimizer_kwargs = {"args":(valid_geometry[0],valid_geometry[1],valid_geometry[2])})
-    
+
 #     inv_hessian = result.lowest_optimization_result.hess_inv.todense()
 #     # inv_hessian = result.lowest_optimization_result.hess_inv  
 
@@ -100,9 +131,3 @@ print('-------')
 # res_y = np.array(res_y)
 # print("",np.mean(res_x)," +/- ",np.mean(x_err))
 # print("",np.mean(res_y)," +/- ",np.mean(y_err))
-
-
-
-
-
-
