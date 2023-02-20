@@ -10,4 +10,8 @@ class Savgol_opt():
     def __init__(self) -> None:
         pass
 
-    def 
+    def chi_square(self,obs,exp):
+        obs = np.array(obs)
+        exp = np.array(exp)
+        chi_val = (obs-exp)**2/exp#**2
+        return sum(chi_val)

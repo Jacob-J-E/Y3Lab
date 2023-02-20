@@ -6,6 +6,10 @@ import scipy.optimize as spo
 import scipy.signal as ssp
 hep.style.use("CMS")
 
+#d_2 = 18.75  cm s =3
+#s = 4 + , d= 17 cm
+
+
 def loss_function(coordinates: list, alpha: np.array, d:np.array, s:np.array):
     X, Y = coordinates
     theta = np.arctan2(Y,(X-s))
@@ -22,6 +26,10 @@ alpha_test = np.array([2.3081964491798392, 2.3142023829709757, 2.319773355977838
 d_test = np.array([31, 32, 33, 34, 35, 36, 37, 38, 39, 31, 32, 33, 34, 35, 36, 37, 38, 39, 31, 32, 33, 34, 35, 36, 37, 38, 39, 31, 32, 33, 34, 35, 36, 37, 38, 39, 31, 32, 33, 34, 35, 36, 37, 38, 39, 31, 32, 33, 34, 35, 36, 37, 38, 39, 31, 32, 33, 34, 35, 36, 37, 38, 39, 31, 32, 33, 34, 35, 36, 37, 38, 39, 31, 32, 33, 34, 35, 36, 37, 38, 39, 31, 32, 33, 34, 35, 36, 37, 38, 39, 31, 32, 33, 34, 35, 36, 37, 38, 39, 31, 32, 33, 34, 35, 36, 37, 38, 39, 31, 32, 33, 34, 35, 36, 37, 38, 39, 31, 32, 33, 34, 35, 36, 37, 38, 39])
 s_test = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14])
 
+
+alpha_test = alpha_test[:10]
+d_test = d_test[:10]
+s_test = s_test[:10]
 #X_guess = (d_test[0]+s_test[0])/2
 X_guess = (d_test[0]-s_test[0])/2
 
@@ -56,10 +64,10 @@ for i in range(0,4):
     det_inv_hessian = inv_hessian[0][0] * inv_hessian[1][1] - inv_hessian[0][1] * inv_hessian[1][0]
     res_x.append(result.x[0])
     res_y.append(result.x[1])
-    # x_err.append(np.sqrt(inv_hessian[1][1]/det_inv_hessian))
-    # y_err.append(np.sqrt(inv_hessian[0][0]/det_inv_hessian))
-    x_err.append(np.sqrt(inv_hessian[0][0]))
-    y_err.append(np.sqrt(inv_hessian[1][1]))
+    x_err.append(np.sqrt(inv_hessian[1][1]/det_inv_hessian))
+    y_err.append(np.sqrt(inv_hessian[0][0]/det_inv_hessian))
+    # x_err.append(np.sqrt(inv_hessian[0][0]))
+    # y_err.append(np.sqrt(inv_hessian[1][1]))
 
 res_x =  np.array(res_x)
 res_y = np.array(res_y)
