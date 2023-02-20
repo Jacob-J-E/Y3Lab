@@ -41,9 +41,17 @@ for x in range(X_bounds[0],X_bounds[1]+1):
                     print("AHh")
                     valid_alpha = alpha_calc(x,y,d,s)
                     valid_geometry.append([x,y,d,s,valid_alpha])
+                    d_temp.append(d)
+                    s_temp.append(s)
+                    alpha_temp.append(valid_alpha)
 
 
-print(valid_geometry)
+print(d_temp)
+print('-------')
+print(s_temp)
+print('-------')
+print(alpha_temp)
+print('-------')
 
 
 # exp_geo = []
