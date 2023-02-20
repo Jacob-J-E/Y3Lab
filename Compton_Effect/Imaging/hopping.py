@@ -42,8 +42,8 @@ y_err = []
 # 
 # Y_guess -= 7
 
-for i in range(0,4):
-    result = spo.basinhopping(func=loss_function, x0=[X_guess,Y_guess], niter=800, T=0, minimizer_kwargs = {"args":(alpha_test,d_test,s_test),"bounds":([min(s_test),max(d_test)],[5, 11])})
+for i in range(0,10):
+    result = spo.basinhopping(func=loss_function, x0=[X_guess,Y_guess], niter=1000, T=0, minimizer_kwargs = {"args":(alpha_test,d_test,s_test),"bounds":([min(s_test),max(d_test)],[5, 11])})
     inv_hessian = result.lowest_optimization_result.hess_inv.todense()
     print(inv_hessian)
     det_inv_hessian = inv_hessian[0][0] * inv_hessian[1][1] - inv_hessian[0][1] * inv_hessian[1][0]
