@@ -37,7 +37,32 @@ def geo_difference(theory,exp):
     diff = np.sqrt(np.sum((theory-exp)**2))
     return diff
 
+def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
+    alpha = np.array(alpha)
+    s = np.array(s)
+    d = np.array(d)
+    X_guess = (d[0]-s[0])/2
+    Y_guess = ((d[0]-s[0]))/(np.tan(alpha[0]))
 
+    res_x = []
+    res_y = []
+    x_err = []
+    y_err = []
+
+    for i in range(0,4):
+        result = spo.basinhopping(func=loss_function, x0=[X_guess,Y_guess], niter=800, T=0, minimizer_kwargs = {"args":(alpha,d,s),"bounds":([0,15],[0,15])})
+        
+        inv_hessian = result.lowest_optimization_result.hess_inv.todense()
+        det_inv_hessian = inv_hessian[0][0] * inv_hessian[1][1] - inv_hessian[0][1] * inv_hessian[1][0]
+        
+        res_x.append(result.x[0])
+        res_y.append(result.x[1])
+        x_err.append(np.sqrt(inv_hessian[1][1]/det_inv_hessian))
+        y_err.append(np.sqrt(inv_hessian[0][0]/det_inv_hessian))
+
+    res_x =  np.array(res_x)
+    res_y = np.array(res_y)
+    return [np.mean(res_x),np.mean(res_y)] 
 
  
 
@@ -111,6 +136,8 @@ combined_y = []
 for i in range(0,len(combined_s)):
     x_guess = (combined_d[i]-combined_s[i])/2
     y_guess = ((combined_d[i]-combined_s[i]))/(np.tan(combined_alpha[0]))
+    # x_guess = 5
+    # y_guess = 5 
     result = spo.basinhopping(func=scatter_difference, niter=100, x0=[x_guess,y_guess], T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":'BFGS',"bounds":([0,20],[0, 20])})
     
     if result.x[0] < 0:
@@ -155,7 +182,7 @@ Old UMAP
 
 
 """
-Clusters
+Clustering UMAP
 """
 standard_embedding = umap.UMAP(
     n_neighbors=50,
@@ -195,10 +222,34 @@ plt.scatter(standard_embedding[clustered, 0],
             s=20,
             cmap='Spectral')
 
+import itertools
+def indices(lst, item):
+    return [i for i, x in enumerate(lst) if x == item] 
+
+index_0 = []
+preds_0 = indices(labels,0)
+index_0.append(preds_0)
+merged_0 = list(itertools.chain(*index_0))
+new_index_0=np.sort(list(set(merged_0)))
+cluster_0=X_train.drop(new_index_0,axis=0)
+
+index_1 = []
+preds_1 = indices(labels,1)
+index_1.append(preds_1)
+merged_1 = list(itertools.chain(*index_1))
+new_index_1=np.sort(list(set(merged_1)))
+cluster_1=X_train.drop(new_index_1,axis=0)
+
+cluster_0 = cluster_0.drop(columns=['x', 'y'])
+cluster_1 = cluster_1.drop(columns=['x', 'y'])
+
+loss_on_cluster_0 = loss_minimizer(alpha=cluster_0['combined_alpha'],d=cluster_0['combined_d'],s=cluster_0['combined_s'])
+loss_on_cluster_1 = loss_minimizer(alpha=cluster_1['combined_alpha'],d=cluster_1['combined_d'],s=cluster_1['combined_s'])
+
+print("Cluster 0:",loss_on_cluster_0)
+print("Cluster 1:",loss_on_cluster_1)
+
 plt.show()
-
-
-
 
 
 # fig = plt.figure()
