@@ -9,8 +9,10 @@ import umap.plot
 import hdbscan
 import itertools
 from sklearn.cluster import Birch
+import matplotlib.colors as colors
 hep.style.use("CMS")
 method_ = "BFGS"
+from matplotlib.colors import LogNorm
 
 
 def indices(lst, item):
@@ -174,13 +176,54 @@ for i in range(0,len(combined_s)):
         combined_y.append(result.x[1])
 
 
-plt.scatter(combined_x,combined_y)
-plt.show()
+# plt.scatter(combined_x,combined_y)
+# plt.show()
 data = {'x':combined_x,'y':combined_y}
 data = pd.DataFrame(data = data)
 
 
-birch = Birch(n_clusters=2)
-fit = birch.fit(data)
-plt.scatter(data['x'],data['y'],c=birch.labels_)
+# birch = Birch(n_clusters=2)
+# fit = birch.fit(data)
+# plt.scatter(data['x'],data['y'],c=birch.labels_)
+# plt.show()
+
+
+fig, axes = plt.subplots(nrows=1, ncols=1)
+
+"""
+Gaussian KDE Method
+"""
+import seaborn as sns
+
+# A = sns.histplot(data=data,x='x',y='y',stat='density',bins=20,cbar=True,cmap='inferno',thresh=None, norm=LogNorm(), vmin=1, vmax=1e2,)             # use for log color bar
+A = sns.histplot(data=data,x='x',y='y',stat='frequency',bins=100,cbar=True,cmap='inferno',thresh=1)             # use for log color bar
+
+aspect_ratio = 0.7
+x_left, x_right = A.get_xlim()
+y_left, y_right = A.get_ylim()
+axes.set_aspect(np.abs((x_right-x_left)/(y_left-y_right))*aspect_ratio)
+fig.tight_layout()
+plt.show()
+
+# generate data from loaded .csv
+x = np.array(data['x'])
+y = np.array(data['y'])
+data = np.vstack((x,y))
+import scipy as sp
+#generate Gaussian KDE
+X, Y = np.mgrid[min(x):max(x):150j, min(y):max(y):150j]
+positions = np.vstack([X.ravel(), Y.ravel()])
+kernel = sp.stats.gaussian_kde(data)
+Z = np.reshape(kernel(positions).T, X.shape)
+x = np.linspace(min(y),max(y),5000)
+
+A = kernel.pdf(data)
+print(A)
+fig, ax = plt.subplots(1,1)
+contour = ax.contourf(X,Y,Z,levels=2000,cmap='inferno',norm=colors.PowerNorm(gamma=0.7))
+cbar = fig.colorbar(contour)
+print(np.shape(A))
+print(np.shape(y))
+ax.set_xlabel(r"$B_0$ Mass $[MeV/c^2]$")
+ax.set_ylabel(r"$q^2$ Mass $[MeV/c^2]$")
 plt.show()
