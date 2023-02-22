@@ -231,12 +231,12 @@ d10_combined_d = np.array(d10_two_d_temp + d10_six_d_temp)
 # plt.plot(two_s_temp[combined_d == 10],two_alpha_temp[combined_d == 10],color='green',alpha=0.3)
 # plt.show()
 plt.scatter(d9_combined_s,d9_combined_alpha,color='red',label='d=9')
-plt.plot(d9_two_s_temp,d9_two_alpha_temp,color='blue',alpha=0.5,label='Pos 1')
-plt.plot(d9_six_s_temp,d9_six_alpha_temp,color='green',alpha=0.5,label='Pos 2')
+# plt.plot(d9_two_s_temp,d9_two_alpha_temp,color='blue',alpha=0.5,label='Pos 1')
+# plt.plot(d9_six_s_temp,d9_six_alpha_temp,color='green',alpha=0.5,label='Pos 2')
 
-plt.scatter(d10_combined_s,d10_combined_alpha,color='black',label='d=10')
-plt.plot(d10_two_s_temp,d10_two_alpha_temp,color='blue',alpha=0.5,ls='--',label='Pos 1')
-plt.plot(d10_six_s_temp,d10_six_alpha_temp,color='green',alpha=0.5,ls='--',label='Pos 2')
+# plt.scatter(d10_combined_s,d10_combined_alpha,color='black',label='d=10')
+# plt.plot(d10_two_s_temp,d10_two_alpha_temp,color='blue',alpha=0.5,ls='--',label='Pos 1')
+# plt.plot(d10_six_s_temp,d10_six_alpha_temp,color='green',alpha=0.5,ls='--',label='Pos 2')
 plt.legend(loc='upper right')
 plt.xlabel("s position (arb.)")
 plt.ylabel("Alpha value (rad.)")
@@ -411,3 +411,14 @@ plt.show()
 # # res_y = np.array(res_y)
 # # print("",np.mean(res_x)," +/- ",np.mean(x_err))
 # # print("",np.mean(res_y)," +/- ",np.mean(y_err))
+
+
+
+
+
+
+
+
+
+
+
