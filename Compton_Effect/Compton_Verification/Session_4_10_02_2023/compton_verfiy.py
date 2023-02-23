@@ -58,8 +58,8 @@ def gaussian(x, a, b, c, e):
     return (a * np.exp(-((x - b) ** 2) / (2 * c ** 2)) + e)
 
 batch_size = 1
-
-data_cs = pd.read_csv(r"Compton_Effect\Data\Session_4_10_02_2023\80_degrees.csv",skiprows=0)
+# "Compton_Effect\Compton_Verification\Data\Session_4_10_02_2023\80_degrees.csv"
+data_cs = pd.read_csv(r"Compton_Effect\Compton_Verification\Data\Session_4_10_02_2023\80_degrees.csv",skiprows=0)
 compton_initial_load = np.array(data_cs['compton'])
 new_channel = batch(compton_initial_load,batch_size)[0]
 new_channel = energy_convert(new_channel)
@@ -67,7 +67,7 @@ new_channel = energy_convert(new_channel)
 compton = []
 straight = [] 
 for i in range(1,11):
-    path = "Compton_Effect\Data\Session_4_10_02_2023/"+str(10*i)+"_degrees.csv"
+    path = "Compton_Effect\Compton_Verification\Data\Session_4_10_02_2023/"+str(10*i)+"_degrees.csv"
     data = pd.read_csv(path,skiprows=0)
     compton.append(batch(data['compton'],batch_size)[1])
     straight.append(batch(data['straight'],batch_size)[1])
@@ -113,7 +113,7 @@ angle = np.array([10, 20, 30 ,40 ,50 ,60 ,70 ,80, 90, 100]) * np.pi / 180
 params, cov = spo.curve_fit(energy_compton,np.cos(angle),fit_means,[661.7],sigma=np.array(energy_error),absolute_sigma=False)
 plt.figure("Mega Plot")
 
-data_human = pd.read_csv(r"Compton_Effect\Data\Session_5_02_2023\Human_guess_compton_scat.csv",skiprows=0)
+data_human = pd.read_csv(r"Compton_Effect\Compton_Verification\Data\Session_5_02_2023\Human_guess_compton_scat.csv",skiprows=0)
 params_humam, cov_human = spo.curve_fit(energy_compton,np.cos(angle),data_human['Value'],[661.7],sigma=np.array(data_human['Error']),absolute_sigma=False)
 
 print(params)
