@@ -9,6 +9,7 @@ import scipy.signal as ssp
 #import hdbscan
 import itertools
 from scipy.signal import savgol_filter
+from scipy.signal import argrelextrema
 # from sklearn.cluster import Birch
 hep.style.use("CMS")
 method_ = "BFGS"
@@ -86,8 +87,8 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
 # Declare true geometry
 x_1_true = 12
 x_2_true = 4
-y_1_true = 9
-y_2_true = 8
+y_1_true = 3
+y_2_true = 7
 
 X_bounds = [1,20]
 Y_bounds = [1,10]
@@ -192,7 +193,7 @@ medium_range_y = combined_y[(combined_x > med - 0.5) & (combined_x < med + 0.5)]
 
 iqr = np.percentile(medium_range_y, 75) - np.percentile(medium_range_y, 25)
 
-h = 2 * iqr * len()
+# h = 2 * iqr * len()
 
 
 # data = {'x':combined_x,'y':combined_y}
@@ -221,11 +222,21 @@ for i in c_space:
     res_array.append(sum_res(i,combined_y))
 
 
-
+savgol_window = 651
+savgoal = np.array(savgol_filter(res_array,savgol_window,3))
+c_space = np.array(c_space)
+res_array = np.array(res_array)
 plt.figure(2)
-plt.plot(c_space,savgol_filter(res_array,201,3), color = 'orange')
-plt.scatter(c_space,res_array)
-plt.plot(c_space,savgol_filter(res_array,201,3), color = 'orange')
+plt.plot(c_space[res_array > 0],savgoal[res_array > 0], color = 'orange')
+plt.scatter(c_space[res_array > 0],res_array[res_array > 0])
+plt.plot(c_space[res_array > 0],savgoal[res_array > 0], color = 'orange')
+
+index = argrelextrema(savgoal, np.less)
+
+c_min = c_space[index]
+savgoal_min = savgoal[index]
+
+plt.scatter(c_min[savgoal_min > 0],savgoal_min[savgoal_min > 0],color='red')
 plt.show()
 
 
