@@ -9,13 +9,14 @@ import scipy.signal as ssp
 #import hdbscan
 import itertools
 from scipy.signal import savgol_filter
+import scipy.optimize as spo
 # from sklearn.cluster import Birch
 hep.style.use("CMS")
 method_ = "BFGS"
 
 
 def indices(lst, item):
-    return [i for i, x in enumerate(lst) if x == item] 
+    return [i for i, x in enumerate(lst) if x == item]
 
 def drop_preds(data,preds,val):
     index = []
@@ -81,13 +82,13 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
 
     res_x =  np.array(res_x)
     res_y = np.array(res_y)
-    return [np.mean(res_x),np.mean(res_y)] 
+    return [np.mean(res_x),np.mean(res_y)]
 
 # Declare true geometry
 x_1_true = 12
 x_2_true = 4
-y_1_true = 3
-y_2_true = 7
+y_1_true = 9
+y_2_true = 8
 
 X_bounds = [1,20]
 Y_bounds = [1,10]
@@ -158,7 +159,7 @@ for i in range(0,len(combined_s)):
     # print("X-Guess",x_guess)      
     # print("Y-Guess",y_guess)
     # x_guess = 5
-    # y_guess = 5 
+    # y_guess = 5
     bounds = spo.Bounds(lb=[0,0],ub=[20,20])
     # result = spo.basinhopping(func=scatter_difference, niter=500, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":bounds})
     result = spo.basinhopping(func=scatter_difference, niter=40, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":([0,20],[0,20])})
@@ -206,7 +207,7 @@ sh_med = combine_sorted[int(len(combine_sorted)/2):]
 def gaussian(x, a, b, c):
     return (a * np.exp(-((x - b) ** 2) / (2 * c ** 2)))
 
-# first histogram - lower 
+# first histogram - lower
 
 num_of_bins = 20
 
@@ -267,7 +268,6 @@ plt.hist(sh_med, bins = num_of_bins)
 plt.scatter(center_of_bins_sh,hist_sh, marker = 'x')
 plt.plot(domain_sh,gaussian(domain_sh,*params_e2))
 
-h = 2 * iqr * len()
 
 
 # iqr = np.percentile(medium_range_y, 75) - np.percentile(medium_range_y, 25)
@@ -343,8 +343,10 @@ for i in c_space:
 
 
 
-plt.figure(2)
-plt.plot(c_space,savgol_filter(res_array,201,3), color = 'orange')
+plt.figure(4)
+plt.plot(c_space,savgol_filter(res_array,501,3), color = 'orange')
 plt.scatter(c_space,res_array)
-plt.plot(c_space,savgol_filter(res_array,201,3), color = 'orange')
+plt.plot(c_space,savgol_filter(res_array,501,3), color = 'orange')
+
+
 plt.show()
