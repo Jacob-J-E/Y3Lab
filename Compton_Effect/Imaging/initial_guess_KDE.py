@@ -182,13 +182,11 @@ data = {'x':combined_x,'y':combined_y}
 data = pd.DataFrame(data = data)
 
 
-<<<<<<< HEAD:Compton_Effect/Imaging/initial_guess_UMAP.py
 
 birch = Birch(n_clusters=2)
 fit = birch.fit(data)
 plt.scatter(data['x'],data['y'],c=birch.labels_)
 plt.show()
-=======
 # birch = Birch(n_clusters=2)
 # fit = birch.fit(data)
 # plt.scatter(data['x'],data['y'],c=birch.labels_)
@@ -237,4 +235,3 @@ plt.show()
 # ax.set_xlabel(r"$B_0$ Mass $[MeV/c^2]$")
 # ax.set_ylabel(r"$q^2$ Mass $[MeV/c^2]$")
 # plt.show()
->>>>>>> 3d7bef99de43af9d39449968f20c7b20791245e4:Compton_Effect/Imaging/initial_guess_KDE.py

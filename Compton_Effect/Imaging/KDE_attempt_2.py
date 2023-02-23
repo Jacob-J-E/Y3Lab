@@ -1,4 +1,17 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import mplhep as hep
+import scipy as sp
+import pandas as pd 
+import numpy as np
+import scipy as sp
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+import scipy.optimize as spo
+hep.style.use("CMS")
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import mplhep as hep
@@ -10,6 +23,12 @@ import hdbscan
 import itertools
 from sklearn.cluster import Birch
 from sklearn.cluster import KMeans
+
+"""
+DOESN'T WORK YET LOL.
+
+NEED MORE RESOLUTION
+"""
 
 import matplotlib.colors as colors
 hep.style.use("CMS")
@@ -91,8 +110,8 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
 # Declare true geometry
 x_1_true = 12
 x_2_true = 20
-y_1_true = 8
-y_2_true = 9
+y_1_true = 3
+y_2_true = 15
 
 
 # CHANGE TO YOUR VALUE
@@ -203,65 +222,93 @@ from sklearn.cluster import Birch
 from matplotlib import pyplot
 # define dataset
 # X, _ = make_classification(n_samples=1000, n_features=2, n_informative=2, n_redundant=0, n_clusters_per_class=1, random_state=4)
-X = np.array(data)
-# X[0] = X[ : ,0][(X[1])>2]
-# X[1] = X[ : ,1][(X[1])>2]
-X = X[X[ : ,1] > 2]
+# X = np.array(data)
 
-# X.remove(X[1][X[1] < 2])
-print("X data",X)
-# define the model
-model = Birch(threshold=1e-9, n_clusters=3,branching_factor=300)
-# fit the model
-model.fit(X)
-# assign a cluster to each example
-yhat = model.predict(X)
-# retrieve unique clusters
-clusters = unique(yhat)
-# create scatter plot for samples from each cluster
-coordinates = []
-for cluster in clusters:
- # get row indexes for samples with this cluster
- row_ix = where(yhat == cluster)
- # create scatter of these samples
- pyplot.scatter(X[row_ix, 0], X[row_ix, 1])
- coordinates.append(np.array([X[row_ix, 0], X[row_ix, 1]]))
-# show the plot
-# print(coordinates)
-pyplot.show()
+def Gauss(x,A1,mu1,sigma1):
+    return (A1 / 2*np.sqrt(sigma1)) * np.exp(-(x-mu1)**2/(2*sigma1**2))
 
-for i in range(0,len(coordinates)):
-    plt.scatter(coordinates[i][0],coordinates[i][1])
-    # print("EEE",np.array(coordinates[i][0][0]))
-    # print("OOO",np.array(coordinates[i][1][0]))
 
-    plt.show()
-    d = {'x':np.array(coordinates[i][0][0]),'y':np.array(coordinates[i][1][0])}
-    Y = pd.DataFrame(d)
-    Y = np.array(Y)
-    # print("Y data",Y)
-    # Y = np.array([coordinates[0][i][0],coordinates[0][i][1]])
-    # Y = np.array(coordinates[0])
-    # X = Y
-    # define the model
-    model = Birch(n_clusters=2 ,branching_factor=200)
-    # fit the model
-    model.fit(Y)
-    # assign a cluster to each example
-    yhat = model.predict(Y)
-    # retrieve unique clusters
-    clusters = unique(yhat)
-    # create scatter plot for samples from each cluster
-    # coordinates = []
-    for cluster in clusters:
-     # get row indexes for samples with this cluster
-     row_ix_ = where(yhat == cluster)
-     # create scatter of these samples
-     pyplot.scatter(Y[row_ix_, 0], Y[row_ix_, 1])
-    #  coordinates.append([Y[row_ix, 0], Y[row_ix, 1]])
-     # show the plot
-    # print(coordinates)
-    pyplot.show()
+#Specify data path and load data
+# total_data_path = r"Total data set path"
+# Total_file = pd.read_csv(total_data_path)
+
+
+# Total_file_short = Total_file
+# # Truncate data to run code quicker if needed
+# Total_file_short = Total_file.head(10000)
+# Total_file_short = X
+fig, axes = plt.subplots(nrows=1, ncols=1)
+
+"""
+Gaussian KDE Method
+"""
+#generate data from loaded .csv
+x = np.array(data['x'])
+y = np.array(data['y'])
+data = np.vstack((y,x))
+
+#generate Gaussian KDE
+X, Y = np.mgrid[min(x):max(x):500j, min(y):max(y):500j]
+positions = np.vstack([X.ravel(), Y.ravel()])
+kernel = sp.stats.gaussian_kde(data)
+Z = np.reshape(kernel(positions).T, X.shape)
+x = np.linspace(min(y),max(y),3000)
+
+A = kernel.pdf(data)
+print(A)
+fig, ax = plt.subplots(1,1)
+# contour = ax.contourf(X,Y,Z,levels=2000,cmap='inferno',norm=colors.PowerNorm(gamma=0.5))
+contour = ax.contourf(X,Y,Z,levels=2000,cmap='inferno')
+
+cbar = fig.colorbar(contour)
+print(np.shape(A))
+print(np.shape(y))
+ax.set_xlabel(r"$B_0$ Mass $[MeV/c^2]$")
+ax.set_ylabel(r"$q^2$ Mass $[MeV/c^2]$")
+
+# Fix aspect ration of plot
+aspect_ratio = 0.7
+x_left, x_right = ax.get_xlim()
+y_left, y_right = ax.get_ylim()
+ax.set_title("Gaussian KDE Distribution")
+ax.set_aspect(np.abs((x_right-x_left)/(y_left-y_right))*aspect_ratio)
+plt.show()
+val = np.column_stack([y,A])
+print(np.shape(val))
+fig, ax = plt.subplots(1,2)
+ax[0].scatter(data[1],kernel.pdf(data))
+data_new = kernel.resample(size=len(x))
+
+print(data_new)
+print("Shape: ",np.shape(data_new))
+edges,freqs = np.histogram(data_new[1],bins=100,density=1)
+centers = (edges[:-1] + edges[1:]) / 2
+
+
+guess_1 = [0.7,9.8,1]
+guess_2 = [0.2,13.8,1]
+
+fit_params_1, cov_matrix_1 = spo.curve_fit(Gauss,centers,freqs[:1],guess_1)
+print(fit_params_1)
+x_plot = np.linspace(min(data_new[1]),max(data_new[1]),1000)
+plt.hist(data_new[1],bins=100,density=1)
+plt.plot(x_plot,Gauss(x_plot,*fit_params_1),color='red')
+
+fit_params_2, cov_matrix_2 = spo.curve_fit(Gauss,centers,freqs[:1],guess_2)
+print(fit_params_2)
+x_plot = np.linspace(min(data_new[1]),max(data_new[1]),1000)
+plt.plot(x_plot,Gauss(x_plot,*fit_params_2),color='red')
+plt.show()
+
+
+
+
+
+
+
+
+
+
 
 
 
