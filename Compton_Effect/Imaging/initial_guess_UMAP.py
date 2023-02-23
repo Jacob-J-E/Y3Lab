@@ -180,6 +180,7 @@ data = {'x':combined_x,'y':combined_y}
 data = pd.DataFrame(data = data)
 
 
+
 birch = Birch(n_clusters=2)
 fit = birch.fit(data)
 plt.scatter(data['x'],data['y'],c=birch.labels_)
