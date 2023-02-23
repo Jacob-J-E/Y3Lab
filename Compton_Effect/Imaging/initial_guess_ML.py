@@ -16,7 +16,7 @@ from matplotlib.colors import LogNorm
 
 
 def indices(lst, item):
-    return [i for i, x in enumerate(lst) if x == item] 
+    return [i for i, x in enumerate(lst) if x == item]
 
 def drop_preds(data,preds,val):
     index = []
@@ -82,13 +82,13 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
 
     res_x =  np.array(res_x)
     res_y = np.array(res_y)
-    return [np.mean(res_x),np.mean(res_y)] 
+    return [np.mean(res_x),np.mean(res_y)]
 
 # Declare true geometry
 x_1_true = 12
 x_2_true = 4
-y_1_true = 5
-y_2_true = 3
+y_1_true = 9
+y_2_true = 6
 
 X_bounds = [1,20]
 Y_bounds = [1,10]
@@ -156,10 +156,10 @@ for i in range(0,len(combined_s)):
     # y_guess = float(x_guess+1)
     y_guess = np.abs(0.5*((combined_d[i]-combined_s[i]))/(np.tan(combined_alpha[0])))
 
-    # print("X-Guess",x_guess)      
+    # print("X-Guess",x_guess)
     # print("Y-Guess",y_guess)
     # x_guess = 5
-    # y_guess = 5 
+    # y_guess = 5
     bounds = spo.Bounds(lb=[0,0],ub=[20,20])
     # result = spo.basinhopping(func=scatter_difference, niter=500, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":bounds})
     result = spo.basinhopping(func=scatter_difference, niter=40, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":([0,20],[0,20])})
@@ -188,45 +188,66 @@ data = pd.DataFrame(data = data)
 # plt.show()
 
 
-fig, axes = plt.subplots(nrows=1, ncols=1)
 
-"""
-Gaussian KDE Method
-"""
-import seaborn as sns
+# birch clustering
+from numpy import unique
+from numpy import where
+from sklearn.datasets import make_classification
+from sklearn.cluster import Birch
+from matplotlib import pyplot
+# define dataset
+# X, _ = make_classification(n_samples=1000, n_features=2, n_informative=2, n_redundant=0, n_clusters_per_class=1, random_state=4)
+X = np.array(data)
+# define the model
+model = Birch(threshold=1e-9, n_clusters=4)
+# fit the model
+model.fit(X)
+# assign a cluster to each example
+yhat = model.predict(X)
+# retrieve unique clusters
+clusters = unique(yhat)
+# create scatter plot for samples from each cluster
+coordinates = []
+for cluster in clusters:
+ # get row indexes for samples with this cluster
+ row_ix = where(yhat == cluster)
+ # create scatter of these samples
+ pyplot.scatter(X[row_ix, 0], X[row_ix, 1])
+ coordinates.append([X[row_ix, 0], X[row_ix, 1]])
+# show the plot
+print(coordinates)
+pyplot.show()
 
-# A = sns.histplot(data=data,x='x',y='y',stat='density',bins=20,cbar=True,cmap='inferno',thresh=None, norm=LogNorm(), vmin=1, vmax=1e2,)             # use for log color bar
-A = sns.histplot(data=data,x='x',y='y',stat='frequency',bins=100,cbar=True,cmap='inferno',thresh=30,kde=0)             # use for log color bar
-B = A.patches
-print(B)
-C = [A.get_height() for A in A.patches]
-print(C)
-aspect_ratio = 0.7
-x_left, x_right = A.get_xlim()
-y_left, y_right = A.get_ylim()
-axes.set_aspect(np.abs((x_right-x_left)/(y_left-y_right))*aspect_ratio)
-fig.tight_layout()
-plt.show()
+for i in range(0,len(coordinates)):
+    plt.scatter(coordinates[i][0],coordinates[i][1])
+    plt.show()
+    d = {'x':np.array(coordinates[i][0]),'y':np.array(coordinates[i][1])}
+    # Y = pd.DataFrame(d)
+    Y = np.array([coordinates[i][0],coordinates[i][1]])
+    # Y = np.array(coordinates[0])
+    X = Y
+    # define the model
+    model = Birch(threshold=1e-9, n_clusters=4)
+    # fit the model
+    model.fit(Y)
+    # assign a cluster to each example
+    yhat = model.predict(Y)
+    # retrieve unique clusters
+    clusters = unique(yhat)
+    # create scatter plot for samples from each cluster
+    coordinates = []
+    for cluster in clusters:
+     # get row indexes for samples with this cluster
+     row_ix = where(yhat == cluster)
+     # create scatter of these samples
+     pyplot.scatter(X[row_ix, 0], X[row_ix, 1])
+     coordinates.append([X[row_ix, 0], X[row_ix, 1]])
+     # show the plot
+    # print(coordinates)
+    pyplot.show()
 
-# generate data from loaded .csv
-# x = np.array(data['x'])
-# y = np.array(data['y'])
-# data = np.vstack((x,y))
-# import scipy as sp
-# #generate Gaussian KDE
-# X, Y = np.mgrid[min(x):max(x):170j, min(y):max(y):170j]
-# positions = np.vstack([X.ravel(), Y.ravel()])
-# kernel = sp.stats.gaussian_kde(data)
-# Z = np.reshape(kernel(positions).T, X.shape)
-# x = np.linspace(min(y),max(y),5000)
 
-# A = kernel.pdf(data)
-# print(A)
-# fig, ax = plt.subplots(1,1)
-# contour = ax.contourf(X,Y,Z,levels=2000,cmap='inferno')#,norm=LogNorm(), vmin=1, vmax=1e2)
-# cbar = fig.colorbar(contour)
-# print(np.shape(A))
-# print(np.shape(y))
-# ax.set_xlabel(r"$B_0$ Mass $[MeV/c^2]$")
-# ax.set_ylabel(r"$q^2$ Mass $[MeV/c^2]$")
-# plt.show()
+
+
+
+
