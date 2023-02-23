@@ -86,14 +86,18 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
     res_y = np.array(res_y)
     return [np.mean(res_x),np.mean(res_y)]
 
+
+# CHANGE TO YOUR VALUE
 # Declare true geometry
 x_1_true = 12
-x_2_true = 4
-y_1_true = 9
-y_2_true = 2
+x_2_true = 20
+y_1_true = 20
+y_2_true = 5
 
-X_bounds = [1,20]
-Y_bounds = [1,10]
+
+# CHANGE TO YOUR VALUE
+X_bounds = [1,40]
+Y_bounds = [1,40]
 geometries = []
 six_alpha_temp = []
 six_s_temp = []
