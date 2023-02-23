@@ -326,8 +326,10 @@ combined_y = combined_y[combined_y > params_e1[1]-2]
 
 c_space = np.linspace(0,max(combined_y),num = 10000)
 
-bounds = params_e2[1] - params_e1[1] - max(params_e1[2], params_e2[2])
-bounds = max(8*params_e1[2], 8*params_e2[2])
+bounds = (params_e2[1] - params_e1[1])/4 #- max(params_e1[2], params_e2[2])
+#bounds = max(3*params_e1[2], 3*params_e2[2])
+
+sav_gol_num = int(bounds*4)*2 * 43 + 1
 
 def sum_res(c,y_data):
     y_data = np.array(y_data)
@@ -342,11 +344,11 @@ for i in c_space:
     res_array.append(sum_res(i,combined_y))
 
 
-
+print('savgol_num', sav_gol_num)
 plt.figure(4)
-plt.plot(c_space,savgol_filter(res_array,501,3), color = 'orange')
+plt.plot(c_space,savgol_filter(res_array,sav_gol_num,3), color = 'orange')
 plt.scatter(c_space,res_array)
-plt.plot(c_space,savgol_filter(res_array,501,3), color = 'orange')
+plt.plot(c_space,savgol_filter(res_array,sav_gol_num,3), color = 'orange')
 
 
 plt.show()
