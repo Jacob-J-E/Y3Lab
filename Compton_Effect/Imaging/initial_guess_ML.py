@@ -90,7 +90,7 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
 x_1_true = 12
 x_2_true = 4
 y_1_true = 9
-y_2_true = 6
+y_2_true = 2
 
 X_bounds = [1,20]
 Y_bounds = [1,10]
