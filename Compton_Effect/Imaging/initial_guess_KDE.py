@@ -4,14 +4,15 @@ import matplotlib.pyplot as plt
 import mplhep as hep
 import scipy.optimize as spo
 import scipy.signal as ssp
-# import umap
-# import umap.plot
-#import hdbscan
+import umap
+import umap.plot
+import hdbscan
 import itertools
-from scipy.signal import savgol_filter
-# from sklearn.cluster import Birch
+from sklearn.cluster import Birch
+import matplotlib.colors as colors
 hep.style.use("CMS")
 method_ = "BFGS"
+from matplotlib.colors import LogNorm
 
 
 def indices(lst, item):
@@ -86,8 +87,8 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
 # Declare true geometry
 x_1_true = 12
 x_2_true = 4
-y_1_true = 9
-y_2_true = 8
+y_1_true = 5
+y_2_true = 3
 
 X_bounds = [1,20]
 Y_bounds = [1,10]
@@ -135,10 +136,10 @@ two_x =  (two_d_temp[0]-two_s_temp[0])/2
 six_x =  (six_d_temp[0]-six_s_temp[0])/2
 two_y = ((two_d_temp[0]-two_s_temp[0]))/(np.tan(two_alpha_temp[0]))
 six_y = ((six_d_temp[0]-six_s_temp[0]))/(np.tan(six_alpha_temp[0]))
-print(f'length of two alpha {len(two_alpha_temp)}')
-print(f'length of six alpha {len(six_alpha_temp)}')
+# print(f'length of two alpha {len(two_alpha_temp)}')
+# print(f'length of six alpha {len(six_alpha_temp)}')
 combined_alpha = np.array(two_alpha_temp + six_alpha_temp)
-print(f'length of combined alpha {len(combined_alpha)}')
+# print(f'length of combined alpha {len(combined_alpha)}')
 combined_s = np.array(two_s_temp + six_s_temp)
 combined_d = np.array(two_d_temp + six_d_temp)
 combined_labels = six_label + two_label
@@ -173,59 +174,67 @@ for i in range(0,len(combined_s)):
         combined_y.append(0)
     else:
         combined_y.append(result.x[1])
-combined_y = np.array(combined_y)
 
 
-# data = pd.read_csv('Compton_Effect\Imaging\data_x_y_9y_3y.csv')
-# combined_x = np.array(data['x'])
-# combined_y = np.array(data['y'])
-
-plt.figure(1)
-plt.scatter(combined_x,np.array(combined_y))
-bounds = 1
-plt.plot([min(combined_x),max(combined_x)],[6.78+bounds,6.78+bounds])
-plt.plot([min(combined_x),max(combined_x)],[6.78-bounds,6.78-bounds])
-plt.axvline(np.median(combined_x), color = 'black')
-
-med = np.median(combined_x)
-medium_range_y = combined_y[(combined_x > med - 0.5) & (combined_x < med + 0.5)]
-
-iqr = np.percentile(medium_range_y, 75) - np.percentile(medium_range_y, 25)
-
-h = 2 * iqr * len()
+# plt.scatter(combined_x,combined_y)
+# plt.show()
+data = {'x':combined_x,'y':combined_y}
+data = pd.DataFrame(data = data)
 
 
-# data = {'x':combined_x,'y':combined_y}
-# data = pd.DataFrame(data = data)
-# data.to_csv('data_x_y.csv')
+<<<<<<< HEAD:Compton_Effect/Imaging/initial_guess_UMAP.py
 
-# data = pd.read_csv('data_x_y.csv')
-# combined_x = np.array(data['x'])
-# combined_y = np.array(data['y'])
-
-c_space = np.linspace(0,max(combined_y),num = 10000)
-
-
-
-def sum_res(c,y_data):
-    y_data = np.array(y_data)
-    y_data = y_data[(y_data < c+bounds) & (y_data > c-bounds)]
-    res = (c-y_data)**2
-    return sum(res)
-
-combined_y = np.array(combined_y)
-combined_y = combined_y[combined_y > 1.5]
-
-res_array = []
-for i in c_space:
-    res_array.append(sum_res(i,combined_y))
+birch = Birch(n_clusters=2)
+fit = birch.fit(data)
+plt.scatter(data['x'],data['y'],c=birch.labels_)
+plt.show()
+=======
+# birch = Birch(n_clusters=2)
+# fit = birch.fit(data)
+# plt.scatter(data['x'],data['y'],c=birch.labels_)
+# plt.show()
 
 
+fig, axes = plt.subplots(nrows=1, ncols=1)
 
-plt.figure(2)
-plt.plot(c_space,savgol_filter(res_array,201,3), color = 'orange')
-plt.scatter(c_space,res_array)
-plt.plot(c_space,savgol_filter(res_array,201,3), color = 'orange')
+"""
+Gaussian KDE Method
+"""
+import seaborn as sns
+
+# A = sns.histplot(data=data,x='x',y='y',stat='density',bins=20,cbar=True,cmap='inferno',thresh=None, norm=LogNorm(), vmin=1, vmax=1e2,)             # use for log color bar
+A = sns.histplot(data=data,x='x',y='y',stat='frequency',bins=100,cbar=True,cmap='inferno',thresh=30,kde=0)             # use for log color bar
+B = A.patches
+print(B)
+C = [A.get_height() for A in A.patches]
+print(C)
+aspect_ratio = 0.7
+x_left, x_right = A.get_xlim()
+y_left, y_right = A.get_ylim()
+axes.set_aspect(np.abs((x_right-x_left)/(y_left-y_right))*aspect_ratio)
+fig.tight_layout()
 plt.show()
 
+# generate data from loaded .csv
+# x = np.array(data['x'])
+# y = np.array(data['y'])
+# data = np.vstack((x,y))
+# import scipy as sp
+# #generate Gaussian KDE
+# X, Y = np.mgrid[min(x):max(x):170j, min(y):max(y):170j]
+# positions = np.vstack([X.ravel(), Y.ravel()])
+# kernel = sp.stats.gaussian_kde(data)
+# Z = np.reshape(kernel(positions).T, X.shape)
+# x = np.linspace(min(y),max(y),5000)
 
+# A = kernel.pdf(data)
+# print(A)
+# fig, ax = plt.subplots(1,1)
+# contour = ax.contourf(X,Y,Z,levels=2000,cmap='inferno')#,norm=LogNorm(), vmin=1, vmax=1e2)
+# cbar = fig.colorbar(contour)
+# print(np.shape(A))
+# print(np.shape(y))
+# ax.set_xlabel(r"$B_0$ Mass $[MeV/c^2]$")
+# ax.set_ylabel(r"$q^2$ Mass $[MeV/c^2]$")
+# plt.show()
+>>>>>>> 3d7bef99de43af9d39449968f20c7b20791245e4:Compton_Effect/Imaging/initial_guess_KDE.py
