@@ -10,7 +10,8 @@ import hdbscan
 import itertools
 from sklearn.cluster import Birch
 from sklearn.cluster import KMeans
-
+from sklearn.mixture import GaussianMixture
+from sklearn.cluster import SpectralClustering
 import matplotlib.colors as colors
 hep.style.use("CMS")
 method_ = "BFGS"
@@ -90,14 +91,14 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
 # CHANGE TO YOUR VALUE
 # Declare true geometry
 x_1_true = 12
-x_2_true = 20
-y_1_true = 8
-y_2_true = 9
+x_2_true = 4
+y_1_true = 9
+y_2_true = 8
 
 
 # CHANGE TO YOUR VALUE
-X_bounds = [1,40]
-Y_bounds = [1,40]
+X_bounds = [1,20]
+Y_bounds = [1,10]
 geometries = []
 six_alpha_temp = []
 six_s_temp = []
@@ -142,30 +143,21 @@ two_x =  (two_d_temp[0]-two_s_temp[0])/2
 six_x =  (six_d_temp[0]-six_s_temp[0])/2
 two_y = ((two_d_temp[0]-two_s_temp[0]))/(np.tan(two_alpha_temp[0]))
 six_y = ((six_d_temp[0]-six_s_temp[0]))/(np.tan(six_alpha_temp[0]))
-# print(f'length of two alpha {len(two_alpha_temp)}')
-# print(f'length of six alpha {len(six_alpha_temp)}')
 combined_alpha = np.array(two_alpha_temp + six_alpha_temp)
-# print(f'length of combined alpha {len(combined_alpha)}')
 combined_s = np.array(two_s_temp + six_s_temp)
 combined_d = np.array(two_d_temp + six_d_temp)
 combined_labels = six_label + two_label
 combined_x = []
 combined_y = []
-# print("sss",combined_s)
-# print("ddd",combined_d)
+
 
 for i in range(0,len(combined_s)):
-    # print("Iteration ",i," of ", len(combined_s))
 
     x_guess = float((combined_d[i]+combined_s[i])/2)
     # y_guess = ((combined_d[i]+combined_s[i]))/(np.sin(combined_alpha[i]))
-    # y_guess = float(x_guess+1)
+
     y_guess = np.abs(0.5*((combined_d[i]-combined_s[i]))/(np.tan(combined_alpha[0])))
 
-    # print("X-Guess",x_guess)
-    # print("Y-Guess",y_guess)
-    # x_guess = 5
-    # y_guess = 5
     bounds = spo.Bounds(lb=[0,0],ub=[20,20])
     # result = spo.basinhopping(func=scatter_difference, niter=500, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":bounds})
     result = spo.basinhopping(func=scatter_difference, niter=20, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":([0,20],[0,20])})
@@ -181,19 +173,8 @@ for i in range(0,len(combined_s)):
     else:
         combined_y.append(result.x[1])
 
-
-# plt.scatter(combined_x,combined_y)
-# plt.show()
 data = {'x':combined_x,'y':combined_y}
 data = pd.DataFrame(data = data)
-
-
-# birch = Birch(n_clusters=2)
-# fit = birch.fit(data)
-# plt.scatter(data['x'],data['y'],c=birch.labels_)
-# plt.show()
-
-
 
 # birch clustering
 from numpy import unique
@@ -211,7 +192,7 @@ X = X[X[ : ,1] > 2]
 # X.remove(X[1][X[1] < 2])
 print("X data",X)
 # define the model
-model = Birch(threshold=1e-9, n_clusters=3,branching_factor=300)
+model = GaussianMixture(n_components=4)
 # fit the model
 model.fit(X)
 # assign a cluster to each example
@@ -220,31 +201,29 @@ yhat = model.predict(X)
 clusters = unique(yhat)
 # create scatter plot for samples from each cluster
 coordinates = []
-for cluster in clusters:
+for i,cluster in enumerate(clusters):
  # get row indexes for samples with this cluster
  row_ix = where(yhat == cluster)
  # create scatter of these samples
- pyplot.scatter(X[row_ix, 0], X[row_ix, 1])
+ pyplot.scatter(X[row_ix, 0], X[row_ix, 1],label="Cluster "+str(i))
  coordinates.append(np.array([X[row_ix, 0], X[row_ix, 1]]))
 # show the plot
 # print(coordinates)
+pyplot.xlabel("X position (arb.)")
+pyplot.ylabel("Y position (arb.)")
+pyplot.legend(loc="upper right")
 pyplot.show()
 
 for i in range(0,len(coordinates)):
     plt.scatter(coordinates[i][0],coordinates[i][1])
-    # print("EEE",np.array(coordinates[i][0][0]))
-    # print("OOO",np.array(coordinates[i][1][0]))
 
     plt.show()
     d = {'x':np.array(coordinates[i][0][0]),'y':np.array(coordinates[i][1][0])}
     Y = pd.DataFrame(d)
     Y = np.array(Y)
-    # print("Y data",Y)
-    # Y = np.array([coordinates[0][i][0],coordinates[0][i][1]])
-    # Y = np.array(coordinates[0])
-    # X = Y
+
     # define the model
-    model = Birch(n_clusters=2 ,branching_factor=200)
+    model = GaussianMixture(n_components=4,n_init=4)
     # fit the model
     model.fit(Y)
     # assign a cluster to each example
@@ -253,14 +232,16 @@ for i in range(0,len(coordinates)):
     clusters = unique(yhat)
     # create scatter plot for samples from each cluster
     # coordinates = []
-    for cluster in clusters:
+    for j,cluster in enumerate(clusters):
      # get row indexes for samples with this cluster
      row_ix_ = where(yhat == cluster)
      # create scatter of these samples
-     pyplot.scatter(Y[row_ix_, 0], Y[row_ix_, 1])
-    #  coordinates.append([Y[row_ix, 0], Y[row_ix, 1]])
+     pyplot.scatter(Y[row_ix_, 0], Y[row_ix_, 1],label="Cluster "+str(j))
      # show the plot
-    # print(coordinates)
+
+    pyplot.xlabel("X position (arb.)")
+    pyplot.ylabel("Y position (arb.)")
+    pyplot.legend(loc="upper right")
     pyplot.show()
 
 
