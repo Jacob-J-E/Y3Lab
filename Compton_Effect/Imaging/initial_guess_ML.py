@@ -8,15 +8,9 @@ import umap
 import umap.plot
 import hdbscan
 import itertools
-from sklearn.cluster import Birch
-from sklearn.cluster import KMeans
 from sklearn.mixture import GaussianMixture
-from sklearn.cluster import SpectralClustering
-import matplotlib.colors as colors
 hep.style.use("CMS")
 method_ = "BFGS"
-from matplotlib.colors import LogNorm
-
 
 def indices(lst, item):
     return [i for i, x in enumerate(lst) if x == item]
@@ -92,8 +86,8 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
 # Declare true geometry
 x_1_true = 12
 x_2_true = 4
-y_1_true = 9
-y_2_true = 8
+y_1_true = 8
+y_2_true = 9
 
 
 # CHANGE TO YOUR VALUE
@@ -192,7 +186,7 @@ X = X[X[ : ,1] > 2]
 # X.remove(X[1][X[1] < 2])
 print("X data",X)
 # define the model
-model = GaussianMixture(n_components=4)
+model = GaussianMixture(n_components=4,n_init=4,max_iter=500)
 # fit the model
 model.fit(X)
 # assign a cluster to each example
@@ -223,7 +217,7 @@ for i in range(0,len(coordinates)):
     Y = np.array(Y)
 
     # define the model
-    model = GaussianMixture(n_components=4,n_init=4)
+    model = GaussianMixture(n_components=4,n_init=4,max_iter=500)
     # fit the model
     model.fit(Y)
     # assign a cluster to each example
@@ -238,10 +232,12 @@ for i in range(0,len(coordinates)):
      # create scatter of these samples
      pyplot.scatter(Y[row_ix_, 0], Y[row_ix_, 1],label="Cluster "+str(j))
      # show the plot
-
+ 
     pyplot.xlabel("X position (arb.)")
     pyplot.ylabel("Y position (arb.)")
     pyplot.legend(loc="upper right")
+    
+    
     pyplot.show()
 
 
