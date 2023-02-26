@@ -9,6 +9,7 @@ import scipy.signal as ssp
 #import hdbscan
 import itertools
 from scipy.signal import savgol_filter
+from scipy.signal import argrelextrema
 import scipy.optimize as spo
 # from sklearn.cluster import Birch
 hep.style.use("CMS")
@@ -229,7 +230,7 @@ print(max(hist_fh))
 
 
 
-guess_e1 = [max(hist_fh),first_mean_guess_fh,width_fh]
+guess_e1 = [max(hist_fh),first_mean_guess_fh,width_fh/4]
 params_e1, cov_e1 = spo.curve_fit(gaussian,center_of_bins_fh,hist_fh,guess_e1)
 print(params_e1)
 domain_fh = np.linspace(min(bin_edges_fh),max(bin_edges_fh),num = 10000)
@@ -258,7 +259,7 @@ print(max(hist_sh))
 
 
 
-guess_e2 = [max(hist_sh),first_mean_guess_sh,width_sh]
+guess_e2 = [max(hist_sh),first_mean_guess_sh,width_sh/4]
 params_e2, cov_e2 = spo.curve_fit(gaussian,center_of_bins_sh,hist_sh,guess_e2)
 print(params_e2)
 domain_sh = np.linspace(min(bin_edges_sh),max(bin_edges_sh),num = 10000)
@@ -324,19 +325,26 @@ combined_y = combined_y[combined_y > params_e1[1]-2]
 # combined_x = np.array(data['x'])
 # combined_y = np.array(data['y'])
 
+combined_y = combined_y
+
 c_space = np.linspace(0,max(combined_y),num = 10000)
 
 bounds = (params_e2[1] - params_e1[1])/4 #- max(params_e1[2], params_e2[2])
 #bounds = max(3*params_e1[2], 3*params_e2[2])
 
-sav_gol_num = int(bounds*4)*2 * 43 + 1
+bounds_scaled_up = int(bounds*4)
+if int(bounds*4) == 0: 
+    bounds_scaled_up = 1
+
+
+sav_gol_num = bounds_scaled_up*2 * 43 + 1
 
 def sum_res(c,y_data):
     y_data = np.array(y_data)
     y_data = y_data[(y_data < c+bounds) & (y_data > c-bounds)]
     res = (c-y_data)**2
     if len(y_data) != 0:
-        return sum(res)/len(y_data)
+        return sum(res)/(len(y_data))
     return sum(res)
 
 res_array = []
@@ -344,11 +352,107 @@ for i in c_space:
     res_array.append(sum_res(i,combined_y))
 
 
-print('savgol_num', sav_gol_num)
-plt.figure(4)
-plt.plot(c_space,savgol_filter(res_array,sav_gol_num,3), color = 'orange')
-plt.scatter(c_space,res_array)
-plt.plot(c_space,savgol_filter(res_array,sav_gol_num,3), color = 'orange')
+c_space = np.array(c_space)
+res_array = np.array(res_array)
 
+c_space = c_space[(res_array > 0)]
+res_array = res_array[(res_array > 0)]
+res_array = res_array[(c_space <  20)]
+c_space = c_space[(c_space <  20)]
+
+
+temp_res_array = []
+inital_res = res_array[0]
+triggered = False 
+
+for i in range(len(res_array)):
+    if res_array[i] >= inital_res or triggered == True:
+        triggered = True
+        temp_res_array.append(0)
+    else:
+        temp_res_array.append(res_array[i])
+
+res_array = np.array(temp_res_array)
+
+c_space = c_space[(res_array > 0)]
+res_array = res_array[(res_array > 0)]
+
+
+
+
+
+print('savgol_num', sav_gol_num)
+savgol = savgol_filter(res_array,sav_gol_num,3)
+
+plt.figure(4)
+#plt.plot(c_space,savgol_filter(res_array,sav_gol_num,3), color = 'orange')
+plt.scatter(c_space,res_array)
+plt.plot(c_space,savgol, color = 'orange')
 
 plt.show()
+
+index = argrelextrema(savgol, np.less)
+c_min = c_space[index]
+savgol_min = savgol[index]
+
+
+savgol_min_sorted,c_min_sorted = zip(*sorted(zip(savgol_min,c_min)))
+
+print(c_min_sorted)
+print(savgol_min_sorted)
+
+
+def gaussian_with_c(x, a, b, c,d):
+    return (a * np.exp(-((x - b) ** 2) / (2 * c ** 2)) + d)
+
+mean_data = np.mean(savgol)
+
+guess_min_1 = [-savgol_min_sorted[0],c_min_sorted[0],0.1,mean_data]
+print(guess_min_1, "GUESS ONE")
+params_min_1, cov_min_1 = spo.curve_fit(gaussian_with_c,c_space,savgol,guess_min_1)
+print(params_min_1)
+domain_min_1 = np.linspace(min(c_space),max(c_space),num = 10000)
+plt.plot(domain_min_1,gaussian_with_c(domain_min_1,*params_min_1), color = 'red')
+
+fwhm = 2.35*params_min_1[2]
+
+full_savgol = savgol.copy()
+
+savgol[(c_space < params_min_1[1] + fwhm) & (params_min_1[1] - fwhm < c_space)] = 99999
+
+# temp_sav = []
+# for i in range(len(savgol)):
+#     if ((savgol[i] < params_min_1[1] + fwhm) and (params_min_1[1] - fwhm < savgol[i])):
+#         temp_sav.append(0)
+#     else:
+#         temp_sav.append(savgol[i])
+
+# savgol = np.array(temp_sav)
+
+
+plt.plot(c_space,savgol, color = 'green')
+
+index = argrelextrema(savgol, np.less)
+c_min = c_space[index]
+savgol_min = savgol[index]
+
+print(savgol_min, 'WATER')
+print(c_min, 'fire')
+
+savgol_min_sorted,c_min_sorted = zip(*sorted(zip(savgol_min,c_min)))
+
+print(c_min_sorted, ' ahhhhhhh')
+print(savgol_min_sorted)
+
+guess_min_2 = [-savgol_min_sorted[0],c_min_sorted[0],0.1,mean_data]
+print(guess_min_2, "GUESS TWO")
+params_min_2, cov_min_2 = spo.curve_fit(gaussian_with_c,c_space,full_savgol,guess_min_2)
+print(params_min_2)
+domain_min_2 = np.linspace(min(c_space),max(c_space),num = 10000)
+plt.plot(domain_min_2,gaussian_with_c(domain_min_2,*params_min_2), color = 'pink')
+
+
+print(f'y1: {params_min_1[1]:.4g} +/- {params_min_1[2]:.4g} | y2: {params_min_2[1]:.4g} +/- {params_min_2[2]:.4g}')
+plt.show()
+
+
