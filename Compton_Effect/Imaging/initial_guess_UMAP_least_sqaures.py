@@ -86,10 +86,10 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
     return [np.mean(res_x),np.mean(res_y)]
 
 # Declare true geometry
-x_1_true = 12
-x_2_true = 4
+x_1_true = 15
+x_2_true = 5
 y_1_true = 9
-y_2_true = 8
+y_2_true = 4
 
 X_bounds = [1,20]
 Y_bounds = [1,10]
@@ -123,7 +123,7 @@ for x in range(X_bounds[0],X_bounds[1]+1):
                     six_label.append(6) #Add dynamic (X,Y) here
                     six_x.append(x)
                     six_y.append(y)
-                if (x == x_1_true) and (y==y_2_true):
+                if (x == x_2_true) and (y==y_2_true):
                     valid_alpha = alpha_calc(x,y,d,s)
                     valid_geometry.append([x,y,d,s,valid_alpha])
                     two_d_temp.append(d)
@@ -163,7 +163,7 @@ for i in range(0,len(combined_s)):
     # y_guess = 5
     bounds = spo.Bounds(lb=[0,0],ub=[20,20])
     # result = spo.basinhopping(func=scatter_difference, niter=500, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":bounds})
-    result = spo.basinhopping(func=scatter_difference, niter=40, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":([0,20],[0,20])})
+    result = spo.basinhopping(func=scatter_difference, niter=40, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":((X_bounds[0], Y_bounds[0]),(X_bounds[1], Y_bounds[1]))})
 
     # result = spo.basinhopping(func=scatter_difference, niter=500, x0=[x_guess,y_guess], T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":'Powell',"bounds":([0,20],[0, 20])})
 
@@ -191,6 +191,7 @@ plt.scatter(combined_x,np.array(combined_y))
 # plt.plot([min(combined_x),max(combined_x)],[6.78-bounds,6.78-bounds])
 plt.axvline(np.median(combined_x), color = 'black')
 plt.axvline(np.median(combined_x)+3, color = 'black')
+plt.show()
 
 med = np.median(combined_x)
 mid_shift = med + 3
@@ -363,33 +364,42 @@ c_space = c_space[(c_space <  20)]
 
 temp_res_array = []
 inital_res = res_array[0]
+temp_res_array.append(inital_res)
 triggered = False 
 
-for i in range(len(res_array)):
-    if res_array[i] >= inital_res or triggered == True:
-        triggered = True
-        temp_res_array.append(0)
-    else:
-        temp_res_array.append(res_array[i])
+plt.figure(4)
+#plt.plot(c_space,savgol_filter(res_array,sav_gol_num,3), color = 'orange')
+plt.scatter(c_space,res_array)
 
-res_array = np.array(temp_res_array)
+np.savetxt('res_array.csv',res_array, delimiter = ',')
+np.savetxt('c_space.csv',c_space, delimiter = ',')
 
-c_space = c_space[(res_array > 0)]
-res_array = res_array[(res_array > 0)]
+# for i in range(1,len(res_array)):
+#     if res_array[i] >= inital_res or triggered == True:
+#         triggered = True
+#         temp_res_array.append(0)
+#     else:
+#         temp_res_array.append(res_array[i])
 
+# res_array = np.array(temp_res_array)
 
+# c_space = c_space[(res_array > 0)]
+# res_array = res_array[(res_array > 0)]
+
+plt.figure()
+#plt.plot(c_space,savgol_filter(res_array,sav_gol_num,3), color = 'orange')
+plt.scatter(c_space,res_array)
 
 
 
 print('savgol_num', sav_gol_num)
 savgol = savgol_filter(res_array,sav_gol_num,3)
 
-plt.figure(4)
+plt.figure()
 #plt.plot(c_space,savgol_filter(res_array,sav_gol_num,3), color = 'orange')
 plt.scatter(c_space,res_array)
 plt.plot(c_space,savgol, color = 'orange')
 
-plt.show()
 
 index = argrelextrema(savgol, np.less)
 c_min = c_space[index]
@@ -407,9 +417,11 @@ def gaussian_with_c(x, a, b, c,d):
 
 mean_data = np.mean(savgol)
 
-guess_min_1 = [-savgol_min_sorted[0],c_min_sorted[0],0.1,mean_data]
+#guess_min_1 = [-savgol_min_sorted[0],c_min_sorted[0],0.1,mean_data]
+guess_min_1 = [-savgol_min_sorted[0],params_e1[1],0.01,mean_data]
 print(guess_min_1, "GUESS ONE")
-params_min_1, cov_min_1 = spo.curve_fit(gaussian_with_c,c_space,savgol,guess_min_1)
+params_min_1, cov_min_1 = spo.curve_fit(gaussian_with_c,c_space,savgol,guess_min_1, bounds=((-np.inf,0,0,-np.inf),(0,10,1,np.inf)))
+
 print(params_min_1)
 domain_min_1 = np.linspace(min(c_space),max(c_space),num = 10000)
 plt.plot(domain_min_1,gaussian_with_c(domain_min_1,*params_min_1), color = 'red')
@@ -430,8 +442,6 @@ savgol[(c_space < params_min_1[1] + fwhm) & (params_min_1[1] - fwhm < c_space)] 
 # savgol = np.array(temp_sav)
 
 
-plt.plot(c_space,savgol, color = 'green')
-
 index = argrelextrema(savgol, np.less)
 c_min = c_space[index]
 savgol_min = savgol[index]
@@ -444,9 +454,9 @@ savgol_min_sorted,c_min_sorted = zip(*sorted(zip(savgol_min,c_min)))
 print(c_min_sorted, ' ahhhhhhh')
 print(savgol_min_sorted)
 
-guess_min_2 = [-savgol_min_sorted[0],c_min_sorted[0],0.1,mean_data]
+guess_min_2 = [-savgol_min_sorted[0],params_e2[1],0.01,mean_data]
 print(guess_min_2, "GUESS TWO")
-params_min_2, cov_min_2 = spo.curve_fit(gaussian_with_c,c_space,full_savgol,guess_min_2)
+params_min_2, cov_min_2 = spo.curve_fit(gaussian_with_c,c_space,full_savgol,guess_min_2, bounds=((-np.inf,0,0,-np.inf),(0,10,1,np.inf)))
 print(params_min_2)
 domain_min_2 = np.linspace(min(c_space),max(c_space),num = 10000)
 plt.plot(domain_min_2,gaussian_with_c(domain_min_2,*params_min_2), color = 'pink')
