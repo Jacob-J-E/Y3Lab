@@ -85,6 +85,10 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
     return [np.mean(res_x),np.mean(res_y)] 
 
 # Declare true geometry
+# x_1_true = 12
+# x_2_true = 4
+# y_1_true = 3
+# y_2_true = 7
 x_1_true = 12
 x_2_true = 4
 y_1_true = 3
@@ -122,7 +126,7 @@ for x in range(X_bounds[0],X_bounds[1]+1):
                     six_label.append(6) #Add dynamic (X,Y) here
                     six_x.append(x)
                     six_y.append(y)
-                if (x == x_1_true) and (y==y_2_true):
+                if (x == x_2_true) and (y==y_2_true):
                     valid_alpha = alpha_calc(x,y,d,s)
                     valid_geometry.append([x,y,d,s,valid_alpha])
                     two_d_temp.append(d)
@@ -174,6 +178,9 @@ for i in range(0,len(combined_s)):
         combined_y.append(0)
     else:
         combined_y.append(result.x[1])
+
+
+combined_x = np.array(combined_x)        
 combined_y = np.array(combined_y)
 
 

@@ -84,14 +84,17 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
 
 # CHANGE TO YOUR VALUE
 # Declare true geometry
-x_1_true = 12
-x_2_true = 4
-y_1_true = 8
-y_2_true = 9
-
+# x_1_true = 12
+# x_2_true = 4
+# y_1_true = 8
+# y_2_true = 9
+x_1_true = 20
+x_2_true = 10
+y_1_true = 9
+y_2_true = 4
 
 # CHANGE TO YOUR VALUE
-X_bounds = [1,20]
+X_bounds = [1,30]
 Y_bounds = [1,10]
 geometries = []
 six_alpha_temp = []
@@ -123,7 +126,7 @@ for x in range(X_bounds[0],X_bounds[1]+1):
                     six_label.append(6) #Add dynamic (X,Y) here
                     six_x.append(x)
                     six_y.append(y)
-                if (x == x_1_true) and (y==y_2_true):
+                if (x == x_2_true) and (y==y_2_true):
                     valid_alpha = alpha_calc(x,y,d,s)
                     valid_geometry.append([x,y,d,s,valid_alpha])
                     two_d_temp.append(d)
@@ -179,6 +182,7 @@ from matplotlib import pyplot
 # define dataset
 # X, _ = make_classification(n_samples=1000, n_features=2, n_informative=2, n_redundant=0, n_clusters_per_class=1, random_state=4)
 X = np.array(data)
+print("AHHH",len(X))
 # X[0] = X[ : ,0][(X[1])>2]
 # X[1] = X[ : ,1][(X[1])>2]
 X = X[X[ : ,1] > 2]

@@ -9,6 +9,10 @@ import umap.plot
 import hdbscan
 import itertools
 from sklearn.mixture import GaussianMixture
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
+
 hep.style.use("CMS")
 method_ = "BFGS"
 
@@ -60,8 +64,8 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
     X_guess = (d[0]-s[0])/2
     Y_guess = ((d[0]-s[0]))/(np.tan(alpha[0]))
 
-    X_guess = 2
-    Y_guess = 15
+    # X_guess = 2
+    # Y_guess = 15
 
     res_x = []
     res_y = []
@@ -86,12 +90,12 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
     return [np.mean(res_x),np.mean(res_y)]
 
 # Declare true geometry
-x_1_true = 12
-x_2_true = 11
-y_1_true = 5
-y_2_true = 4
+x_1_true = 15
+x_2_true = 10
+y_1_true = 7
+y_2_true = 2
 
-X_bounds = [1,20]
+X_bounds = [1,25]
 Y_bounds = [1,10]
 geometries = []
 six_alpha_temp = []
@@ -133,10 +137,10 @@ for x in range(X_bounds[0],X_bounds[1]+1):
                     two_x.append(x)
                     two_y.append(y)
 
-two_x =  (two_d_temp[0]-two_s_temp[0])/2
-six_x =  (six_d_temp[0]-six_s_temp[0])/2
-two_y = ((two_d_temp[0]-two_s_temp[0]))/(np.tan(two_alpha_temp[0]))
-six_y = ((six_d_temp[0]-six_s_temp[0]))/(np.tan(six_alpha_temp[0]))
+# two_x =  (two_d_temp[0]-two_s_temp[0])/2
+# six_x =  (six_d_temp[0]-six_s_temp[0])/2
+# two_y = ((two_d_temp[0]-two_s_temp[0]))/(np.tan(two_alpha_temp[0]))
+# six_y = ((six_d_temp[0]-six_s_temp[0]))/(np.tan(six_alpha_temp[0]))
 print(f'length of two alpha {len(two_alpha_temp)}')
 print(f'length of six alpha {len(six_alpha_temp)}')
 combined_alpha = np.array(two_alpha_temp + six_alpha_temp)
@@ -209,6 +213,15 @@ plt.scatter(combined_x,combined_y)
 plt.show()
 
 
+# scalar = StandardScaler()
+# scaled_data = pd.DataFrame(scalar.fit_transform(X_train))
+# pca = PCA(n_components=2)
+# pca.fit(scaled_data)
+# data_pca = pca.transform(scaled_data)
+# data_pca = pd.DataFrame(data_pca,columns=['PC1','PC2']) 
+# plt.scatter(data_pca.PC1,data_pca.PC2,c=y_train)
+# plt.show()
+
 """
 Clustering UMAP
 """
@@ -219,14 +232,12 @@ Clustering UMAP
 #     n_components=2,
 #     random_state=42,
 # ).fit_transform(X_train)
-
-X_train_norm = (X_train-X_train.mean())/X_train.std()
 clusterable_embedding = umap.UMAP(
-    n_neighbors=5,
+    n_neighbors=300,
     min_dist=0,
     n_components=2,
     random_state=42,
-).fit_transform(X_train_norm)
+).fit_transform(X_train)
 
 # print("COlumns!! ",X_train.columns)
 plt.scatter(clusterable_embedding[:, 0], clusterable_embedding[:, 1],

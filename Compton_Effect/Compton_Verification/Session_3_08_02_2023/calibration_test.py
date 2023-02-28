@@ -31,8 +31,7 @@ def batch(data: np.array ,batches: int):
 
 batch_size = 8
 
-
-data = pd.read_csv(r"Compton_Effect\Data\Session_3_08_02_2023\Cs Co Am Ba Na Na_2.csv",skiprows=0)
+data = pd.read_csv(r"Compton_Effect\Compton_Verification\Data\Session_3_08_02_2023\Cs Co Am Ba Na Na_2.csv",skiprows=0)
 
 bins = data['n_1']
 Cs = data['N_1']

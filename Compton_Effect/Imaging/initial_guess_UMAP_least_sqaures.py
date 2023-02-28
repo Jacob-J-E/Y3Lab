@@ -191,8 +191,8 @@ plt.scatter(combined_x,np.array(combined_y))
 # plt.plot([min(combined_x),max(combined_x)],[6.78-bounds,6.78-bounds])
 plt.axvline(np.median(combined_x), color = 'black')
 plt.axvline(np.median(combined_x)+3, color = 'black')
-plt.show()
-
+plt.xlabel("X Position (arb.)")
+plt.ylabel("Y Position (arb.)")
 med = np.median(combined_x)
 mid_shift = med + 3
 medium_range_y = combined_y[(combined_x > med - 0.5) & (combined_x < med + 0.5)]
@@ -240,7 +240,8 @@ plt.figure(2)
 plt.hist(fh_med, bins = num_of_bins)
 plt.scatter(center_of_bins_fh,hist_fh, marker = 'x')
 plt.plot(domain_fh,gaussian(domain_fh,*params_e1))
-
+plt.xlabel("Y Position (arb.)")
+plt.ylabel("Y Position Freqeuncy (number)")
 
 hist_sh, bin_edges_sh = np.histogram(sh_med, bins=num_of_bins)
 
@@ -269,7 +270,8 @@ plt.figure(3)
 plt.hist(sh_med, bins = num_of_bins)
 plt.scatter(center_of_bins_sh,hist_sh, marker = 'x')
 plt.plot(domain_sh,gaussian(domain_sh,*params_e2))
-
+plt.xlabel("Y Position (arb.)")
+plt.ylabel("Freqeuncy Normalized Residuals (no units)")
 
 
 # iqr = np.percentile(medium_range_y, 75) - np.percentile(medium_range_y, 25)
@@ -398,68 +400,7 @@ savgol = savgol_filter(res_array,sav_gol_num,3)
 plt.figure()
 #plt.plot(c_space,savgol_filter(res_array,sav_gol_num,3), color = 'orange')
 plt.scatter(c_space,res_array)
-plt.plot(c_space,savgol, color = 'orange')
-
-
-index = argrelextrema(savgol, np.less)
-c_min = c_space[index]
-savgol_min = savgol[index]
-
-
-savgol_min_sorted,c_min_sorted = zip(*sorted(zip(savgol_min,c_min)))
-
-print(c_min_sorted)
-print(savgol_min_sorted)
-
-
-def gaussian_with_c(x, a, b, c,d):
-    return (a * np.exp(-((x - b) ** 2) / (2 * c ** 2)) + d)
-
-mean_data = np.mean(savgol)
-
-#guess_min_1 = [-savgol_min_sorted[0],c_min_sorted[0],0.1,mean_data]
-guess_min_1 = [-savgol_min_sorted[0],params_e1[1],0.01,mean_data]
-print(guess_min_1, "GUESS ONE")
-params_min_1, cov_min_1 = spo.curve_fit(gaussian_with_c,c_space,savgol,guess_min_1, bounds=((-np.inf,0,0,-np.inf),(0,10,1,np.inf)))
-
-print(params_min_1)
-domain_min_1 = np.linspace(min(c_space),max(c_space),num = 10000)
-plt.plot(domain_min_1,gaussian_with_c(domain_min_1,*params_min_1), color = 'red')
-
-fwhm = 2.35*params_min_1[2]
-
-full_savgol = savgol.copy()
-
-savgol[(c_space < params_min_1[1] + fwhm) & (params_min_1[1] - fwhm < c_space)] = 99999
-
-# temp_sav = []
-# for i in range(len(savgol)):
-#     if ((savgol[i] < params_min_1[1] + fwhm) and (params_min_1[1] - fwhm < savgol[i])):
-#         temp_sav.append(0)
-#     else:
-#         temp_sav.append(savgol[i])
-
-# savgol = np.array(temp_sav)
-
-
-index = argrelextrema(savgol, np.less)
-c_min = c_space[index]
-savgol_min = savgol[index]
-
-print(savgol_min, 'WATER')
-print(c_min, 'fire')
-
-savgol_min_sorted,c_min_sorted = zip(*sorted(zip(savgol_min,c_min)))
-
-print(c_min_sorted, ' ahhhhhhh')
-print(savgol_min_sorted)
-
-guess_min_2 = [-savgol_min_sorted[0],params_e2[1],0.01,mean_data]
-print(guess_min_2, "GUESS TWO")
-params_min_2, cov_min_2 = spo.curve_fit(gaussian_with_c,c_space,full_savgol,guess_min_2, bounds=((-np.inf,0,0,-np.inf),(0,10,1,np.inf)))
-print(params_min_2)
-domain_min_2 = np.linspace(min(c_space),max(c_space),num = 10000)
-plt.plot(domain_min_2,gaussian_with_c(domain_min_2,*params_min_2), color = 'pink')
+plt.plot(c_space,savgol_filter(res_array,sav_gol_num,3), color = 'orange')
 
 
 print(f'y1: {params_min_1[1]:.4g} +/- {params_min_1[2]:.4g} | y2: {params_min_2[1]:.4g} +/- {params_min_2[2]:.4g}')
