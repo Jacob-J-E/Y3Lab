@@ -137,10 +137,10 @@ plt.plot(np.cos(angle_plot),energy_compton((np.cos(angle_plot)),E_0=params),labe
 print("Exp params",params)
 print("Human params",params_humam)
 # Using Gaussian fit errors
-plt.errorbar(np.cos(angle),fit_means,np.array(energy_error),ls='None',color='black',capsize=5,label=r"$1\sigma$ error") 
+plt.errorbar(np.cos(angle),fit_means,np.array(energy_error),ls='None',color='black',capsize=5,label=r"$1\sigma$ error Gaussian") 
 
 # Using Compton curve-fit errors
-plt.errorbar(np.cos(angle),fit_means,np.zeros_like(fit_means)+np.sqrt(cov[0][0]),ls='None',color='blue',capsize=5,label=r"$1\sigma$ error C") 
+plt.errorbar(np.cos(angle),fit_means,np.zeros_like(fit_means)+np.sqrt(cov[0][0]),ls='None',color='blue',capsize=5,label=r"$1\sigma$ error covariance") 
 
 plt.xlim(-0.2,1)
 plt.xlabel(r"$\cos \theta$")

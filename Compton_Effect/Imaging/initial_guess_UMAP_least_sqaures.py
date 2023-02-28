@@ -190,7 +190,8 @@ plt.scatter(combined_x,np.array(combined_y))
 # plt.plot([min(combined_x),max(combined_x)],[6.78-bounds,6.78-bounds])
 plt.axvline(np.median(combined_x), color = 'black')
 plt.axvline(np.median(combined_x)+3, color = 'black')
-
+plt.xlabel("X Position (arb.)")
+plt.ylabel("Y Position (arb.)")
 med = np.median(combined_x)
 mid_shift = med + 3
 medium_range_y = combined_y[(combined_x > med - 0.5) & (combined_x < med + 0.5)]
@@ -238,7 +239,8 @@ plt.figure(2)
 plt.hist(fh_med, bins = num_of_bins)
 plt.scatter(center_of_bins_fh,hist_fh, marker = 'x')
 plt.plot(domain_fh,gaussian(domain_fh,*params_e1))
-
+plt.xlabel("Y Position (arb.)")
+plt.ylabel("Y Position Freqeuncy (number)")
 
 hist_sh, bin_edges_sh = np.histogram(sh_med, bins=num_of_bins)
 
@@ -267,7 +269,8 @@ plt.figure(3)
 plt.hist(sh_med, bins = num_of_bins)
 plt.scatter(center_of_bins_sh,hist_sh, marker = 'x')
 plt.plot(domain_sh,gaussian(domain_sh,*params_e2))
-
+plt.xlabel("Y Position (arb.)")
+plt.ylabel("Freqeuncy Normalized Residuals (no units)")
 
 
 # iqr = np.percentile(medium_range_y, 75) - np.percentile(medium_range_y, 25)
@@ -349,6 +352,7 @@ plt.figure(4)
 plt.plot(c_space,savgol_filter(res_array,sav_gol_num,3), color = 'orange')
 plt.scatter(c_space,res_array)
 plt.plot(c_space,savgol_filter(res_array,sav_gol_num,3), color = 'orange')
-
+plt.xlabel("Y Position (arb.)")
+plt.ylabel("Freqeuncy Normalized Residuals (no units)")
 
 plt.show()
