@@ -267,32 +267,7 @@ plt.xlabel("X position (arb.)")
 plt.ylabel("Y position (arb.)")
 plt.legend(loc="upper right")
 plt.show()
-# clusterable_embedding
-# print("AHH",labels)
 
-# clustered = (labels >= 0)
-# plt.scatter(standard_embedding[~clustered, 0],
-#             standard_embedding[~clustered, 1],
-#             color=(0.5, 0.5, 0.5),
-#             s=20,
-#             alpha=0.5)
-
-# plt.scatter(standard_embedding[clustered, 0],
-#             standard_embedding[clustered, 1],
-#             c=labels[clustered],
-#             s=20,
-#             cmap='Spectral')
-
-# plt.show()
-
-
-# cluster_0 = drop_preds(X_train,preds[0],0)
-# cluster_1 = drop_preds(X_train,preds[1],1)
-
-# print(preds[0])
-
-# cluster_0 = X_train[:preds[0]]
-# cluster_1 = X_train[preds[1]:]
 print(f'preds {list(preds)}')
 print(f'preds[0][0] {list(preds)[0][0]}')
 print(f'preds[1] {list(preds)[1]}')
