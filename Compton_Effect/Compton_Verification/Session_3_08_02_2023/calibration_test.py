@@ -29,7 +29,7 @@ def batch(data: np.array ,batches: int):
 
     return [np.array(new_channel),np.array(new_count)]
 
-batch_size = 8
+batch_size = 1
 
 data = pd.read_csv(r"Compton_Effect\Compton_Verification\Data\Session_3_08_02_2023\Cs Co Am Ba Na Na_2.csv",skiprows=0)
 
@@ -43,17 +43,17 @@ Na_2 = data['N_6']
 Na = Na.to_numpy() + Na_2.to_numpy()
 data = [Cs, Co, Am, Ba, Na]
 
-new_data = []
-bins = batch(data[0],batch_size)[0]
-for data in data:
-    new_data.append(batch(data,batch_size)[1])
+# new_data = []
+# bins = batch(data[0],batch_size)[0]
+# for data in data:
+#     new_data.append(batch(data,batch_size)[1])
 
 
-Cs = new_data[0]
-Co = new_data[1]
-Am = new_data[2]
-Ba = new_data[3]
-Na = new_data[4]
+# Cs = new_data[0]
+# Co = new_data[1]
+# Am = new_data[2]
+# Ba = new_data[3]
+# Na = new_data[4]
 
 
 def gaussian(x, a, b, c,e):
@@ -106,7 +106,7 @@ print(f'{params_Cs_3[1]:.4g} +/- {np.sqrt(cov_Cs_3[1][1]):.4g}')
 
 
 
-guess_Co_1 = [58*4,367/batch_size,1,0]
+guess_Co_1 = [58*batch_size,367/batch_size,1,0]
 params_Co_1, cov_Co_1 = spo.curve_fit(gaussian,bins,Co,guess_Co_1, bounds = (0, np.inf))
 plt.figure("Co")
 plt.plot(bins,Co)
@@ -119,10 +119,10 @@ plt.ylim(bottom = 0)
 print(f'{params_Co_1[1]:.4g} +/- {np.sqrt(cov_Co_1[1][1]):.4g}')
 
 
-guess_Am_1 = [3430*4,190/batch_size,1,0]
+guess_Am_1 = [3430*batch_size,190/batch_size,1,0]
 params_Am_1, cov_Am_1 = spo.curve_fit(gaussian,bins,Am,guess_Am_1, bounds = (0, np.inf))
 
-guess_Am_2 = [600*4,100/batch_size,1,0]
+guess_Am_2 = [600*batch_size,100/batch_size,1,0]
 params_Am_2, cov_Am_2 = spo.curve_fit(gaussian,bins,Am,guess_Am_2, bounds = (0, np.inf))
 plt.figure("Am")
 plt.plot(bins,Am)
@@ -137,7 +137,7 @@ plt.ylim(bottom = 0)
 print(f'{params_Am_1[1]:.4g} +/- {np.sqrt(cov_Am_1[1][1]):.4g}')
 print(f'{params_Am_2[1]:.4g} +/- {np.sqrt(cov_Am_2[1][1]):.4g}')
 
-guess_Na_1 = [180*4,1400/batch_size,1,0]
+guess_Na_1 = [180*batch_size,1400/batch_size,1,0]
 params_Na_1, cov_Na_1 = spo.curve_fit(gaussian,bins,Na,guess_Na_1, bounds = (0, np.inf))
 plt.figure("Na")
 plt.plot(bins,Na)
@@ -178,8 +178,13 @@ plt.xlim(left = 0 , right = 2048/batch_size)
 plt.legend()
 
 
-bin_numbers_energy =       np.array([12.36,  24.05,   29.92,  45.77,  177.3,  227.3])
-bin_numbers_energy_error = np.array([0.9162, 0.02524, 0.1208, 0.04812,0.2945, 0.06915])
+#bin_numbers_energy_256 =       np.array([12.36,  24.05,   29.92,  45.77,  177.3,  227.3])
+bin_numbers_energy_2048 =       np.array([102.4,  195.9,   243,  369.7,  1422,  1822])
+#bin_numbers_energy_error_256 = np.array([0.9162, 0.02524, 0.1208, 0.04812,0.2945, 0.06915])
+bin_numbers_energy_error_2048 = np.array([2.517, 0.07103, 0.9579, 0.2318,1.56, 0.3189])
+
+bin_numbers_energy = bin_numbers_energy_2048
+bin_numbers_energy_error = bin_numbers_energy_error_2048
 energy_vals = np.array([30.85,59.54,81.0,122,511,661.7])
 
 m = (energy_vals[-1]-energy_vals[0])/(bin_numbers_energy[-1]-bin_numbers_energy[0])

@@ -90,7 +90,7 @@ def loss_minimizer(alpha:np.array, d:np.array, s:np.array):
 # y_2_true = 9
 x_1_true = 20
 x_2_true = 10
-y_1_true = 9
+y_1_true = 7
 y_2_true = 4
 
 # CHANGE TO YOUR VALUE
@@ -157,7 +157,7 @@ for i in range(0,len(combined_s)):
 
     bounds = spo.Bounds(lb=[0,0],ub=[20,20])
     # result = spo.basinhopping(func=scatter_difference, niter=500, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":bounds})
-    result = spo.basinhopping(func=scatter_difference, niter=20, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":([0,20],[0,20])})
+    result = spo.basinhopping(func=scatter_difference, niter=20, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_})
 
     # result = spo.basinhopping(func=scatter_difference, niter=500, x0=[x_guess,y_guess], T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":'Powell',"bounds":([0,20],[0, 20])})
 
@@ -190,7 +190,7 @@ X = X[X[ : ,1] > 2]
 # X.remove(X[1][X[1] < 2])
 print("X data",X)
 # define the model
-model = GaussianMixture(n_components=4,n_init=4,max_iter=500)
+model = GaussianMixture(n_components=2,n_init=4,max_iter=500)
 # fit the model
 model.fit(X)
 # assign a cluster to each example
@@ -221,7 +221,7 @@ for i in range(0,len(coordinates)):
     Y = np.array(Y)
 
     # define the model
-    model = GaussianMixture(n_components=4,n_init=4,max_iter=500)
+    model = GaussianMixture(n_components=2,n_init=4,max_iter=500)
     # fit the model
     model.fit(Y)
     # assign a cluster to each example
