@@ -249,9 +249,16 @@ xy_data = []
 dataframe_clusters = []
 def finding_clusters(coordinates):
     global clusters_array
+    #plt.figure(figsize=(10,10))
     for i in range(len(coordinates)):
         x1_t,x2_t,y1_t,y2_t = check_values(np.array(coordinates[i][0][0]),np.array(coordinates[i][1][0]))
         condition = condition_checker(x1_t,x2_t,y1_t,y2_t )
+        # x = np.array(coordinates[i][0][0])
+        # y = np.array(coordinates[i][1][0])
+
+        # x = x[y<19]
+        # y = y[y<19]
+        # plt.scatter(x,y, label = f'Cluster {i}')
         if condition == 'contains_both':
             print('contains_both')
             #plt.scatter(coordinates[i][0][0],coordinates[i][1][0])
@@ -302,6 +309,12 @@ def finding_clusters(coordinates):
             # plt.show()
         else:
             print('Hm')
+    # plt.xlabel('X Position (cm)')
+    # plt.ylabel('Y Position (cm)')
+    # plt.legend(loc = 'upper right')
+    # plt.ylim(top = 22)
+    # plt.xlim(left = 0, right = 20)
+    # plt.show()
 
 
 
@@ -332,9 +345,15 @@ df_cluster2 = dataframe_clusters[1].drop(columns =['marker'])
 # print(df_cluster1)
 # print(df_cluster2)
 
-plt.scatter(df_cluster1['x'],df_cluster1['y'])
-plt.scatter(df_cluster2['x'],df_cluster2['y'])
-
+plt.figure(figsize= (10,2))
+plt.scatter(df_cluster1['x'],df_cluster1['y'],label = 'Cluster 1',color = '#bc4834')
+plt.scatter(df_cluster2['x'],df_cluster2['y'],label = 'Cluster 2',color = '#089c9c')
+plt.xlabel('X Position (cm)')
+plt.ylabel('Y Position (cm)')
+plt.legend(loc = 'upper right')
+plt.ylim(bottom = min(np.array(df_cluster2['y']))-0.1,top = max(np.array(df_cluster1['y']))+0.1)
+plt.xlim(left = 0, right = 20)
+plt.show()
 # print('----------------- GAUSSIAN MEAN ANGLE VALUES-----------------')
 # for i in range(len(mean_angle_list)):
 #     print(f'File: {list_files_sorted[i]}, Angle: {mean_angle_list[i]*(180/np.pi):.4g} +/- {standard_dev_angle_list[i]:.4g} ({(100*standard_dev_angle_list[i]/mean_angle_list[i]):.4g}%)')

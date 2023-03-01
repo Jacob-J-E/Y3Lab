@@ -99,9 +99,9 @@ plt.plot(bins,gaussian(bins,*params_Cs_2), alpha = 0.7)
 plt.plot(bins,gaussian(bins,*params_Cs_3), alpha = 0.7)
 plt.ylim(bottom = 0)
 
-print(f'{params_Cs_1[1]:.4g} +/- {np.sqrt(cov_Cs_1[1][1]):.4g}')
-print(f'{params_Cs_2[1]:.4g} +/- {np.sqrt(cov_Cs_2[1][1]):.4g}')
-print(f'{params_Cs_3[1]:.4g} +/- {np.sqrt(cov_Cs_3[1][1]):.4g}')
+print(f'{params_Cs_1[1]:.4g} +/- {np.sqrt(cov_Cs_1[1][1]):.4g} +/- {params_Cs_1[2]:.4g}')
+print(f'{params_Cs_2[1]:.4g} +/- {np.sqrt(cov_Cs_2[1][1]):.4g} +/- {params_Cs_2[2]:.4g}')
+print(f'{params_Cs_3[1]:.4g} +/- {np.sqrt(cov_Cs_3[1][1]):.4g} +/- {params_Cs_3[2]:.4g}')
 
 
 
@@ -116,7 +116,7 @@ plt.plot(bins,gaussian(bins,*params_Co_1), alpha = 0.7)
 plt.ylim(bottom = 0)
 
 
-print(f'{params_Co_1[1]:.4g} +/- {np.sqrt(cov_Co_1[1][1]):.4g}')
+print(f'{params_Co_1[1]:.4g} +/- {np.sqrt(cov_Co_1[1][1]):.4g} +/- {params_Co_1[2]:.4g}')
 
 
 guess_Am_1 = [3430*batch_size,190/batch_size,1,0]
@@ -134,8 +134,8 @@ plt.axvline(params_Am_2[1], color = 'black')
 plt.plot(bins,gaussian(bins,*params_Am_2), alpha = 0.7)
 plt.ylim(bottom = 0)
 
-print(f'{params_Am_1[1]:.4g} +/- {np.sqrt(cov_Am_1[1][1]):.4g}')
-print(f'{params_Am_2[1]:.4g} +/- {np.sqrt(cov_Am_2[1][1]):.4g}')
+print(f'{params_Am_1[1]:.4g} +/- {np.sqrt(cov_Am_1[1][1]):.4g} +/- {params_Am_1[2]:.4g}')
+print(f'{params_Am_2[1]:.4g} +/- {np.sqrt(cov_Am_2[1][1]):.4g} +/- {params_Am_2[2]:.4g}')
 
 guess_Na_1 = [180*batch_size,1400/batch_size,1,0]
 params_Na_1, cov_Na_1 = spo.curve_fit(gaussian,bins,Na,guess_Na_1, bounds = (0, np.inf))
@@ -146,7 +146,7 @@ plt.axvline(params_Na_1[1], color = 'black')
 plt.plot(bins,gaussian(bins,*params_Na_1), alpha = 0.7)
 plt.ylim(bottom = 0)
 
-print(f'{params_Na_1[1]:.4g} +/- {np.sqrt(cov_Na_1[1][1]):.4g}')
+print(f'{params_Na_1[1]:.4g} +/- {np.sqrt(cov_Na_1[1][1]):.4g}  +/- {params_Na_1[2]:.4g}')
 
 
 plt.figure(5)
@@ -181,7 +181,10 @@ plt.legend()
 #bin_numbers_energy_256 =       np.array([12.36,  24.05,   29.92,  45.77,  177.3,  227.3])
 bin_numbers_energy_2048 =       np.array([102.4,  195.9,   243,  369.7,  1422,  1822])
 #bin_numbers_energy_error_256 = np.array([0.9162, 0.02524, 0.1208, 0.04812,0.2945, 0.06915])
-bin_numbers_energy_error_2048 = np.array([2.517, 0.07103, 0.9579, 0.2318,1.56, 0.3189])
+#bin_numbers_energy_error_2048 = np.array([2.517, 0.07103, 0.9579, 0.2318,1.56, 0.3189])
+bin_numbers_energy_error_2048 = np.array([10.58, 14.77, 23.09, 25.26,57.19, 72.73])
+
+energy_error_2048 = bin_numbers_energy_error_2048 * 0.36818885
 
 bin_numbers_energy = bin_numbers_energy_2048
 bin_numbers_energy_error = bin_numbers_energy_error_2048
@@ -226,14 +229,15 @@ print(f' ODR: straight line parameters: {np.diag(myoutput.beta)}')
 print(f' ODR: Error in straight line parameters: {np.sqrt(np.diag(myoutput.cov_beta))}')
 
 plt.figure(6)
-plt.scatter(bin_numbers_energy,energy_vals, marker = 'x', label = 'Data')
-plt.plot(domain,straight_line(domain,*params_sl_3), label = 'Straight line Fit', color = 'green')
-plt.fill_between(domain, min_m*domain + max_c , max_m*domain + min_c, label = 'Error Straight Line', alpha = 0.5, color = 'green')
-plt.plot(domain,quad_line(domain,*params_ql_3), label = 'Quadratic line Fit', color = 'red')
+plt.plot(domain,straight_line(domain,*params_sl_3), label = 'Straight line Fit', color = 'green',zorder=0)
+# plt.fill_between(domain, min_m*domain + max_c , max_m*domain + min_c, label = 'Error Straight Line', alpha = 0.5, color = 'green',zorder=10)
+plt.plot(domain,quad_line(domain,*params_ql_3), label = 'Quadratic line Fit', color = 'red',alpha=0.5,zorder=20)
+plt.scatter(bin_numbers_energy,energy_vals, marker = 'x', label = 'Data',color='black',zorder=1000)
+plt.errorbar(bin_numbers_energy,energy_vals,yerr=energy_error_2048,ls='None',capsize=5,color='black')
 plt.xlim(left = 0, right = max(bins))
 plt.ylim(bottom = 0)
 plt.legend()
-plt.xlabel("Channels")
+plt.xlabel("Channels (no units)")
 plt.ylabel("Energy (keV)")
 
 

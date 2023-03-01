@@ -154,49 +154,56 @@ combined_x = []
 combined_y = []
 # print("sss",combined_s)
 # print("ddd",combined_d)
-with alive_bar(len(combined_s)) as bar:
-    for i in range(0,len(combined_s)):
-        # print("Iteration ",i," of ", len(combined_s))
+# with alive_bar(len(combined_s)) as bar:
+#     for i in range(0,len(combined_s)):
+#         # print("Iteration ",i," of ", len(combined_s))
 
-        x_guess = float((combined_d[i]+combined_s[i])/2)
-        # y_guess = ((combined_d[i]+combined_s[i]))/(np.sin(combined_alpha[i]))
-        # y_guess = float(x_guess+1)
-        y_guess = np.abs(0.5*((combined_d[i]-combined_s[i]))/(np.tan(combined_alpha[0])))
+#         x_guess = float((combined_d[i]+combined_s[i])/2)
+#         # y_guess = ((combined_d[i]+combined_s[i]))/(np.sin(combined_alpha[i]))
+#         # y_guess = float(x_guess+1)
+#         y_guess = np.abs(0.5*((combined_d[i]-combined_s[i]))/(np.tan(combined_alpha[0])))
 
-        # print("X-Guess",x_guess)      
-        # print("Y-Guess",y_guess)
-        # x_guess = 5
-        # y_guess = 5
-        bounds = spo.Bounds(lb=[0,0],ub=[20,20])
-        # result = spo.basinhopping(func=scatter_difference, niter=500, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":bounds})
-        result = spo.basinhopping(func=scatter_difference, niter=40, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":((X_bounds[0], Y_bounds[0]),(X_bounds[1], Y_bounds[1]))})
+#         # print("X-Guess",x_guess)      
+#         # print("Y-Guess",y_guess)
+#         # x_guess = 5
+#         # y_guess = 5
+#         bounds = spo.Bounds(lb=[0,0],ub=[20,20])
+#         # result = spo.basinhopping(func=scatter_difference, niter=500, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":bounds})
+#         result = spo.basinhopping(func=scatter_difference, niter=40, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":((X_bounds[0], Y_bounds[0]),(X_bounds[1], Y_bounds[1]))})
 
-        # result = spo.basinhopping(func=scatter_difference, niter=500, x0=[x_guess,y_guess], T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":'Powell',"bounds":([0,20],[0, 20])})
+#         # result = spo.basinhopping(func=scatter_difference, niter=500, x0=[x_guess,y_guess], T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":'Powell',"bounds":([0,20],[0, 20])})
 
-        if result.x[0] < 0:
-            combined_x.append(0)
-        else:
-            combined_x.append(result.x[0])
-        if result.x[1] < 0:
-            combined_y.append(0)
-        else:
-            combined_y.append(result.x[1])
-        bar()
-combined_y = np.array(combined_y)
-combined_x = np.array(combined_x)
-combined_x = combined_x[combined_y > 1.5]
-combined_y = combined_y[combined_y > 1.5]
+#         if result.x[0] < 0:
+#             combined_x.append(0)
+#         else:
+#             combined_x.append(result.x[0])
+#         if result.x[1] < 0:
+#             combined_y.append(0)
+#         else:
+#             combined_y.append(result.x[1])
+#         bar()
+# combined_y = np.array(combined_y)
+# combined_x = np.array(combined_x)
+# combined_x = combined_x[combined_y > 1.5]
+# combined_y = combined_y[combined_y > 1.5]
 
-np.savetxt("combined_x.csv", combined_x, delimiter=",")
-np.savetxt("combined_y.csv", combined_y, delimiter=",")
-np.savetxt("combined_alpha.csv", combined_y, delimiter=",")
-np.savetxt("combined_d.csv", combined_y, delimiter=",")
-np.savetxt("combined_s.csv", combined_y, delimiter=",")
+# np.savetxt("combined_x.csv", combined_x, delimiter=",")
+# np.savetxt("combined_y.csv", combined_y, delimiter=",")
+# np.savetxt("combined_alpha.csv", combined_y, delimiter=",")
+# np.savetxt("combined_d.csv", combined_y, delimiter=",")
+# np.savetxt("combined_s.csv", combined_y, delimiter=",")
+
+combined_x = np.loadtxt("Compton_Effect/Imaging/combined_x.csv", delimiter=",")
+combined_y = np.loadtxt("Compton_Effect/Imaging/combined_y.csv", delimiter=",")
+combined_d = np.loadtxt("Compton_Effect/Imaging/combined_d.csv", delimiter=",")
+combined_s = np.loadtxt("Compton_Effect/Imaging/combined_s.csv", delimiter=",")
+combined_alpha = np.loadtxt("Compton_Effect/Imaging/combined_alpha.csv", delimiter=",")
+
 d  = {"x":combined_x,"y":combined_y}
 data = pd.DataFrame(d)
 
-# Load the planets dataset and initialize the figure
-# planets = sns.load_dataset("planets")
+# # Load the planets dataset and initialize the figure
+# # planets = sns.load_dataset("planets")
 
 # g = sns.JointGrid(data=data, x="x", y="y", marginal_ticks=True)
 
@@ -213,77 +220,89 @@ data = pd.DataFrame(d)
 # )
 # g.plot_marginals(sns.histplot, element="step", color="#03012d")
 
-
+# plt.show()
 
 # plt.show()
 
-# iqr = np.percentile(combined_y,75) - np.percentile(combined_y,25)
-# h = 2 * iqr / (len(combined_y)**(1/3))
-# num_of_bins = int((max(combined_y) - min(combined_y))/ h)
-# print(f'num_of_bins{num_of_bins}')
-# hist_full, bin_edges_full = np.histogram(combined_y, bins=num_of_bins)
-# centers = (bin_edges_full[1:] + bin_edges_full[:-1])/2
-# print(f'hist_full {hist_full}')
-# print(f'width {bin_edges_full[1] - bin_edges_full[0]}')
-# width = bin_edges_full[1] - bin_edges_full[0]
-# # plt.hist(combined_y, bins=num_of_bins)
-# # plt.scatter(centers,hist_full)
-# hist_full_sort,centers_sort = zip(*sorted(zip(hist_full,centers),reverse=True))
-# print(centers_sort)
-# full_dataset_centers = centers_sort
-# plt.figure()
-# plt.scatter(combined_x,combined_y)
-# plt.axhline(centers_sort[0]+width/2, color = 'black')
-# plt.axhline(centers_sort[0]-width/2, color = 'black')
-# plt.axhline(centers_sort[1]+width/2, color = 'orange')
-# plt.axhline(centers_sort[1]-width/2, color = 'orange')
-# combined_x_higher = combined_x[(centers_sort[0]+width/2>combined_y) & (centers_sort[0]-width/2<combined_y)]
-# combined_x_lower = combined_x[(centers_sort[1]+width/2>combined_y) & (centers_sort[1]-width/2<combined_y)]
+iqr = np.percentile(combined_y,75) - np.percentile(combined_y,25)
+h = 2 * iqr / (len(combined_y)**(1/3))
+num_of_bins = int((max(combined_y) - min(combined_y))/ h)
+print(f'num_of_bins{num_of_bins}')
+hist_full, bin_edges_full = np.histogram(combined_y, bins=num_of_bins)
+centers = (bin_edges_full[1:] + bin_edges_full[:-1])/2
+print(f'hist_full {hist_full}')
+print(f'width {bin_edges_full[1] - bin_edges_full[0]}')
+width = bin_edges_full[1] - bin_edges_full[0]
+# plt.hist(combined_y, bins=num_of_bins)
+# plt.scatter(centers,hist_full)
+hist_full_sort,centers_sort = zip(*sorted(zip(hist_full,centers),reverse=True))
+print(centers_sort)
+full_dataset_centers = centers_sort
+plt.figure()
+plt.scatter(combined_x,combined_y, label = 'Estimated Positions')
+plt.axhline(centers_sort[0]+width/2, color = 'black', label = 'Object 1 Bounds')
+plt.axhline(centers_sort[0]-width/2, color = 'black')
+plt.axhline(centers_sort[1]+width/2, color = 'black', ls ='--', label = 'Object 2 Bounds')
+plt.axhline(centers_sort[1]-width/2, color = 'black', ls ='--')
+plt.scatter(combined_x[(centers_sort[0]+width/2 > combined_y) & (centers_sort[0]-width/2 < combined_y)],combined_y[(centers_sort[0]+width/2 > combined_y) & (centers_sort[0]-width/2 < combined_y)], color = '#55a868')
+plt.scatter(combined_x[(centers_sort[1]+width/2 > combined_y) & (centers_sort[1]-width/2 < combined_y)],combined_y[(centers_sort[1]+width/2 > combined_y) & (centers_sort[1]-width/2 < combined_y)], color = '#c04c34')
+plt.xlabel('X Position (cm)')
+plt.ylabel('Y Position (cm)')
+plt.ylim(top = 25)
+plt.legend(loc = 'upper right')
+combined_x_higher = combined_x[(centers_sort[0]+width/2>combined_y) & (centers_sort[0]-width/2<combined_y)]
+combined_x_lower = combined_x[(centers_sort[1]+width/2>combined_y) & (centers_sort[1]-width/2<combined_y)]
 
 
-# def gaussian(x, a, b, c):
-#     return (a * np.exp(-((x - b) ** 2) / (2 * c ** 2)))
+def gaussian(x, a, b, c):
+    return (a * np.exp(-((x - b) ** 2) / (2 * c ** 2)))
 
-# plt.figure()
-# iqr = np.percentile(combined_x_higher,75) - np.percentile(combined_x_higher,25)
-# h = 2 * iqr / (len(combined_x_higher)**(1/3))
-# num_of_bins = int((max(combined_x_higher) - min(combined_x_higher))/ h)
+plt.figure()
+iqr = np.percentile(combined_x_higher,75) - np.percentile(combined_x_higher,25)
+h = 2 * iqr / (len(combined_x_higher)**(1/3))
+num_of_bins = int((max(combined_x_higher) - min(combined_x_higher))/ h)
 
-# hist_full, bin_edges_full = np.histogram(combined_x_higher, bins=num_of_bins)
-# centers = (bin_edges_full[1:] + bin_edges_full[:-1])/2
-# hist_full_sort,centers_sort = zip(*sorted(zip(hist_full,centers),reverse=True))
+hist_full, bin_edges_full = np.histogram(combined_x_higher, bins=num_of_bins)
+centers = (bin_edges_full[1:] + bin_edges_full[:-1])/2
+hist_full_sort,centers_sort = zip(*sorted(zip(hist_full,centers),reverse=True))
 
-# guess_e1 = [hist_full_sort[0],centers_sort[0], 2]
-# params_e1, cov_e1 = spo.curve_fit(gaussian,centers_sort,hist_full_sort,guess_e1)
+guess_e1 = [hist_full_sort[0],centers_sort[0], 2]
+params_e1, cov_e1 = spo.curve_fit(gaussian,centers_sort,hist_full_sort,guess_e1)
 
-# domain = np.linspace(min(combined_x_higher),max(combined_x_higher),10000)
-# plt.hist(combined_x_higher, bins=num_of_bins)
-# plt.plot(domain,gaussian(domain,*params_e1))
-# print(f'params_e1 {params_e1}')
+domain = np.linspace(min(combined_x_higher),max(combined_x_higher),10000)
+plt.hist(combined_x_higher, bins=num_of_bins, label = 'Object 1 Bounded Data ')
+plt.plot(domain,gaussian(domain,*params_e1), label = 'Gaussian Fit')
+plt.xlabel('X Position (cm)')
+plt.ylabel('Frequency')
+plt.legend(loc = 'upper left')
+print(f'params_e1 {params_e1}')
 
 
-# plt.figure()
-# iqr = np.percentile(combined_x_lower,75) - np.percentile(combined_x_lower,25)
-# h = 2 * iqr / (len(combined_x_lower)**(1/3))
-# num_of_bins = int((max(combined_x_lower) - min(combined_x_lower))/ h)
+plt.figure()
+iqr = np.percentile(combined_x_lower,75) - np.percentile(combined_x_lower,25)
+h = 2 * iqr / (len(combined_x_lower)**(1/3))
+num_of_bins = int((max(combined_x_lower) - min(combined_x_lower))/ h)
 
-# hist_full, bin_edges_full = np.histogram(combined_x_lower, bins=num_of_bins)
-# centers = (bin_edges_full[1:] + bin_edges_full[:-1])/2
-# hist_full_sort,centers_sort = zip(*sorted(zip(hist_full,centers),reverse=True))
+hist_full, bin_edges_full = np.histogram(combined_x_lower, bins=num_of_bins)
+centers = (bin_edges_full[1:] + bin_edges_full[:-1])/2
+hist_full_sort,centers_sort = zip(*sorted(zip(hist_full,centers),reverse=True))
 
-# guess_e2 = [hist_full_sort[0],centers_sort[0], 2]
-# params_e2, cov_e2 = spo.curve_fit(gaussian,centers_sort,hist_full_sort,guess_e2)
+guess_e2 = [hist_full_sort[0],centers_sort[0], 2]
+params_e2, cov_e2 = spo.curve_fit(gaussian,centers_sort,hist_full_sort,guess_e2)
 
-# domain = np.linspace(min(combined_x_lower),max(combined_x_lower),10000)
-# plt.hist(combined_x_lower, bins=num_of_bins)
-# plt.plot(domain,gaussian(domain,*params_e2))
-# print(f'params_e2 {params_e2}')
+domain = np.linspace(min(combined_x_lower),max(combined_x_lower),10000)
+plt.hist(combined_x_lower, bins=num_of_bins, label = 'Object 2 Bounded Data ')
+plt.plot(domain,gaussian(domain,*params_e2), label = 'Gaussian Fit')
+plt.xlabel('X Position (cm)')
+plt.ylabel('Frequency')
+plt.legend(loc = 'upper left')
+print(f'params_e2 {params_e2}')
 
-# print(f'x1: {params_e1[1]} | y1: {full_dataset_centers[0]}')
-# print(f'x2: {params_e2[1]} | y2: {full_dataset_centers[1]}')
+print(f'x1: {params_e1[1]} | y1: {full_dataset_centers[0]}')
+print(f'x2: {params_e2[1]} | y2: {full_dataset_centers[1]}')
  
 
-# plt.show()
+plt.show()
 
  
 

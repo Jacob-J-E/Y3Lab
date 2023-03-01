@@ -129,7 +129,7 @@ print("Theoretical Chi^2 human  ",chi_2)
 chi_4 = chi_square(data_human['Value'], energy_compton(np.cos(angle),params_humam))
 print("Human Experimental Chi^2 ",chi_4)
 
-plt.plot(np.cos(angle_plot),energy_compton(np.cos(angle_plot),661.7),label='Theoretical')
+# plt.plot(np.cos(angle_plot),energy_compton(np.cos(angle_plot),661.7),label='Theoretical')
 plt.scatter(np.cos(angle),fit_means,marker='x',color='black',label='Experimental data')
 # plt.scatter(np.cos(angle),data_human['Value'],color='green',marker='x')
 plt.plot(np.cos(angle_plot),energy_compton((np.cos(angle_plot)),E_0=params),label='Fit to data')
@@ -137,13 +137,13 @@ plt.plot(np.cos(angle_plot),energy_compton((np.cos(angle_plot)),E_0=params),labe
 print("Exp params",params)
 print("Human params",params_humam)
 # Using Gaussian fit errors
-plt.errorbar(np.cos(angle),fit_means,np.array(energy_error),ls='None',color='black',capsize=5,label=r"$1\sigma$ error Gaussian") 
+plt.errorbar(np.cos(angle),fit_means,np.array(energy_error),ls='None',color='black',capsize=5,label=r"$\sigma_{sd}$ Gaussian error") 
 
 # Using Compton curve-fit errors
-plt.errorbar(np.cos(angle),fit_means,np.zeros_like(fit_means)+np.sqrt(cov[0][0]),ls='None',color='blue',capsize=5,label=r"$1\sigma$ error covariance") 
+# plt.errorbar(np.cos(angle),fit_means,np.zeros_like(fit_means)+np.sqrt(cov[0][0]),ls='None',color='blue',capsize=5,label=r"$1\sigma$ error covariance") 
 
 plt.xlim(-0.2,1)
-plt.xlabel(r"$\cos \theta$")
+plt.xlabel(r"$\cos \theta$ (dimensionless)")
 plt.ylabel("Energy (keV)")
 plt.grid(alpha=0.8)
 plt.legend(loc="upper left")
