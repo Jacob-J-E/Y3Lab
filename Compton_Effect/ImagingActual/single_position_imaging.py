@@ -11,6 +11,7 @@ from scipy.signal import savgol_filter
 import scipy.optimize as spo
 from scipy.signal import argrelextrema
 import scipy as sp
+import seaborn as sns
 hep.style.use("CMS")
 method_ = "L-BFGS-B"
 
@@ -82,15 +83,15 @@ def loss_minimizer(alpha:np.array,sigma_alpha, d:np.array, s:np.array):
     X_guess = (d[0]-s[0])/2
     Y_guess = ((d[0]-s[0]))/(np.tan(alpha[0]))
 
-    X_guess = 11.5
-    Y_guess = 6
+    # X_guess = 11.5
+    # Y_guess = 6
 
     res_x = []
     res_y = []
     x_err = []
     y_err = []
 
-    for i in range(0,4):
+    for i in range(0,20):
         result = spo.basinhopping(func=loss_function, x0=[X_guess,Y_guess], niter=200, T=0, minimizer_kwargs = {"args":(alpha,sigma_alpha,d,s),"method":method_})
 
         inv_hessian = result.lowest_optimization_result.hess_inv.todense()
@@ -104,11 +105,14 @@ def loss_minimizer(alpha:np.array,sigma_alpha, d:np.array, s:np.array):
         # y_err.append(np.sqrt(inv_hessian[0][0]/det_inv_hessian))
         x_err.append(np.sqrt(inv_hessian[0][0]))
         y_err.append(np.sqrt(inv_hessian[1][1]))
+        # print("itter: ",result.x[0]," +\- ",np.sqrt(inv_hessian[0][0]),result.x[1]," +\- ",np.sqrt(inv_hessian[1][1]))
 
     res_x =  np.array(res_x)
     res_y = np.array(res_y)
+    print("vars",np.std(res_x),np.std(res_y),np.std(x_err),np.std(y_err))
     x_err = np.mean(np.abs(np.array(x_err)))
     y_err = np.mean(np.abs(np.array(y_err)))
+    
 
     return [np.mean(res_x),np.mean(res_y),3*x_err,3*y_err]
 
@@ -188,11 +192,89 @@ calculated_coordinates = loss_minimizer(mean_angle_list,standard_dev_angle_list,
 print(f'X: {calculated_coordinates[0]:.4g} +/- {calculated_coordinates[2]:.4g} | Y: {calculated_coordinates[1]:.4g} +/- {calculated_coordinates[3]:.4g}')
 
 
+# x_range = []
+# y_range = []
+# for i in range(len(s_values)):
+#     calculated_coordinates = loss_minimizer(mean_angle_list[i],mean_angle_list[i],d_values[i],s_values[i])
+#     x_range.append(calculated_coordinates[0])
+#     y_range.append(calculated_coordinates[1])
 
 
+combined_x = []
+combined_y = []
+# print("sss",combined_s)
+# print("ddd",combined_d)
+
+for i in range(0,len(s_values)):
+    # print("Iteration ",i," of ", len(combined_s))
+
+    x_guess = float((d_values[i]+s_values[i])/2) - 12
+    # y_guess = ((combined_d[i]+combined_s[i]))/(np.sin(combined_alpha[i]))
+    # y_guess = float(x_guess+1)
+    y_guess = np.abs(0.5*((d_values[i]-s_values[i]))/(np.tan(mean_angle_list[0])))-15
+
+    # print("X-Guess",x_guess)
+    # print("Y-Guess",y_guess)
+    x_guess = 12+(-1)**np.random.randint(0,2) * np.random.randint(0,4)
+    y_guess = 5+(-1)**np.random.randint(0,2) * np.random.randint(0,4)
+    bounds = spo.Bounds(lb=[0,0],ub=[20,20])
+    # result = spo.basinhopping(func=scatter_difference, niter=500, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":method_,"bounds":bounds})
+    result = spo.basinhopping(func=loss_function, niter=40, x0=list([x_guess,y_guess]), T=0, minimizer_kwargs = {"args":(mean_angle_list[i],mean_angle_list[i],d_values[i],s_values[i]),"method":method_,"bounds":([0,20],[0,20])})
+
+    # result = spo.basinhopping(func=scatter_difference, niter=500, x0=[x_guess,y_guess], T=0, minimizer_kwargs = {"args":(combined_alpha[i],combined_d[i],combined_s[i]),"method":'Powell',"bounds":([0,20],[0, 20])})
+
+    if result.x[0] < 0:
+        combined_x.append(0)
+    else:
+        combined_x.append(result.x[0])
+    if result.x[1] < 0:
+        combined_y.append(0)
+    else:
+        combined_y.append(result.x[1])
+
+# plt.scatter(combined_x,combined_y,s=500,edgecolors='black',zorder=5,alpha=0.1)
+# plt.scatter(combined_x,combined_y,s=500,zorder=5,alpha=0.8,label="Single Iteration Position")
+plt.scatter(12,5,color='red',marker='x',s=300,zorder=50,label="Calculated Position")
+plt.scatter(32,0,marker='x',color='black',s=300,zorder=5)
+plt.scatter(2,0,marker='x',color='black',s=300,zorder=5)
+plt.scatter(15,0,marker='x',color='black',s=300,zorder=5)
+plt.plot([2,12],[0,5],color='black',ls='--',zorder=5,alpha=0.8)
+plt.plot([15,12],[0,5],color='black',ls='--',zorder=5,alpha=0.8)
+plt.plot([12,32],[5,0],color='black',ls='--',zorder=5,alpha=0.8)
+plt.text(2+1.5,0+0.3,s=r"$s_{min}$")
+plt.text(15+0.5,0+0.5,s=r"$s_{max}$")
+plt.text(32-0.8,0+0.8,s=r"$d$")
+plt.xlabel("X Position (cm)")
+plt.ylabel("Y Position (cm)")
+# plt.fill_between(combined_x,min(combined_y),8,color='blue',alpha=0.5)
+# hist,xedge,yedge= np.histogram2d(combined_x,combined_y,bins=50)
+# sns.histplot(x=combined_x,y=combined_y,kde=True,fill=True)
+combined_y = np.array(combined_y)
+combined_x = np.array(combined_x)
+combined_x = combined_x[combined_y<8]
+combined_y = combined_y[combined_y<8]
+# sns.kdeplot(x=combined_x,y=combined_y,fill=True,label="Bootstrapping Probabiliy Range",levels=5,cbar=True)
+sns.kdeplot(x=combined_x,y=combined_y,fill=True,levels=5,palette='pastel',cbar=True,cumulative=False,legend=True,common_norm=True,
+            cbar_kws={'format':"%.2f","label":"Bootstrapping Probabiliy Ranges"})
+# cbar = plt.colorbar(format="%.4f")
+# sns.histplot(x=combined_x,y=combined_y,fill=True,kde=True,label="Bootstrapping Probabiliy Range",cbar=True)
+#,label="Bootstrapping Probabiliy Ranges"
 
 
+# plt.imshow(hist==0,
+#            origin='lower',
+#            cmap=plt.gray(),
+#            extent=[xedge[0],xedge[-1],yedge[0],yedge[-1]])
 
+# plt.imshow(hist, extent=[xedge[0],xedge[-1],yedge[0],yedge[-1]])
+# plt.fill(combined_x,combined_y,color='blue',alpha=0.5)
+
+plt.legend(loc='upper right')
+plt.grid(alpha=0.9)
+plt.xlim(0,33)
+plt.ylim(-1,10)
+plt.tight_layout()
+plt.show()
 
 
 
