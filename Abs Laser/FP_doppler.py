@@ -9,8 +9,10 @@ from scipy.signal import argrelextrema
 from sklearn.preprocessing import *
 hep.style.use("CMS")
 
-data = pd.read_csv(r"Abs Laser\Data\08-03-2023\DopplerFP.CSV")
-data_DB_free = pd.read_csv(r"Abs Laser\Data\08-03-2023\DopplerFreeFP.CSV")
+# data = pd.read_csv(r"Abs Laser\Data\08-03-2023\DopplerFP.CSV")
+# data_DB_free = pd.read_csv(r"Abs Laser\Data\08-03-2023\DopplerFreeFP.CSV")
+data = pd.read_csv(r"Abs Laser\Data\10-03-2023\ALLB2.CSV")
+data_DB_free = pd.read_csv(r"Abs Laser\Data\10-03-2023\ALL2.CSV")
 
 print(data_DB_free)
 
@@ -54,9 +56,8 @@ ax[0].plot(new_x,new_y,label="Cubic Spline",color="black")
 ax[0].plot(x_axis,savgol_filter(c4,window_length=501,polyorder=3),label="FP Savgol",color='blue',ls='--')
 
 
-
 ax[1].plot(x_axis,c1-c1_B/max(c1_B)*max(c1),label="HF Splitting")
-ax[1].plot(x_axis,10*c4,label="FP Channel",alpha=1,color='red')
+# ax[1].plot(x_axis,10*c4,label="FP Channel",alpha=1,color='red')
 
 # ax[1].plot(x2,data['C1 in V'],label='C1')
 # ax[1].plot(x2,data['C2 in V'],label='C2')
@@ -71,3 +72,6 @@ plt.ylabel("Voltage (V)")
 plt.legend(loc="best")
 plt.grid(alpha=0.5)
 plt.show()
+
+
+
