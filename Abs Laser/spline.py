@@ -1,33 +1,41 @@
 #!/usr/bin/python
 
 import sys
-import read_data_results3 as rd
+# import read_data_results3 as rd
 import numpy as np
 import scipy as sp
 import matplotlib.pyplot as plt
-import iminuit as im
 from scipy import signal
 import scipy.fftpack as spf
 import scipy.signal as sps
 import scipy.interpolate as spi
+import pandas as pd
 
 
 #Step 1 get the data and the x position
-file='%s'%(sys.argv[1]) #this is the data
-results = rd.read_data3(file)
+# file='%s'%(sys.argv[1]) #this is the data
+# results = rd.read_data3(file)
 
 #Step 1.1 - set the reference wavelength. Whatever units you use here will be theunits of your final spectrum
-lam_r = 532/2 # units of nm - factor 2 because there is a crossing every half wavelength
+lam_r = 780/2 # units of nm - factor 2 because there is a crossing every half wavelength
 #print(results[0])
 #carefull!!! change for the correct detector by swapping onew and zero here
-y2 = np.array(results[0])
-y1 = np.array(results[1])
+data = pd.read_csv(r"Abs Laser\Data\10-03-2023\NEW1B.CSV")
+data_DB_free = pd.read_csv(r"Abs Laser\Data\10-03-2023\NEW1.CSV")
+doppler_free = data_DB_free['C1 in V']
+FP_Channel = data_DB_free['C4 in V']
+
+# y2 = np.array(doppler_free)
+# y1 = np.array(FP_Channel)
+
+y2 = np.array(FP_Channel) 
+y1 = np.array(doppler_free)
 #for now remove the mean, will need to remove the offset with a filter later
 #y1 = y1 - y1.mean()
 #y2 = y2 - y2.mean()
 
 
-sampling_frequency=50 #frequency, in Hz
+sampling_frequency=11 #frequency, in Hz
 speed_test= 2*0.35
 x = speed_test * np.arange(0, len(y1), 1)/sampling_frequency#position in mm, no need to be accurate here since we will be shifting the dataset anyways
 dist=(speed_test)/(sampling_frequency) # distance between points to be used for uniform sampling
@@ -58,9 +66,9 @@ for i in range(len(y1)-1):
         extra = -b/a - xa
         crossing_pos.append(x[i]+extra)
 
-plt.figure("Find the crossing points")
-plt.plot(x, y1, 'x-')
-plt.plot(crossing_pos, 0*np.array(crossing_pos), 'ko')
+# plt.figure("Find the crossing points")
+# plt.plot(x, y1, 'x-')
+# plt.plot(crossing_pos, 0*np.array(crossing_pos), 'ko')
 #plt.show()
 
 #step 3 shift the points
@@ -84,7 +92,7 @@ x_corr_array = x_corr_array[1:]
 #step 4 create a uniform data set 
 
 ## if we want to keep with only the first branch use
-y2 = y1
+# y2 = y1
 
 #Cubic Spline part
 xr = x_corr_array
@@ -94,7 +102,7 @@ y = y2[:len(x_corr_array)]
 cs = spi.CubicSpline(xr, y)
 
 plt.figure("Correct the points and resample  the points")
-plt.title('0-crossing - fitted wavelength after CubicSpline \n%s'%file)
+plt.title('0-crossing - fitted wavelength after CubicSpline')
 plt.plot(xr, y, 'go', label = 'Inital points')
 plt.plot(xs,cs(xs), label="Cubic_spline N=%i"%N)
 plt.legend()
@@ -112,9 +120,9 @@ xx1=xf1[int(len(xf1)/2+1):len(xf1)]
 repx1=2*distance.mean()/xx1  
 
 plt.figure("Fully corrected spectrum FFT")
-plt.title('0-crossing analysis\n%s'%file)
-#plt.plot(abs(repx0),abs(yf0[int(len(xf0)/2+1):len(xf0)]),label='Original')
-#plt.plot(abs(repx),abs(yf[int(len(xf)/2+1):len(xf)]),label='After shifting and uniformising full mercury')
+plt.title('0-crossing analysis')
+# plt.plot(abs(repx0),abs(yf0[int(len(xf0)/2+1):len(xf0)]),label='Original')
+# plt.plot(abs(repx),abs(yf[int(len(xf)/2+1):len(xf)]),label='After shifting and uniformising full mercury')
 plt.plot(abs(repx1),abs(yf1[int(len(xf1)/2+1):len(xf1)]),label='After shifting and cubicspline N=%i full mercury'%(N))
 
 plt.ylabel('Intensity (a.u.)')

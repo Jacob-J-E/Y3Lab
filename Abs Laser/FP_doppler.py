@@ -27,15 +27,15 @@ c1_B = data['C1 in V']
 x2 = data['in s']
 print("OG C1B len: ",len(c1_B))
 
-c1_B = c1_B[x2 > min(x_axis)]
-c1_B = c1_B[x2 < max(x_axis)]
+# c1_B = c1_B[x2 > min(x_axis)]
+# c1_B = c1_B[x2 < max(x_axis)]
 
 print("x1 diff ",np.diff(x_axis)[5])
 print("x2 diff ",np.diff(x2)[5])
 
 
-x2 = x2[x2 > min(x_axis)]
-x2 = x2[x2 < max(x_axis)]
+# x2 = x2[x2 > min(x_axis)]
+# x2 = x2[x2 < max(x_axis)]
 print("X data:")
 print("Mins: ",min(x_axis),min(x2))
 print("Maxs: ",max(x_axis),max(x2))
@@ -49,7 +49,7 @@ new_x = np.linspace(min(x_axis),max(x_axis),1000)
 new_y = cubic_spline(new_x)
 fig, ax = plt.subplots(1,2)
 ax[0].plot(x_axis,c1,label="Doppler Free")
-ax[0].plot(x_axis,c2,label="Broad Channel")
+ax[0].plot(x2,c1_B,label="Broad Channel")
 ax[0].plot(x_axis,c3,label="Laser input?")
 ax[0].plot(x_axis,c4,label="FP Channel",alpha=0.5)
 ax[0].plot(new_x,new_y,label="Cubic Spline",color="black")
