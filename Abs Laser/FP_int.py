@@ -35,10 +35,15 @@ spacing = np.diff(peak_x)
 # plt.scatter(peak_x,peak_y,color='red',marker='o')
 # plt.show()
 # spacing_true = 1e-3
-spacing_true = 1/11
+spacing_true = 1e-3
+spacing_true = (max(peak_x[:-3])-min(peak_x[:-3]))/len(peak_x)
+print("New spacing?? ", spacing_true)
 x_corr = []
 j= 0
+print("Old std ",np.std(np.diff(peak_x)))
+print("Old Spacing", np.diff(peak_x))
 print(f' len(peak_x) {len(peak_x)}')
+
 for i in range(0,len(x_axis)-1):
     #print(j)
     if j+1 == len(peak_x)-1:
@@ -61,15 +66,15 @@ plt.legend(loc='upper right')
 plt.show()
 
 
-fft_abs = np.fft.rfft(c1)
+fft_abs = np.fft.fft(c1)
 fft_abs = np.fft.fftshift(fft_abs)
 dx_abs = np.diff(x_corr)[0]
-freqs_abs = np.fft.rfftfreq(len(x_corr), d=dx_abs)
+freqs_abs = np.fft.fftfreq(len(x_corr), d=dx_abs)
 
-fft_fp = np.fft.rfft(FP)
+fft_fp = np.fft.fft(FP)
 fft_fp = np.fft.fftshift(fft_fp)
 dx_fp = np.diff(x_corr)[0]
-freqs_fp = np.fft.rfftfreq(len(x_corr), d=dx_fp)
+freqs_fp = np.fft.fftfreq(len(x_corr), d=dx_fp)
 
 
 plt.plot(freqs_abs,fft_abs[:len(freqs_abs)],label="Abs")

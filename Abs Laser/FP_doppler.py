@@ -11,8 +11,10 @@ hep.style.use("CMS")
 
 # data = pd.read_csv(r"Abs Laser\Data\08-03-2023\DopplerFP.CSV")
 # data_DB_free = pd.read_csv(r"Abs Laser\Data\08-03-2023\DopplerFreeFP.CSV")
-data = pd.read_csv(r"Abs Laser\Data\10-03-2023\NEW1B.CSV")
-data_DB_free = pd.read_csv(r"Abs Laser\Data\10-03-2023\NEW1.CSV")
+data = pd.read_csv(r"Abs Laser\Data\14-03-2023\DUB04B.CSV")
+data_DB_free = pd.read_csv(r"Abs Laser\Data\14-03-2023\DUB04.CSV")
+# data = pd.read_csv(r"Abs Laser\Data\14-03-2023\DUB03B.CSV")
+# data_DB_free = pd.read_csv(r"Abs Laser\Data\14-03-2023\DUB03.CSV")
 
 print(data_DB_free)
 
