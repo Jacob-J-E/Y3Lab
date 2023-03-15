@@ -112,8 +112,32 @@ ax[1].plot(freq, (c1[:len(x_corr)] - c1_B[:len(x_corr)])/(max(c1_B[:len(x_corr)]
 plt.show()
 
 
+def line(x,m,c):
+    return m * x + c
+
+import scipy.optimize as spo
+# x_plot = x_axis[:len(freq)]
+x_plot = x_corr[:len(freq)]
 
 
+init_guess = [(freq[10]-freq[7])/(x_plot[10]-x_plot[7]),3e8/780e-9]
+params,cov = spo.curve_fit(line,x_plot,freq,p0=init_guess)
+print("Params: ",params)
+
+def chi_sq(E,O):
+    return sum((E-O)**2/E)
+# plt.scatter(freq,x_axis[:len(freq)])
+print("Uncorrected Chi: ",chi_sq(line(x_axis[:len(freq)],*params),freq))
+print("FP Corrected Chi: ",chi_sq(line(x_plot,*params),freq))
+
+# plt.scatter(x_plot,freq,alpha=0.5)
+plt.scatter(x_axis[:len(freq)],freq)
+# plt.scatter(x_axis[:len(freq)],freq,alpha=0.5)
+
+# plt.plot(x_plot,line(x_plot,*params),color='red')
+plt.xlabel("Recorded Time (s)")
+plt.ylabel("Frequency (Hz)")
+plt.show()
 
 
 
