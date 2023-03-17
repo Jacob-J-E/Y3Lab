@@ -8,13 +8,13 @@ from scipy.signal import find_peaks
 from scipy.signal import argrelextrema
 from scipy.signal import find_peaks
 from sklearn.preprocessing import *
-hep.style.use("CMS")
+# hep.style.use("CMS")
 
 # data = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1B.CSV")
 # data_DB_free = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1.CSV")
 
-data = pd.read_csv(r"Abs_Laser\Data\17-03-2023\ZEEMA15.CSV")
-data_DB_free = pd.read_csv(r"Abs_Laser\Data\17-03-2023\ZEEMA15B.CSV")
+data = pd.read_csv(r"Abs_Laser\Data\17-03-2023\ZEEMAN1.CSV")
+data_DB_free = pd.read_csv(r"Abs_Laser\Data\17-03-2023\ZEEMAN1B.CSV")
 
 # data = pd.read_csv(r"Abs_Laser\Data\14-03-2023\DUB03B.CSV")
 # data_DB_free = pd.read_csv(r"Abs_Laser\Data\14-03-2023\DUB03.CSV")
@@ -113,8 +113,8 @@ fig,ax = plt.subplots(1,2)
 ax[0].plot(freq,c1[:len(x_corr)])
 ax[0].plot(freq,c1_B[:len(x_corr)])
 ax[0].plot(freq,FP[:len(x_corr)])
-c1-c1_B/max(c1_B)*max(c1)
-ax[1].plot(freq, (c1[:len(x_corr)] - c1_B[:len(x_corr)])/(max(c1_B[:len(x_corr)]))*max(c1[:len(x_corr)]))
+# c1-c1_B/max(c1_B)*max(c1)
+ax[1].plot(freq, (-c1[:len(x_corr)] + c1_B[:len(x_corr)])/(max(c1_B[:len(x_corr)]))*max(c1[:len(x_corr)]))
 
 ax[0].set_xlabel("Frequency (Hz)")
 ax[1].set_xlabel("Frequency (Hz)")
