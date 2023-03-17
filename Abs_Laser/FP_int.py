@@ -13,6 +13,9 @@ from sklearn.preprocessing import *
 data = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1B.CSV")
 data_DB_free = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1.CSV")
 
+# data = pd.read_csv(r"Abs_Laser\Data\14-03-2023\DUB03B.CSV")
+# data_DB_free = pd.read_csv(r"Abs_Laser\Data\14-03-2023\DUB03.CSV")
+
 x_axis = data_DB_free['in s']
 c1 = data_DB_free['C1 in V']
 c2 = data_DB_free['C2 in V'] 
@@ -116,30 +119,64 @@ def line(x,m,c):
     return m * x + c
 
 import scipy.optimize as spo
+x_axis = np.array(x_axis)
+x_corr = np.array(x_corr)
 # x_plot = x_axis[:len(freq)]
-x_plot = x_corr[:len(freq)]
-
+x_plot = x_corr
+x_axis_len = x_axis[:len(freq)]
 
 init_guess = [(freq[10]-freq[7])/(x_plot[10]-x_plot[7]),3e8/780e-9]
-params,cov = spo.curve_fit(line,x_plot,freq,p0=init_guess)
+params,cov = spo.curve_fit(line,x_corr,freq,p0=init_guess)
+
+
+uncor_guess = [(freq[10]-freq[7])/(x_axis_len[10]-x_axis_len[7]),3e8/780e-9]
+uncor_params, uncor_cov = spo.curve_fit(line,x_axis_len,freq,p0=uncor_guess)
 print("Params: ",params)
+print("Params Uncor: ",uncor_params)
+
 
 def chi_sq(E,O):
     return sum((E-O)**2/E)
-# plt.scatter(freq,x_axis[:len(freq)])
-print("Uncorrected Chi: ",chi_sq(line(x_axis[:len(freq)],*params),freq))
-print("FP Corrected Chi: ",chi_sq(line(x_plot,*params),freq))
 
-# plt.scatter(x_plot,freq,alpha=0.5)
-plt.scatter(x_axis[:len(freq)],freq)
-# plt.scatter(x_axis[:len(freq)],freq,alpha=0.5)
+print("Uncorrected Chi^2: ",chi_sq(line(x_axis_len,*uncor_params),freq))
+print("FP Corrected Chi^2: ",chi_sq(line(x_corr,*params),freq))
 
-# plt.plot(x_plot,line(x_plot,*params),color='red')
+plt.scatter(x_plot,freq,alpha=0.5)
+plt.plot(x_plot,line(x_plot,*params),color='red')
 plt.xlabel("Recorded Time (s)")
 plt.ylabel("Frequency (Hz)")
 plt.show()
 
 
+
+
+
+
+# def line(x,m,c):
+#     return m * x + c
+
+# # x_plot = x_axis[:len(freq)]
+# x_plot = x_corr[:len(freq)]
+
+
+# init_guess = [(freq[10]-freq[7])/(x_plot[10]-x_plot[7]),3e8/780e-9]
+# params,cov = spo.curve_fit(line,x_plot,freq,p0=init_guess)
+# print("Params: ",params)
+
+# def chi_sq(E,O):
+#     return sum((E-O)**2/E)
+# # plt.scatter(freq,x_axis[:len(freq)])
+# print("Uncorrected Chi: ",chi_sq(line(x_axis[:len(freq)],*params),freq))
+# print("FP Corrected Chi: ",chi_sq(line(x_plot,*params),freq))
+
+# # plt.scatter(x_plot,freq,alpha=0.5)
+# plt.scatter(x_axis[:len(freq)],freq)
+# # plt.scatter(x_axis[:len(freq)],freq,alpha=0.5)
+
+# # plt.plot(x_plot,line(x_plot,*params),color='red')
+# plt.xlabel("Recorded Time (s)")
+# plt.ylabel("Frequency (Hz)")
+# plt.show()
 
 
 
