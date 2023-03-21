@@ -31,9 +31,10 @@ x2 = data['in s']
 FP = np.array(c4)
 FP_sav = savgol_filter(FP,window_length=151,polyorder=3)
 max_ind = argrelextrema(FP_sav,np.greater)
+max_ind = np.array(max_ind)
 peak_y = FP_sav[max_ind[0]]
 peak_x = np.array(x_axis[max_ind[0]][peak_y > -0.055])
-peak_y = peak_y[peak_y > -0.055]
+peak_y_ = peak_y[peak_y > -0.055]
 
 
 spacing = np.diff(peak_x)
@@ -48,6 +49,10 @@ print(3e8/freq_scaled, "wavelengths")
 
 # plt.plot(x_axis,FP)
 # plt.scatter(peak_x,peak_y,color='red',marker='o')
+# print("Peak x length",len(peak_x))
+# print("Peak spacing length",len(np.diff(peak_x)))
+# plt.plot(x_axis,FP+0.02,color='red')
+plt.scatter(peak_x[:-1],np.diff(peak_x))
 # plt.show()
 # spacing_true = 1e-3
 spacing_true = 1e-3
@@ -70,6 +75,9 @@ for i in range(0,len(x_axis)-1):
 
 x_corr = np.array(x_corr)
 x_axis = np.array(x_axis)
+
+
+
 print("New std ",np.std(np.diff(x_corr)))
 print("Spacing", np.diff(x_corr))
 
@@ -102,12 +110,37 @@ true_freq_0 = 3e8/780e-9 - 1776e6
 true_freq_1 = 3e8/780e-9 + 1269e6
 # true_freq_0 = 0 + 2.8e9
 # true_freq_1 = 0 + 1269e6-1776e6
-
+print("Old/new length",len(x_axis),len(x_corr))
+print("ind length",len(max_ind[0]))
 x_0 = -0.0030069
 x_1 = 0.00693048
-
+x_corr = np.array(x_corr)
 freq = lin_int(x_corr,x_0,x_1,true_freq_0,true_freq_1)
+print("Max ind",max_ind[0])
+# peak_x_corr = np.array(x_corr[max_ind[0]][peak_y > -0.055])
 
+# plt.plot(x_corr,0.01+FP[:len(x_corr)],label="Shifted")
+# plt.plot(x_corr,peak_x_corr,color='red')
+# FP_corr = savgol_filter(FP[:len(x_corr)],window_length=151,polyorder=3)
+
+# FP = np.array(c4)
+# FP_sav = savgol_filter(FP,window_length=151,polyorder=3)
+# max_ind = argrelextrema(FP_sav,np.greater)
+# peak_y = FP_sav[max_ind[0]]
+# peak_x = np.array(x_axis[max_ind[0]][peak_y > -0.055])
+# peak_y = peak_y[peak_y > -0.055]
+
+# FP = np.array(c4)
+# FP_sav = savgol_filter(FP,window_length=151,polyorder=3)
+# max_ind = argrelextrema(FP_sav,np.greater)
+# peak_y = FP_sav[max_ind[0]]
+# peak_x = np.array(x_axis[max_ind[0]][peak_y > -0.055])
+# peak_y = peak_y[peak_y > -0.055]
+
+
+# plt.scatter(x_corr[:-1],np.diff(x_corr),color='red')
+plt.show()
+# plt.scatter(freq)
 # vals = []
 # for i in range(0,len(peak_x)-4):
 #     diff = len(x_corr[(peak_x[i] < x_corr) & (peak_x[i+1] > x_corr)])
@@ -166,70 +199,3 @@ plt.xlabel("Recorded Time (s)")
 plt.ylabel("Frequency (Hz)")
 plt.show()
 
-
-
-
-
-
-# def line(x,m,c):
-#     return m * x + c
-
-# # x_plot = x_axis[:len(freq)]
-# x_plot = x_corr[:len(freq)]
-
-
-# init_guess = [(freq[10]-freq[7])/(x_plot[10]-x_plot[7]),3e8/780e-9]
-# params,cov = spo.curve_fit(line,x_plot,freq,p0=init_guess)
-# print("Params: ",params)
-
-# def chi_sq(E,O):
-#     return sum((E-O)**2/E)
-# # plt.scatter(freq,x_axis[:len(freq)])
-# print("Uncorrected Chi: ",chi_sq(line(x_axis[:len(freq)],*params),freq))
-# print("FP Corrected Chi: ",chi_sq(line(x_plot,*params),freq))
-
-# # plt.scatter(x_plot,freq,alpha=0.5)
-# plt.scatter(x_axis[:len(freq)],freq)
-# # plt.scatter(x_axis[:len(freq)],freq,alpha=0.5)
-
-# # plt.plot(x_plot,line(x_plot,*params),color='red')
-# plt.xlabel("Recorded Time (s)")
-# plt.ylabel("Frequency (Hz)")
-# plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# fft_abs = np.fft.fft(c1)
-# fft_abs = np.fft.fftshift(fft_abs)
-# dx_abs = np.diff(x_corr)[0]
-# freqs_abs = np.fft.fftfreq(len(x_corr), d=dx_abs)
-
-# fft_fp = np.fft.fft(FP)
-# fft_fp = np.fft.fftshift(fft_fp)
-# dx_fp = np.diff(x_corr)[0]
-# freqs_fp = np.fft.fftfreq(len(x_corr), d=dx_fp)
-
-
-# plt.plot(freqs_abs,fft_abs[:len(freqs_abs)],label="Abs")
-# plt.plot(freqs_fp,fft_fp[:len(freqs_fp)],label="FP")
-# plt.legend(loc='upper right')
-# plt.show()

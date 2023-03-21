@@ -83,7 +83,7 @@ for i in range(1,16):
 
     hf_smooth = savgol_filter(-hf_cut+i/4,window_length=601,polyorder=3)
 
-    ax[0].plot(freq_cut,hf_smooth,color='black')
+    # ax[0].plot(freq_cut,hf_smooth,color='black')
     max_ind = argrelextrema(hf_smooth,np.greater,order=3)
     # print(max_ind)
     # print("///")
@@ -107,7 +107,7 @@ for i in range(1,16):
     freqs.append(freq)
     hfs.append(hf)
 
-    # plt.plot(freq_cut,-hf_cut+i/4,label=r"$v_{app}= $"+str(i)+r"$V$")
+    ax[0].plot(freq_cut,-hf_cut+i/4,label=r"$v_{app}= $"+str(i)+r"$V$",color='black')
     ax[0].scatter(new_peak_x,new_peak_y,marker='o',color='red')
     ax[1].scatter(np.zeros_like(new_peak_x)+i,new_peak_x)
 
