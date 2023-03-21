@@ -38,7 +38,11 @@ x2 = data['in s']
 import copy
 new_int = c1 - c1_B/(max(c1_B))*max(c1)
 
-blur = Gauss(x_axis,A=0.3,mu=0.0111,sigma=0.00002)
+# sigma = 0.00002
+sigma = 0.00002
+
+
+blur = Gauss(x_axis,A=0.3,mu=0.0111,sigma=sigma)
 blur_copy = blur.copy()
 
 # noisy_data = np.convolve(new_int,blur_copy,mode='same')
@@ -54,8 +58,10 @@ blur_copy = blur.copy()
 # plt.legend(loc='upper right')
 
 
-new_data = wiener_filter(new_int,blur_copy,k=100)
+new_data = wiener_filter(new_int,blur_copy,k=0.01)
 plt.plot(x_axis,new_data/max(new_data))
-plt.plot(x_axis,new_int/max(new_int)+0.5)
+plt.plot(x_axis+0.02,new_int/max(new_int)+0.0)
+plt.xlim(0.025,0.029)
+plt.ylim(0,1.2)
 plt.show()
 
