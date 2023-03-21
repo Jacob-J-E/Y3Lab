@@ -14,21 +14,48 @@ from sklearn.preprocessing import *
 def Gauss(x,A,mu,sigma):
     return A * np.exp(-(x-mu)**2/(2*sigma**2))
 
-x_axis = np.arange(-100,100,1)
+def wiener_filter(img, kernal, k):
+    kernal /= np.sum(kernal)
+    dummy = np.copy(img)
+    dummy = np.fft.rfft(img)
+    kernal = np.fft.rfft(kernal)
+    kernal = np.conj(kernal) / (np.abs(kernal)**2  + k)
+    dummy = dummy * kernal
+    dummy = np.abs(np.fft.irfft(dummy))
+    return dummy
 
-# data = np.sin(x_axis)
-data = Gauss(x_axis,3,20,1)
-blur = Gauss(x_axis,5,20,5)
-import scipy
+data = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1B.CSV")
+data_DB_free = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1.CSV")
 
-plt.plot(x_axis, data,label="data")
-plt.plot(x_axis, blur,label="Blur")
-# con = convolve(data,np.meshgrid(blur,blur),mode='valid')
-con = scipy.ndimage.convolve1d(data,blur)
-con = np.array(con)
-# con = np.convolve(data,blur,mode='same')
-plt.plot(x_axis,con/max(con),label="Con")
+x_axis = data_DB_free['in s']
+c1 = data_DB_free['C1 in V']
+c2 = data_DB_free['C2 in V'] 
+c3 = data_DB_free['C3 in V']
+c4 = data_DB_free['C4 in V']
 
-plt.legend(loc='upper right')
+c1_B = data['C1 in V']
+x2 = data['in s']
+import copy
+new_int = c1 - c1_B/(max(c1_B))*max(c1)
+
+blur = Gauss(x_axis,A=0.3,mu=0.0111,sigma=0.00002)
+blur_copy = blur.copy()
+
+# noisy_data = np.convolve(new_int,blur_copy,mode='same')
+# noisy_data = noisy_data/max(noisy_data)*max(new_int)
+# filtered = wiener_filter(noisy_data,blur_copy,k=1)
+# filtered = filtered/max(filtered)*max(new_int)
+
+
+# plt.plot(x_axis,new_int,color='blue',label='Data')
+# plt.plot(x_axis,blur,color='orange',label='Blur')
+# plt.plot(x_axis,noisy_data,color='green',label="Noisy Data")
+# plt.plot(x_axis,filtered,color='black',label="Fixed Data")
+# plt.legend(loc='upper right')
+
+
+new_data = wiener_filter(new_int,blur_copy,k=100)
+plt.plot(x_axis,new_data/max(new_data))
+plt.plot(x_axis,new_int/max(new_int)+0.5)
 plt.show()
 
