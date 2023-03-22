@@ -26,7 +26,7 @@ c3 = data_DB_free['C3 in V']
 c4 = data_DB_free['C4 in V']
 
 c1_B = data['C1 in V']
-x2 = data['in s']
+x2 = data['in s']  
 
 FP = np.array(c4)
 FP_sav = savgol_filter(FP,window_length=151,polyorder=3)
