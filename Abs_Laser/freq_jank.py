@@ -11,8 +11,8 @@ from sklearn.preprocessing import *
 from sklearn.cluster import DBSCAN
 from itertools import chain
 import copy
-
-
+#/Abs_Laser/freq_jank.py
+# C:\Users\Ellre\Desktop\Physics Degree\LAB\Year 3 Lab\Y3Lab\Abs_Laser\freq_jank.py
 def Gauss(x,A,mu,sigma):
     return A * np.exp(-(x-mu)**2/(2*sigma**2))
 
@@ -50,12 +50,33 @@ c1_B = data['C1 in V']
 c1_B = c1_B/max(c1_B)*max(c1)
 x2 = data['in s']
 #------------------------------------------------------------------------------------------
+c1_B = np.array(c1_B)
+c1 = np.array(c1)
+x_axis = np.array(x_axis)
+
+c1_B = c1_B[(x_axis > -0.01749) & (x_axis < 0.01573)]
+c1 = c1[(x_axis > -0.01749) & (x_axis < 0.01573)]
+c4 = c4[(x_axis > -0.01749) & (x_axis < 0.01573)]
+c3 = c3[(x_axis > -0.01749) & (x_axis < 0.01573)]
+x_axis = x_axis[(x_axis > -0.01749) & (x_axis < 0.01573)]
+x_axis = x_axis[::-1]
+
+x_axis, c3, c4,c1,c1_B = zip(*sorted(zip(x_axis, c3, c4,c1,c1_B )))
+x_axis = np.array(x_axis)
+c3 = np.array(c3)
+c4 = np.array(c4)
+c1 = np.array(c1)
+c1_B = np.array(c1_B)
 
 plt.figure()
 plt.plot(x_axis,c4)
 plt.plot(x_axis,c3)
 plt.plot(x_axis,c1)
+plt.plot(x_axis,c1_B)
 
+
+plt.figure()
+plt.plot(x_axis,c1-c1_B/max(c1_B)*max(c1))
 '''
 calculating peak shifts
 '''
@@ -142,18 +163,24 @@ interpolating grouped values
 '''
 inter_y = []
 inter_x = []
-av_points = 4
+av_points = 3
 for i in range(len(array_spacing)):
     xvals = []
     if(len(array_x_peaks[i]) >= av_points):
+       print("Option A")
        separation = int(len(array_x_peaks[i])/av_points)
        xvals = np.linspace(min(array_x_peaks[i]), max(array_x_peaks[i]), separation)
        yinterp = np.interp(xvals, array_x_peaks[i], array_spacing[i])
        inter_y.append(yinterp)
        inter_x.append(xvals)
     else: 
+        print("Option B")
         xvals = np.array([min(array_x_peaks[i]), max(array_x_peaks[i])])
-        g = (array_spacing[i][-1] - array_spacing[i][0])/(array_x_peaks[i][-1] - array_x_peaks[i][-1]
+        g = (array_spacing[i][-1] - array_spacing[i][0])/(array_x_peaks[i][-1] - array_x_peaks[i][0])
+        c = array_spacing[i][-1]-g*array_x_peaks[i][-1]
+        y1 = g*min(array_x_peaks[i])+c
+        y2 = g*max(array_x_peaks[i])+c
+        yinterp = np.array([y1,y2])
         inter_y.append(yinterp)
         inter_x.append(xvals)
 
@@ -168,9 +195,9 @@ for i in range(len(array_spacing)):
 
     # print(separation')
 
-    yinterp = np.interp(xvals, array_x_peaks[i], array_spacing[i])
-    inter_y.append(yinterp)
-    inter_x.append(xvals)
+    # yinterp = np.interp(xvals, array_x_peaks[i], array_spacing[i])
+    # inter_y.append(yinterp)
+    # inter_x.append(xvals)
 
 print(array_spacing, 'array_spacing')
 print(array_x_peaks, 'array_x_peaks')
@@ -228,7 +255,7 @@ Calculates scaling factor for time to freq
 '''
 scaling = []
 for i in range(len(FSR_array)):
-    scaling.append(((3e8/(2*20e-2))/FSR_array[i][0]))
+    scaling.append(((3e8/(2*22e-2))/FSR_array[i][0]))
 
 #-----------------------------------------------------------------
 
@@ -239,6 +266,9 @@ shifts x axis to freq groupings
 
 # print(len(x_axis_grouping))
 # print(len(scaling))
+
+print(f'x_axis_grouping length {len(x_axis_grouping)}')
+print(f'scaling length {len(scaling)}')
 freq = [] 
 for i in range(len(scaling)):
     freq.append(np.array(x_axis_grouping[i])*scaling[i])
@@ -264,6 +294,13 @@ for i in range(len(freq)):
     freq_flatten.append(freq[i].tolist())
 
 freq_flatten = list(chain.from_iterable(freq_flatten))
+
+
+offset = (384.230406373e12-1.7708439228e9) - (-4.9668e9)
+freq_shifted = []
+for  i in range(len(freq)):
+    freq_shifted.append(freq[i]+offset)
+freq_shifted =  np.array(freq_shifted)
 # print(len(freq_flatten))
 # print(len(x_axis))
 # plt.plot(x_axis,c1)
@@ -308,6 +345,38 @@ for i in range(len(freq)):
         new_data = wiener_filter(subtracted,blur_copy,k=0.008)
         min_splice = min(len(freq[i]),len(new_data))
         plt.plot(freq[i][:min_splice],new_data[:min_splice])
+plt.figure()
+for i in range(len(freq)):
+    plt.plot(freq_shifted[i],c1_grouped[i])
+    plt.plot(freq_shifted[i],c1_b_grouped[i],label=i)
+
+c1b_data = c1_b_grouped[0]
+sav_c1b = savgol_filter(c1b_data,window_length=1901,polyorder=2)
+max_ind = argrelextrema(sav_c1b,np.greater)
+peak_yy = sav_c1b[max_ind[0]]
+peak_xx = np.array(freq_shifted[0][max_ind[0]])
+peak_xx = np.array(freq_shifted[0][max_ind[0]])
+peak_xx = peak_xx[peak_yy < -0.05]
+peak_yy = peak_yy[peak_yy < -0.05]
+# peak_y = peak_y[peak_x > 10]
+# peak_x = peak_x[peak_x > 10]
+
+
+c1b_data2 = c1_b_grouped[2]
+sav_c1b2 = savgol_filter(c1b_data2,window_length=2701,polyorder=2)
+max_ind2 = argrelextrema(sav_c1b2,np.greater)
+peak_yy2 = sav_c1b2[max_ind2[0]]
+peak_xx2 = np.array(freq_shifted[2][max_ind2[0]])
+peak_xx2 = np.array(freq_shifted[2][max_ind2[0]])
+peak_xx2 = peak_xx2[peak_yy2 < -0.01]
+peak_yy2 = peak_yy2[peak_yy2 < -0.01]
+
+
+# print("Peak val diff 1: ",(peak_xx[-1]-peak_xx[1])/1e9)
+# print("Peak val diff 2: ",(peak_xx2[0]-peak_xx[0])/1e9)
+plt.scatter(peak_xx,peak_yy,color='red',marker='o')
+plt.scatter(peak_xx2,peak_yy2,color='red',marker='o')
+
 
 plt.legend()
 plt.show()
@@ -315,3 +384,11 @@ plt.show()
 
 
 
+# FP = np.array(c4)
+# FP_sav = savgol_filter(FP,window_length=151,polyorder=3)
+# max_ind = argrelextrema(FP_sav,np.greater)
+# peak_y = FP_sav[max_ind[0]]
+# peak_x = np.array(x_axis[max_ind[0]][peak_y > -0.056])
+# peak_y = peak_y[peak_y > -0.056]
+# spacing = np.diff(peak_x)
+#----------------------------
