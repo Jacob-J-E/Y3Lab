@@ -169,7 +169,7 @@ print(string)
 fpr_scaling = fsr_function(x_axis,para[0], para[1],para[2],para[3])
 
 scaling = []
-FP_length = 2*19e-2
+FP_length = 2*18.9e-2
 # FP_length = 2 * 19.5e-2
 # FP_length = 2 * 20e-2
 

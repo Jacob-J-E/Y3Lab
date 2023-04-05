@@ -41,7 +41,7 @@ def four_gauss(x,A1,mu1,sigma1,A2,mu2,sigma2,A3,mu3,sigma3, A4,mu4,sigma4, m, c)
     return Gauss(x,A1,mu1,sigma1) + Gauss(x,A2,mu2,sigma2) + Gauss(x,A3,mu3,sigma3) + Gauss(x,A4,mu4,sigma4) +line(x,m,c)
 
 def wiener_filter(img, kernal, k):
-    print("Sum kernal",np.sum(kernal))
+    # print("Sum kernal",np.sum(kernal))
     kernal = kernal/np.sum(kernal)
     dummy = np.copy(img)
     dummy = np.fft.rfft(img)
@@ -51,30 +51,33 @@ def wiener_filter(img, kernal, k):
     dummy = np.abs(np.fft.irfft(dummy))
     return dummy
 
-def lorentzian(x, center, width, amplitude, c):
-    """
-    Calculate the Lorentzian function for the given x values.
+# def lorentzian(x, center, width, amplitude, c):
+#     """
+#     Calculate the Lorentzian function for the given x values.
 
-    Parameters
-    ----------
-    x : array-like
-        Input x values to calculate the Lorentzian function.
-    center : float
-        The center of the Lorentzian function.
-    width : float
-        The width of the Lorentzian function (also known as FWHM: Full Width at Half Maximum).
-    amplitude : float
-        The amplitude of the Lorentzian function.
-    c: float
-        Global vertical shift.
+#     Parameters
+#     ----------
+#     x : array-like
+#         Input x values to calculate the Lorentzian function.
+#     center : float
+#         The center of the Lorentzian function.
+#     width : float
+#         The width of the Lorentzian function (also known as FWHM: Full Width at Half Maximum).
+#     amplitude : float
+#         The amplitude of the Lorentzian function.
+#     c: float
+#         Global vertical shift.
 
-    Returns
-    -------
-    y : array-like
-        The Lorentzian function values corresponding to the input x values.
-    """
-    y = ((amplitude / np.pi) * (width / 2) / ((x - center)**2 + (width / 2)**2))+ c
-    return y
+#     Returns
+#     -------
+#     y : array-like
+#         The Lorentzian function values corresponding to the input x values.
+#     """
+#     y = amplitude * ((width / 2) / ((x - center)**2 + (width / 2)**2))+ c
+#     return y
+
+def lorentzian( x, x0, gam , a , c):
+    return a * gam**2 / ( gam**2 + ( x - x0 )**2)+c
 
 def voigt(x, center, sigma, gamma, amplitude, c):
     """
@@ -223,7 +226,7 @@ for i in range(len(x_axis_peaks)):
 
     para, cov = curve_fit(lorentzian,x_axis, c4, inital_guess)
     y_data = lorentzian(x_axis_linspace,para[0], para[1], para[2], para[3])
-    print(para)
+    # print(para)
     plt.plot(x_axis_linspace,y_data,color='black')
     center_array.append(para[0])
     amplitude_array.append(max(y_data))
@@ -257,8 +260,8 @@ iqr = q3 - q1
 peak_x_spliced = peak_x[:-1][(spacing < (q3+ 3*iqr)) & (spacing > (q1- 3*iqr)) ]
 spacing_spliced = spacing[(spacing < (q3+ 3*iqr)) & (spacing > (q1- 3*iqr)) ]
 
-print('spacing_spliced av',np.average(spacing_spliced))
-print('spacing_spliced std',np.std(spacing_spliced))
+# print('spacing_spliced av',np.average(spacing_spliced))
+# print('spacing_spliced std',np.std(spacing_spliced))
 
 # points = [[peak_x_spliced[i],spacing_spliced[i]] for i in range(len(spacing_spliced))]
 # points = np.array(points)
@@ -278,7 +281,7 @@ q3_ds, q1_ds = np.percentile(difference_of_spacing, [90 ,15])
 iqr_ds = q3_ds - q1_ds
 threshold_distance = iqr_ds
 
-print(f'threshold_distance: {threshold_distance}')
+# print(f'threshold_distance: {threshold_distance}')
 
 array_spacing = []
 array_x_peaks = []
@@ -325,18 +328,18 @@ av_points = 2
 for i in range(len(array_spacing)):
     xvals = []
     if(len(array_x_peaks[i]) > av_points):
-       print("Option A")
+    #    print("Option A")
        separation = int(len(array_x_peaks[i])/av_points)
        xvals = np.linspace(min(array_x_peaks[i]), max(array_x_peaks[i]), separation)
        yinterp = np.interp(xvals, array_x_peaks[i], array_spacing[i])
        inter_y.append(yinterp)
        inter_x.append(xvals)
     elif len(array_x_peaks[i]) == 2:
-        print("Option B")
+        # print("Option B")
         xvals = np.array([min(array_x_peaks[i]), max(array_x_peaks[i])])
-        print(f'array_spacing {array_spacing}')
-        print(f'xvals {xvals}')
-        print(f'array_x_peaks {array_x_peaks}')
+        # print(f'array_spacing {array_spacing}')
+        # print(f'xvals {xvals}')
+        # print(f'array_x_peaks {array_x_peaks}')
         g = np.divide((array_spacing[i][-1] - array_spacing[i][0]),(array_x_peaks[i][-1] - array_x_peaks[i][0]))
         #g = (array_spacing[i][-1] - array_spacing[i][0])/(array_x_peaks[i][-1] - array_x_peaks[i][0])
         c = array_spacing[i][-1]-g*array_x_peaks[i][-1]
@@ -361,10 +364,10 @@ for i in range(len(array_spacing)):
     # inter_y.append(yinterp)
     # inter_x.append(xvals)
 
-print(array_spacing, 'array_spacing')
-print(array_x_peaks, 'array_x_peaks')
-print(inter_y, 'inty')
-print(inter_x, 'intx')
+# print(array_spacing, 'array_spacing')
+# print(array_x_peaks, 'array_x_peaks')
+# print(inter_y, 'inty')
+# print(inter_x, 'intx')
 #------------------------------------------------------------------------------------------
 '''
 Using interpolating grouped values to further separate peakvalues
@@ -384,7 +387,7 @@ for i in range(len(grouped_spacing_inter)):
     FSR = np.average(grouped_spacing_inter[i])
     FSR_array.append([FSR,min(grouped_x_peaks_inter[i]),max(grouped_x_peaks_inter[i])])
 
-print(FSR_array)
+# print(FSR_array)
 #------------------------------------------------------------------------------------------
 '''
 Groups the x-axis in between interpolated points. if it doesn't lie inbetween a point, it goes to nearest group.
@@ -417,6 +420,8 @@ Calculates scaling factor for time to freq
 '''
 scaling = []
 FP_length = 2*19.5e-2
+# FP_length = 19.5e-2
+
 # FP_length = 2 * 19.5e-2
 # FP_length = 2 * 20e-2
 
@@ -434,8 +439,8 @@ shifts x axis to freq groupings
 # print(len(x_axis_grouping))
 # print(len(scaling))
 
-print(f'x_axis_grouping length {len(x_axis_grouping)}')
-print(f'scaling length {len(scaling)}')
+# print(f'x_axis_grouping length {len(x_axis_grouping)}')
+# print(f'scaling length {len(scaling)}')
 freq = [] 
 for i in range(len(scaling)):
     freq.append(np.array(x_axis_grouping[i])*scaling[i])
@@ -458,20 +463,24 @@ for i in range(len(x_axis_grouping)):
 
 freq_flatten = []
 c1_b_grouped_flatten = []
+c1_grouped_flatten = []
 for i in range(len(freq)):
     freq_flatten.append(freq[i].tolist())
     c1_b_grouped_flatten.append(c1_b_grouped[i])
+    c1_grouped_flatten.append(c1_grouped[i])
 
 freq_flatten = list(chain.from_iterable(freq_flatten))
 c1_b_grouped_flatten = list(chain.from_iterable(c1_b_grouped_flatten))
+c1_grouped_flatten = list(chain.from_iterable(c1_grouped_flatten))
 
 c1_b_grouped_flatten = np.array(c1_b_grouped_flatten)
+c1_grouped_flatten = np.array(c1_grouped_flatten)
 freq_flatten = np.array(freq_flatten)
 peaks_fine, _= find_peaks(-c1_b_grouped_flatten, distance=8000)
 c1_b_grouped_peaks =c1_b_grouped_flatten[peaks_fine]
 freq_peaks = freq_flatten[peaks_fine]
-print(f'freq_peaks {freq_peaks}')
-print(f'c1_b_grouped_peaks {c1_b_grouped_peaks}')
+# print(f'freq_peaks {freq_peaks}')
+# print(f'c1_b_grouped_peaks {c1_b_grouped_peaks}')
 
 centers_fine = [freq_peaks[1],freq_peaks[2],freq_peaks[4],freq_peaks[6]]
 amplitude_fine = [c1_b_grouped_peaks[1],c1_b_grouped_peaks[2],c1_b_grouped_peaks[4],c1_b_grouped_peaks[6]]
@@ -698,7 +707,6 @@ for i in range(len(freq)):
 # peak_xx2 = peak_xx2[peak_yy2 < -0.01]
 # peak_yy2 = peak_yy2[peak_yy2 < -0.01]
 
-
 # # print("Peak val diff 1: ",(peak_xx[-1]-peak_xx[1])/1e9)
 # # print("Peak val diff 2: ",(peak_xx2[0]-peak_xx[0])/1e9)
 # plt.scatter(peak_xx,peak_yy,color='red',marker='o')
@@ -706,6 +714,69 @@ for i in range(len(freq)):
 
 
 plt.legend()
+
+plt.figure()
+freq_off = freq[0] + offset
+subtracted = np.array(c1_grouped[0])-np.array(c1_b_grouped[0])
+
+subtracted = subtracted[freq_off > 3.842275883e14]
+freq_off = freq_off[freq_off > 3.842275883e14]
+plt.plot(freq_off,subtracted)
+
+peaks_fine, _= find_peaks(subtracted, distance=400)
+subtracted_peaks =subtracted[peaks_fine]
+freq_peaks = freq_off[peaks_fine]
+
+peaks_values = [subtracted_peaks[2],subtracted_peaks[3],subtracted_peaks[4],subtracted_peaks[5],subtracted_peaks[7]]
+freq_values = [freq_peaks[2],freq_peaks[3],freq_peaks[4],freq_peaks[5],freq_peaks[7]]
+
+plt.scatter(freq_values,peaks_values, marker= 'x', color = 'red')
+
+
+def five_lor_x(x,f1,w1,a1,f2,w2,a2,f3,w3,a3,f4,w4,a4,f5,w5,a5, a,b,c):
+    return lorentzian(x,f1,w1,a1,0) + lorentzian(x,f2,w2,a2,0) + lorentzian(x,f3,w3,a3,0) + lorentzian(x,f4,w4,a4,0) + lorentzian(x,f5,w5,a5,0) - (a*x**2 + b*x) + c
+
+#center, width, amplitude, c):
+initial_guess = [freq_values[0],1e7,peaks_values[0],freq_values[1],1e7,peaks_values[1],freq_values[2],1e7,peaks_values[2],freq_values[3],1e7,peaks_values[3],freq_values[4],1e7,peaks_values[4], 1e-30,1e-30,0.14]
+para = [freq_off] + initial_guess
+#plt.plot(freq_off,five_lor_x(*para),color='black')
+params, cov = curve_fit(five_lor_x,freq_off,subtracted,initial_guess)
+para_up = [freq_off] + list(params)
+plt.plot(freq_off,five_lor_x(*para_up),color='black')
+plt.plot(freq_off,five_lor_x(*para_up) - np.array((params[-3]*freq_off**2 + params[-2]*freq_off - params[-1])),color='red')
+
+
+print(f"Spacing 0->1 ",(params[6]-params[0])/1e6)
+print(f"Spacing 1->2 ",(params[-6]-params[6])/1e6)
+
+plt.scatter(params[0],0.22)
+plt.scatter(params[6],0.22)
+plt.scatter(params[-6],0.22)
+
+# try:
+#     params, cov = curve_fit(lorentzian,freq_off,subtracted,initial_guess)
+#     plt.plot(freq_off,lorentzian(freq_off,params[0],params[1],params[2],params[3]),color='black')
+# except:
+#     print(f'{i} did not curve fit!!!! Sucker!!! Bitch Boy!!!!')
+
+
+freq_flatten = freq_flatten + offset
+sub_tot = c1_grouped_flatten-c1_b_grouped_flatten
+sigma = (max(freq_flatten)-min(freq_flatten))/5
+# subtracted = np.array(c1_grouped[i])-np.array(c1_b_grouped[i])
+blur = Gauss(freq_off,A=max(sub_tot)/5,mu=np.mean(freq_flatten),sigma=sigma)
+# plt.plot()
+# plt.plot(freq_off,blur,color='orange')
+print("AHH SUM",np.sum(blur))
+# if np.sum(blur) != 0:
+#     blur_copy = blur.copy()
+#     new_data = wiener_filter(subtracted,blur_copy,k=0.001)
+#     new_data = new_data/max(new_data)*max(subtracted)
+    
+#     min_splice = min(len(freq_off),len(new_data))
+#     plt.plot(freq_off[:min_splice], new_data[:min_splice],color='black')
+
+
 plt.show()
 
 
