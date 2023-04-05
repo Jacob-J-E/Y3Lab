@@ -46,7 +46,7 @@ def lorentzian(x, center, width, amplitude, c):
     y = ((amplitude / np.pi) * (width / 2) / ((x - center)**2 + (width / 2)**2))+ c
     return y
 
-def fsr_function(x,a,b,c, d):
+def fsr_function(x,a,b,c,d):
     return (a/-(c*(x-b))) + d
 
 lines_87_2 = np.array([3.84227691610721E+14,3.84227848551321E+14,3.84228115203221E+14])
@@ -150,6 +150,7 @@ peak_x_spliced = half_peak[(spacing < (q3+ 2*iqr)) & (spacing > (q1- 2*iqr)) ]
 spacing_spliced = spacing[(spacing < (q3+ 2*iqr)) & (spacing > (q1- 2*iqr)) ]
 
 inital_guess = [1.15856559e-02,1.95808248e-01 ,4.88592568e+01,0]
+#inital_guess = [1.15856559e-02,1.95808248e-01 ,4.88592568e+01]
 para,cov = curve_fit(fsr_function,peak_x_spliced,spacing_spliced,inital_guess)
 linspace = np.linspace(min(peak_x_spliced), max(peak_x_spliced), 1000000)
 
@@ -168,7 +169,7 @@ print(string)
 fpr_scaling = fsr_function(x_axis,para[0], para[1],para[2],para[3])
 
 scaling = []
-FP_length = 2*19.5e-2
+FP_length = 2*19e-2
 # FP_length = 2 * 19.5e-2
 # FP_length = 2 * 20e-2
 
@@ -206,8 +207,42 @@ plt.plot(freq,c1_B, label = 'Varying scaling value (no offset)')
 plt.scatter(centers_fine,amplitude_fine, marker = 'x')
 plt.plot(freq_static,c1_B, label = 'Mean constant scaling Value (no offset)')
 plt.legend()
+
+plt.figure()
+
 offset = (384.230406373e12-2.563005979089109e9) - freq_peaks[1]
+offset = (3.84228115203221e14) - (-3.824e9)
 freq_offset = freq + offset
+
+peaks_fine, _= find_peaks(-c1_B, distance=8000)
+c1_b_grouped_peaks =c1_B[peaks_fine]
+freq_peaks_offset = freq_offset[peaks_fine]
+print(f'freq_peaks_offset {freq_peaks_offset}')
+print(f'c1_b_grouped_peaks {c1_b_grouped_peaks}')
+
+centers_fine_offset = [freq_peaks_offset[1],freq_peaks_offset[2],freq_peaks_offset[4],freq_peaks_offset[6]]
+amplitude_fine_offset = [c1_b_grouped_peaks[1],c1_b_grouped_peaks[2],c1_b_grouped_peaks[4],c1_b_grouped_peaks[6]]
+
+print(f'Fine Structure offset Gap 1 {freq_peaks[4]-freq_peaks[2]}')
+print(f'Fine Structure offset Gap 2 {freq_peaks[6]-freq_peaks[1]}')
+
+
+
+
+plt.plot(freq_offset,c1_B,alpha=0.5)
+plt.plot(freq_offset,c1,alpha=0.5)
+plt.scatter(centers_fine_offset,amplitude_fine_offset, marker = 'x')
+
+for i in range(0,3):    
+    plt.axvline(lines_85_2[i])
+    plt.axvline(lines_85_3[i])
+    plt.axvline(lines_87_2[i])
+    plt.axvline(lines_87_1[i])
+    plt.axvline(cross_lines_85_2[i],color='red')
+    plt.axvline(cross_lines_85_3[i],color='red')
+    plt.axvline(cross_lines_87_2[i],color='red')
+    plt.axvline(cross_lines_87_1[i],color='red')
+
 plt.figure()
 plt.plot(freq_offset,c1-c1_B+0.2,alpha=0.5)
 

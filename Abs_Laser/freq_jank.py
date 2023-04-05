@@ -606,9 +606,13 @@ for i in range(len(x_axis_grouping)):
 # plt.figure()
 # plt.scatter(freq_flatten,c1)
 plt.figure()
+for i in range(len(freq)):
+    plt.plot(freq[i],np.array(c1_grouped[i])-np.array(c1_b_grouped[i])+0.2,alpha=0.5)
+plt.figure()
 # sigma = 5e6
 # sigma = 8e6
 # sigma = 10/0.00002
+offset = (3.84228115203221e14) - (-3.8400e9)
 for i in range(len(freq)):
     plt.plot(freq[i] + offset,np.array(c1_grouped[i])-np.array(c1_b_grouped[i])+0.2,alpha=0.5)
 
