@@ -128,12 +128,20 @@ for i in range(len(x_axis_peaks)):
 
     para, cov = curve_fit(lorentzian,x_axis, c4, inital_guess)
     y_data = lorentzian(x_axis_linspace,para[0], para[1], para[2], para[3])
-    print(para)
+    #print(para)
     plt.plot(x_axis_linspace,y_data,color='black')
     center_array.append(para[0])
     amplitude_array.append(max(y_data))
     std_array.append((4*para[1])/(2*np.sqrt(2*np.log(2))))
     cov_array.append(np.sqrt(cov[0][0]))
+
+    if i == 1:
+        print(f'1 width {para[1]}')
+    elif i == 2:
+        print(f'2 width {para[1]}')
+
+
+print(f'FSR: {center_array[2]- center_array[1]}')
 
 plt.scatter(center_array,amplitude_array,marker = 'x',color='green', label='Fitted Lorentzian')
 plt.errorbar(center_array,amplitude_array,xerr=1*np.array(std_array),ls='None',color='green',capsize=5,label= 'Fitted Lorentzian')
@@ -145,7 +153,8 @@ spacing = np.diff(peak_x)
 
 q3, q1 = np.percentile(spacing, [75 ,25])
 iqr = q3 - q1
-half_peak = (peak_x[1:] + peak_x[:-1])/2
+#half_peak = (peak_x[1:] + peak_x[:-1])/2
+half_peak = peak_x[:-1]
 peak_x_spliced = half_peak[(spacing < (q3+ 2*iqr)) & (spacing > (q1- 2*iqr)) ]
 spacing_spliced = spacing[(spacing < (q3+ 2*iqr)) & (spacing > (q1- 2*iqr)) ]
 
@@ -169,7 +178,7 @@ print(string)
 fpr_scaling = fsr_function(x_axis,para[0], para[1],para[2],para[3])
 
 scaling = []
-FP_length = 2*18.9e-2
+FP_length = 2*19e-2
 # FP_length = 2 * 19.5e-2
 # FP_length = 2 * 20e-2
 
@@ -211,7 +220,8 @@ plt.legend()
 plt.figure()
 
 offset = (384.230406373e12-2.563005979089109e9) - freq_peaks[1]
-offset = (3.84228115203221e14) - (-3.824e9)
+offset = 3.84227921462521e14 - freq_peaks[1]
+#offset = (3.84228115203221e14) - (-3.824e9)
 freq_offset = freq + offset
 
 peaks_fine, _= find_peaks(-c1_B, distance=8000)
@@ -226,7 +236,15 @@ amplitude_fine_offset = [c1_b_grouped_peaks[1],c1_b_grouped_peaks[2],c1_b_groupe
 print(f'Fine Structure offset Gap 1 {freq_peaks[4]-freq_peaks[2]}')
 print(f'Fine Structure offset Gap 2 {freq_peaks[6]-freq_peaks[1]}')
 
+plt.axvline(freq_peaks[4] + offset, label = '3', color = 'green')
+plt.axvline(freq_peaks[2]+ offset, label = '2', color = 'green')
+plt.axvline(freq_peaks[1]+ offset, label = '1', color = 'green')
+plt.axvline(freq_peaks[6]+ offset, label = '4', color = 'green')
 
+plt.axvline(3.84227921462521e14, label = '1 theory', color = 'orange')
+plt.axvline(3.84229141484484e14, label = ' 2 theory', color = 'orange')
+plt.axvline(3.84232177216923e14, label = ' 3 theory', color = 'orange')
+plt.axvline(3.84234756145132e14, label = '4 theory', color = 'orange')
 
 
 plt.plot(freq_offset,c1_B,alpha=0.5)
@@ -244,7 +262,7 @@ for i in range(0,3):
     plt.axvline(cross_lines_87_1[i],color='red')
 
 plt.figure()
-plt.plot(freq_offset,c1-c1_B+0.2,alpha=0.5)
+plt.plot(freq_offset,c1-c1_B/max(c1_B)*max(c1)+0.2,alpha=0.5)
 
 for i in range(0,3):    
     plt.axvline(lines_85_2[i])
@@ -256,6 +274,15 @@ for i in range(0,3):
     plt.axvline(cross_lines_87_2[i],color='red')
     plt.axvline(cross_lines_87_1[i],color='red')
 
+plt.axvline(freq_peaks[4] + offset, label = '3', color = 'green')
+plt.axvline(freq_peaks[2]+ offset, label = '2', color = 'green')
+plt.axvline(freq_peaks[1]+ offset, label = '1', color = 'green')
+plt.axvline(freq_peaks[6]+ offset, label = '4', color = 'green')
+
+plt.axvline(3.84227921462521e14, label = '1 theory', color = 'orange')
+plt.axvline(3.84229141484484e14, label = ' 2 theory', color = 'orange')
+plt.axvline(3.84232177216923e14, label = ' 3 theory', color = 'orange')
+plt.axvline(3.84234756145132e14, label = '4 theory', color = 'orange')
 
 
 
