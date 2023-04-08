@@ -22,8 +22,8 @@ from alive_progress import alive_bar
 
 
 # Min Max Values are inclusive
-max_poly_order = 4
-min_poly_order = 4
+max_poly_order = 5  
+min_poly_order = 2
 if min_poly_order > max_poly_order:
     print('Make sure max poly order is higher or equal to min poly order')
     exit()
@@ -181,6 +181,7 @@ print('***GUESS FOR A_1 AND A_0****')
 print(f'Fitted Gradient (A_1): {para_straight[0]:.4g} +/- {cov_straight[0][0]**(0.5):.4g}')
 print(f'Fitted Intercept (A_0): {para_straight[1]:.4g} +/- {cov_straight[1][1]**(0.5):.4g}')
 print('****************************')
+
 
 a_0_guess = para_straight[1]
 a_1_guess = para_straight[0]
