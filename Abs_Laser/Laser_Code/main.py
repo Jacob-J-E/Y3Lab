@@ -40,6 +40,7 @@ fsr_theoretical = 3e8/(4*19e-2)
 print('********CONSTANTS***********')
 print(f'Finesse, F: {F}')
 print(f'Theoretical FSR, F: {fsr_theoretical}')
+print('****************************')
 
 
 
@@ -86,6 +87,12 @@ def airy_modified_function(x,*args):
 
 def straight_line(x,a,b):
     return a*x+b
+
+def five_lor_x(x,f1,w1,a1,f2,w2,a2,f3,w3,a3,f4,w4,a4,f5,w5,a5, a,b,c):
+    return lorentzian(x,f1,w1,a1,0) + lorentzian(x,f2,w2,a2,0) + lorentzian(x,f3,w3,a3,0) + lorentzian(x,f4,w4,a4,0) + lorentzian(x,f5,w5,a5,0) - (a*x**2 + b*x) + c
+
+def five_lor_x_update(x,f1,w1,a1,f2,w2,a2,f3,w3,a3,f4,w4,a4,f5,w5,a5,c):
+    return lorentzian(x,f1,w1,a1,0) + lorentzian(x,f2,w2,a2,0) + lorentzian(x,f3,w3,a3,0) + lorentzian(x,f4,w4,a4,0) + lorentzian(x,f5,w5,a5,0) + c
 
 data = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1B.CSV")
 data_DB_free = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1.CSV")
@@ -173,7 +180,7 @@ para_straight, cov_straight = curve_fit(straight_line,FP_lorenzian_x_axis_peaks,
 print('***GUESS FOR A_1 AND A_0****')
 print(f'Fitted Gradient (A_1): {para_straight[0]:.4g} +/- {cov_straight[0][0]**(0.5):.4g}')
 print(f'Fitted Intercept (A_0): {para_straight[1]:.4g} +/- {cov_straight[1][1]**(0.5):.4g}')
-
+print('****************************')
 
 a_0_guess = para_straight[1]
 a_1_guess = para_straight[0]
@@ -203,9 +210,11 @@ for i in range(min_poly_order,max_poly_order+1):
     b_coeff = [para_airy_modified[-2],para_airy_modified[-1]]
     array_of_coeffients.append(a_coeffients)
     b_values.append(b_coeff)
+    print('****************************')
     print(f'COMPLETED BOOTSTRAPING with Poly Order {poly_order}')
     print(f'Poly Order {poly_order} - a coeffients {a_coeffients}')
     print(f'Poly Order {poly_order} - b coeffients {b_coeff}')
+    print('****************************')
 
 
 plt.figure()
@@ -275,12 +284,13 @@ for i in range(len(array_of_coeffients)):
     print(f'Poly Order: {min_poly_order + i}')
     print(f'Hyperfine Structure Rb 85 Ground State Difference: {Rb_85_Ground_State_Difference:.4g}, Theory P.D: {Rb_85_Ground_State_Difference_THEORY_PD:.4g}%')
     print(f'Hyperfine Structure Rb 87 Ground State Difference: {Rb_87_Ground_State_Difference:.4g}, Theory P.D: {Rb_87_Ground_State_Difference_THEORY_PD:.4g}%')
+    print('****************************')
 
     plt.plot(freqency_array,c1_B, label = f'Data (poly order {min_poly_order + i})')
     plt.scatter(centers_fine,amplitude_fine, marker= 'x', label = f'Scatter (poly order {min_poly_order + i})')
 plt.legend()
 
-
+#Plotting Hyperfine Structure ------------------------------------------------------
 plt.figure()
 plt.title('Frequency Scaled Hyperfine Structure')
 for i in range(len(array_of_coeffients)):
@@ -289,6 +299,43 @@ for i in range(len(array_of_coeffients)):
     hyper_fine_structure = hyper_fine_structure - min(hyper_fine_structure)
     hyper_fine_structure = hyper_fine_structure/max(hyper_fine_structure)
     plt.plot(freqency_array,hyper_fine_structure,label = f'Data Hyperfine Structure (poly order {min_poly_order + i})')
+plt.legend()
+
+
+plt.figure()
+plt.title('Frequency Scaled Hyperfine Structure (Rb 87 Ground State F = 2 -> F=1,2,3)')
+for i in range(len(array_of_coeffients)):
+    freqency_array = f(normalized_x_axis,*array_of_coeffients[i])
+    hyper_fine_structure = c1-c1_B
+
+    hyper_fine_structure = hyper_fine_structure[(freqency_array > 6.954e8) & (freqency_array < 1.4992e9)]
+    freqency_array = freqency_array[(freqency_array > 6.954e8) & (freqency_array < 1.4992e9)]
+
+    hyper_fine_structure = hyper_fine_structure - min(hyper_fine_structure)
+    hyper_fine_structure = hyper_fine_structure/max(hyper_fine_structure)
+
+    plt.plot(freqency_array,hyper_fine_structure,label = f'Data Hyperfine Structure (poly order {min_poly_order + i})')
+
+    peaks_fine, _= find_peaks(hyper_fine_structure, distance=400)
+    subtracted_peaks = hyper_fine_structure[peaks_fine]
+    freq_peaks = freqency_array[peaks_fine]
+
+    peaks_values = [subtracted_peaks[2],subtracted_peaks[3],subtracted_peaks[4],subtracted_peaks[5],subtracted_peaks[7]]
+    freq_values = [freq_peaks[2],freq_peaks[3],freq_peaks[4],freq_peaks[5],freq_peaks[7]]
+    peaks_values_inital_guess = np.array(peaks_values) * 1e7
+    width = 9e6
+    #initial_guess = [freq_values[0],width,peaks_values_inital_guess[0],freq_values[1],width,peaks_values_inital_guess[1],freq_values[2],width,peaks_values_inital_guess[2],freq_values[3],width,peaks_values_inital_guess[3],freq_values[4],width,peaks_values_inital_guess[4], 1e-30,1e-30,0.03]
+    #f1,w1,a1,c1,f2,w2,a2,c2,f3,w3,a3,c3,f4,w4,a4,c4,f5,w5,a5,c5,c
+    initial_guess = [freq_values[0],width+8e6,peaks_values_inital_guess[0],freq_values[1],width+30e6,peaks_values_inital_guess[1]+0.8e6,freq_values[2],width,peaks_values_inital_guess[2],freq_values[3],width,peaks_values_inital_guess[3],freq_values[4],width,peaks_values_inital_guess[4],0.08]
+    params, cov = curve_fit(five_lor_x_update,freqency_array,hyper_fine_structure,initial_guess)
+    plt.plot(freqency_array,five_lor_x_update(freqency_array,*params),color='black')
+    # plt.plot(freqency_array,five_lor_x_update(freqency_array,*params) - np.array((params[-3]*freqency_array**2 + params[-2]*freqency_array - params[-1])),color='red')
+    plt.plot(freqency_array,five_lor_x_update(freqency_array,*initial_guess),label = 'Inital Guess', color = 'orange')
+    maybe_peak = 2*freq_values[0] - freq_values[1]
+    print((freq_values[4] - freq_values[1])/1e6)
+    print((freq_values[1] - maybe_peak)/1e6)
+    plt.axvline(maybe_peak)
+    plt.scatter(freq_peaks,subtracted_peaks, marker= 'x',label = f'Peak Points (poly order {min_poly_order + i})')
 plt.legend()
 
 plt.show()
