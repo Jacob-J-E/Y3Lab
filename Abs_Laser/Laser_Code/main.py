@@ -20,6 +20,17 @@ from scipy.optimize import minimize
 from scipy.ndimage import convolve1d
 from alive_progress import alive_bar
 
+
+max_poly_order = 5
+min_poly_order = 2
+if min_poly_order > max_poly_order:
+    print('Make sure max poly order is higher or equal to min poly order')
+    exit()
+elif min_poly_order < 1:
+    print('Please put a coeff greater than or equal to 1')
+    exit()
+
+
 R_1_R_2 = 0.995*0.995
 F = 0.5 * (np.pi * (R_1_R_2)**(1/4))/(1-(R_1_R_2)**(1/2))
 fsr_theoretical = 3e8/(2*20e-2)
@@ -56,12 +67,18 @@ def lorentzian(x, center, width, amplitude, c):
     y = ((amplitude / np.pi) * (width / 2) / ((x - center)**2 + (width / 2)**2))+ c
     return y
 
-def f(x,a_0,a_1, a_2, a_3, a_4):
-    return (a_0 + a_1*x + a_2*x**2 + a_3*x**3 + a_4*x**4)
+def f(x,*coeff):
+    coeff = list(coeff)
+    x = np.array(x)
+    function = np.zeros(len(x))
+    for i in range(len(coeff)):
+        function += coeff[i]*x**(i)
+    return function
 
-def airy_modified_function(x,a_0,a_1, a_2, a_3, a_4, b_0, b_1):
-    num = b_0 + x*b_1
-    f_values = f(x,a_0,a_1, a_2, a_3, a_4)
+def airy_modified_function(x,*args):
+    args = list(args)
+    num = args[-2] + x*args[-1]
+    f_values = f(x,*args[:-2])
     dom = 1 + F*(np.sin((np.pi/fsr_theoretical)*f_values))**2
     return (num/dom) 
 
@@ -158,24 +175,52 @@ a_1_guess = para_straight[0]
 
 domain_airy_modified = np.linspace(min(normalized_x_axis),max(normalized_x_axis), 100000)
 
-# ordering -> a_0,a_1, a_2, a_3, a_4, b_0, b_1)
-inital_guess_airy_modified = [a_0_guess,a_1_guess,0,0,0,0,0]
+array_of_coeffients = []
+for i in range(min_poly_order,max_poly_order+1):
+    poly_order = i 
+    # ordering -> a_0,a_1, a_2, a_3, a_4, b_0, b_1)
+    inital_guess_airy_modified = [a_0_guess,a_1_guess]
 
-iterations = 100
-with alive_bar(iterations) as bar:
-    for i in range(iterations):
-        #bounds= ((0,0,0,0,0,0,0),(np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf))
-        para_airy_modified, cov_airy_modified = curve_fit(airy_modified_function,normalized_x_axis,lorentzian_array,inital_guess_airy_modified)
-        inital_guess_airy_modified = para_airy_modified
-        bar()
+    for i in range(poly_order+1):
+        inital_guess_airy_modified.append(0)
 
-a_coeffients = para_airy_modified[:5]
+    iterations = 100
+    with alive_bar(iterations) as bar:
+        for i in range(iterations):
+            #bounds= ((0,0,0,0,0,0,0),(np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf))
+            para_airy_modified, cov_airy_modified = curve_fit(airy_modified_function,normalized_x_axis,lorentzian_array,inital_guess_airy_modified)
+            inital_guess_airy_modified = para_airy_modified
+            bar()
+
+    a_coeffients = para_airy_modified[:poly_order+1]
+    array_of_coeffients.append(a_coeffients)
+    print(f'a coeffients {a_coeffients}')
+
 plt.figure()
 plt.plot(domain_airy_modified,airy_modified_function(domain_airy_modified,*para_airy_modified), label =  "Fitted" )
 plt.plot(normalized_x_axis,lorentzian_array, label =  "Data" )
-plt.legend()
+
 plt.figure()
-plt.plot(normalized_x_axis,f(normalized_x_axis,a_coeffients), label =  "Frequency Scaling" )
+for i in range(len(array_of_coeffients)):
+    freqency_array = f(normalized_x_axis,*array_of_coeffients[i])
+    plt.plot(freqency_array,lorentzian_array, label =  f"Frequency Scaling (poly order {min_poly_order + i})" )
+
+
+
+
+plt.figure()
+for i in range(len(array_of_coeffients)):
+    freqency_array = f(normalized_x_axis,*array_of_coeffients[i])
+    freq_peaks = freqency_array[peaks]
+    freq_peaks = freq_peaks[1:]
+    spacing_freq = np.diff(freq_peaks)
+    plt.scatter(freq_peaks[1:],spacing_freq, label = f'Frequency FP spacing difference (poly order {min_poly_order + i})')
+
+plt.figure()
+plt.scatter(x_axis_peaks[1:],spacing, label = 'time scale')
+
+
+
 plt.legend()
 plt.show()
 
