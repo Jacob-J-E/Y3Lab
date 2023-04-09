@@ -1,31 +1,10 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-import mplhep as hep
-import scipy.interpolate as spi
-from scipy.signal import savgol_filter
-from scipy.signal import find_peaks
-from scipy.signal import argrelextrema
-from scipy.signal import find_peaks
-from sklearn.preprocessing import *
-from sklearn.cluster import DBSCAN
-from itertools import chain
-import copy
-from scipy.optimize import curve_fit
-from scipy.special import voigt_profile
-from scipy.signal import butter, filtfilt
-from skimage.restoration import richardson_lucy
-from scipy.signal import convolve, gaussian, fftconvolve, wiener
-from scipy.optimize import minimize
-from scipy.ndimage import convolve1d
-from alive_progress import alive_bar
-import statsmodels.api as sm
-import scipy.stats as stats
+from funcs import *
+
 
 
 # Min Max Values are inclusive
-iterations = 10
-max_poly_order = 7
+iterations = 20
+max_poly_order = 3
 min_poly_order = 2
 if min_poly_order > max_poly_order:
     print('Make sure max poly order is higher or equal to min poly order')
@@ -53,11 +32,6 @@ def chi_squared(o,e):
         print('MAKE SURE OBSERVED AND EXPECTED ARRAY ARE EQUAL SIZES')
         exit()
 
-    chi_squared_val = 0
-    for i in range(len(o)):
-        chi_squared_val += (o[i] - e[i])**2/e[i]
-    
-    return chi_squared_val
 
 def lorentzian(x, center, width, amplitude, c):
     """
