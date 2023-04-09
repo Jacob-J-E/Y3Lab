@@ -19,6 +19,8 @@ from scipy.signal import convolve, gaussian, fftconvolve, wiener
 from scipy.optimize import minimize
 from scipy.ndimage import convolve1d
 from alive_progress import alive_bar
+import scipy.stats as stats
+import statsmodels.api as sm
 
 
 R_1_R_2 = 0.995*0.995
