@@ -34,7 +34,7 @@ elif min_poly_order < 2:
 
 R_1_R_2 = 0.995*0.995
 F = 0.5 * (np.pi * (R_1_R_2)**(1/4))/(1-(R_1_R_2)**(1/2))
-fsr_theoretical = 3e8/(4*19e-2)
+fsr_theoretical = 3e8/(4*20e-2)
 
 
 print('********CONSTANTS***********')
