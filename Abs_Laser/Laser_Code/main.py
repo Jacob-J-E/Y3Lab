@@ -34,8 +34,8 @@ elif min_poly_order < 2:
 
 
 R_1_R_2 = 0.995*0.995
-F = 0.5 * (np.pi * (R_1_R_2)**(1/4))/(1-(R_1_R_2)**(1/2))
-fsr_theoretical = 3e8/(4*20e-2)
+F = 0.5 * (4 * (R_1_R_2)**(1/4))/(1-(R_1_R_2)**(1/2))
+fsr_theoretical = (3e8/(4*20e-2))
 
 
 print('********CONSTANTS***********')
@@ -70,6 +70,33 @@ def lorentzian(x, center, width, amplitude, c):
     y = ((amplitude / np.pi) * (width / 2) / ((x - center)**2 + (width / 2)**2))+ c
     return y
 
+def lorentzian_normalised(x, center, width, amplitude, c):
+    """
+    Calculate the Lorentzian function for the given x values.
+
+    Parameters
+    ----------
+    x : array-like
+        Input x values to calculate the Lorentzian function.
+    center : float
+        The center of the Lorentzian function.
+    width : float
+        The width of the Lorentzian function (also known as FWHM: Full Width at Half Maximum).
+    amplitude : float
+        The amplitude of the Lorentzian function.
+    c: float
+        Global vertical shift.
+
+    Returns
+    -------
+    y : array-like
+        The Lorentzian function values corresponding to the input x values.
+    """
+    y = ((width / 2) / ((x - center)**2 + (width / 2)**2))+ c
+    y = (y/max(y))*amplitude
+    return y
+
+
 def f(x,*coeff):
     coeff = list(coeff)
     x = np.array(x)
@@ -96,7 +123,7 @@ def five_lor_x_update(x,f1,w1,a1,f2,w2,a2,f3,w3,a3,f4,w4,a4,f5,w5,a5,f6,w6,a6,m,
     return lorentzian(x,f1,w1,a1,0) + lorentzian(x,f2,w2,a2,0) + lorentzian(x,f3,w3,a3,0) + lorentzian(x,f4,w4,a4,0) + lorentzian(x,f5,w5,a5,0) +  lorentzian(x,f6,w6,a6,0) + straight_line(x,m,c)
 
 def four_lor_x_update(x,f1,w1,a1,f2,w2,a2,f3,w3,a3,f4,w4,a4,m,c):
-    return lorentzian(x,f1,w1,a1,0) + lorentzian(x,f2,w2,a2,0) + lorentzian(x,f3,w3,a3,0) + lorentzian(x,f4,w4,a4,0) + straight_line(x,m,c)
+    return lorentzian_normalised(x,f1,w1,a1,0) + lorentzian_normalised(x,f2,w2,a2,0) + lorentzian_normalised(x,f3,w3,a3,0) + lorentzian_normalised(x,f4,w4,a4,0) + straight_line(x,m,c)
 
 data = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1B.CSV")
 data_DB_free = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1.CSV")
@@ -384,23 +411,25 @@ for i in range(len(array_of_coeffients)):
     hyper_fine_structure = hyper_fine_structure - min(hyper_fine_structure)
     hyper_fine_structure = hyper_fine_structure/max(hyper_fine_structure)
 
-    plt.plot(freqency_array,hyper_fine_structure,label = f'Data Hyperfine Structure (poly order {min_poly_order + i})')
+    plt.plot(freqency_array,hyper_fine_structure,label = f'Data Hypserfine Structure (poly order {min_poly_order + i})')
 
-    peaks_fine, _= find_peaks(hyper_fine_structure, distance=200)
+    peaks_fine, _= find_peaks(hyper_fine_structure, distance=150)
     subtracted_peaks = hyper_fine_structure[peaks_fine]
     freq_peaks = freqency_array[peaks_fine]
 
-    peaks_values = [subtracted_peaks[5],subtracted_peaks[7],subtracted_peaks[8],subtracted_peaks[10]]
-    freq_values = [freq_peaks[5],freq_peaks[7],freq_peaks[8],freq_peaks[10]]
-    peaks_values_inital_guess = np.array(peaks_values) * 1e7
+    peaks_values = [subtracted_peaks[2],subtracted_peaks[5],subtracted_peaks[6],subtracted_peaks[8]]
+    freq_values = [freq_peaks[2],freq_peaks[5],freq_peaks[6],freq_peaks[8]]
+    peaks_values_inital_guess = np.array(peaks_values)
     m = (hyper_fine_structure[-1] - hyper_fine_structure[0])/ (freqency_array[-1] - freqency_array[0])
     c = hyper_fine_structure[0] - m*freqency_array[0]
-    initial_guess = [freq_values[0]-0.005e9,width+30e6,peaks_values_inital_guess[0]+3e6,freq_values[1],width+20e6,peaks_values_inital_guess[1]+30e6,freq_values[2],width,peaks_values_inital_guess[2]+3e6,freq_values[3],width,peaks_values_inital_guess[3],m,c]
+    #initial_guess = [freq_values[0]-0.005e9,width+30e6,peaks_values_inital_guess[0]+3e6,freq_values[1],width+20e6,peaks_values_inital_guess[1]+30e6,freq_values[2],width,peaks_values_inital_guess[2]+3e6,freq_values[3],width,peaks_values_inital_guess[3],m,c]
+    initial_guess = [freq_values[0],width,peaks_values_inital_guess[0],freq_values[1],width,peaks_values_inital_guess[1],freq_values[2],width,peaks_values_inital_guess[2],freq_values[3],width,peaks_values_inital_guess[3],m,c]
     params, cov = curve_fit(four_lor_x_update,freqency_array,hyper_fine_structure,initial_guess)
     plt.plot(freqency_array,four_lor_x_update(freqency_array,*params),color='black')
     plt.plot(freqency_array,four_lor_x_update(freqency_array,*initial_guess),label = 'Inital Guess', color = 'orange')
     plt.plot(freqency_array,hyper_fine_structure - straight_line(freqency_array,initial_guess[-2],initial_guess[-1]), label = 'SHIFTED', color = 'purple')
-   
+    plt.scatter(freq_values,peaks_values, marker= 'x',label = f'Peak Points (poly order {min_poly_order + i})')
+    #plt.scatter(freq_peaks,subtracted_peaks, marker= 'x', color = 'red',label = f'Peak Points (poly order {min_poly_order + i})')
     Rb_85_2_to_3_THEORY = 63.401
     Rb_85_3_to_4_THEORY = 120.640
 
@@ -420,7 +449,7 @@ for i in range(len(array_of_coeffients)):
     print(f'(Indirect Method) Hyperfine Structure Rb 85 excited - F=2 -> 3 : {indirect_Rb_85_2_to_3:.4g} MHz, Theory P.D: {indirect_Rb_85_2_to_3_Difference_THEORY_PD:.4g}%')
     print(f'(Indirect Method) Hyperfine Structure Rb 85 excited - F=3 -> 4 : {indirect_Rb_85_3_to_4:.4g} MHz, Theory P.D: {indirect_Rb_85_3_to_4_Difference_THEORY_PD:.4g}%')
     print('************************************')
-    plt.scatter(freq_values,peaks_values, marker= 'x',label = f'Peak Points (poly order {min_poly_order + i})')
+
 plt.legend()
 
 plt.show()
