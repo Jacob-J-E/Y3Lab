@@ -38,10 +38,10 @@ x_axis = np.array(x_axis)
 # c1B_first = c1B_first[x_first>-0.01286]
 # x_first = x_first[x_first>-0.01286]
 
-c1_first = c1[(x_axis<0.0225) & (x_axis > -0.01290)]
-fp_first = c4[(x_axis<0.0225) & (x_axis > -0.01290)]
-c1B_first = c1_B[(x_axis<0.0225) & (x_axis > -0.01290)]
-x_first = x_axis[(x_axis<0.0225) & (x_axis > -0.01290)]
+c1_first = c1[(x_axis<0.0220) & (x_axis > -0.00799)]
+fp_first = c4[(x_axis<0.0220) & (x_axis > -0.00799)]
+c1B_first = c1_B[(x_axis<0.0220) & (x_axis > -0.00799)]
+x_first = x_axis[(x_axis<0.0220) & (x_axis > -0.00799)]
 
 # c1_second = c1[round(len(x_axis)/2):]
 # x_second = x_axis[round(len(x_axis)/2):]
@@ -108,9 +108,9 @@ normalized_x_axis = np.array(normalized_x_axis)
 c4 = c4 - min(c4)
 c4 = c4/max(c4)
 #FITTING LORENZIANS TO FP AND FINDING PEAK VALUES----------------------------------------------------
-c4_copy = c4
-c4_copy = c4_copy - min(c4_copy)
-c4_copy = c4_copy/max(c4_copy)
+# c4_copy = c4
+# c4_copy = c4_copy - min(c4_copy)
+# c4_copy = c4_copy/max(c4_copy)
 
 
 peaks, _= find_peaks(c4, distance=1000)
@@ -128,7 +128,7 @@ FP_lorenzian_x_axis_peaks = []
 FP_lorenzian_x_axis_peaks_amplitude = []
 for i in range(len(x_axis_peaks)):
     inital_guess = [x_axis_peaks[i], 0.00004,c4_peaks[i], 0.2]  
-    para, cov = curve_fit(lorentzian,normalized_x_axis, c4_copy, inital_guess)
+    para, cov = curve_fit(lorentzian,normalized_x_axis, c4, inital_guess)
     # y_data = lorentzian(normalized_x_axis,para[0], para[1], para[2], para[3])
     y_data = lorentzian(normalized_x_axis,para[0], para[1], 1*para[1], para[3])
 
@@ -182,7 +182,7 @@ c_val = relative_FSP_SHIFT_ARRAY[0]-grad_val*relative_FSP_SHIFT_ARRAY[0]
 plt.plot(FP_lorenzian_x_axis_peaks,straight_line(FP_lorenzian_x_axis_peaks,grad_val,a_0_guess),color='red')
 plt.show()
 
-a_1_guess = grad_val
+# a_1_guess = grad_val
 
 #Plotting modified airy function ----------------------------------------------------------------
 
