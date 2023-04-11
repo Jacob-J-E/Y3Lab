@@ -24,8 +24,8 @@ import scipy.stats as stats
 
 
 # Min Max Values are inclusive
-iterations = 10
-max_poly_order = 7
+iterations = 3
+max_poly_order = 3
 min_poly_order = 2
 if min_poly_order > max_poly_order:
     print('Make sure max poly order is higher or equal to min poly order')
@@ -324,7 +324,7 @@ t = beta1 / SE_beta1
 print('**********')
 print(f'T VALUE FOR (Original FP Spacing): {t:.4g}')
 print('**********')
-#plt.axvline(t, color = colors[0], label = f'T-value: {t} (Original FP Spacing)')
+plt.axvline(t, color = colors[0], label = f'T-value: {t} (Original FP Spacing)')
 
 df = len(spacing) - 2
 
