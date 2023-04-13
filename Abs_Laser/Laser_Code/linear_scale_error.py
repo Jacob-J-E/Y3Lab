@@ -84,6 +84,10 @@ def lorentzian(x, center, width, amplitude, c):
     y = ((amplitude / np.pi) * (width / 2) / ((x - center)**2 + (width / 2)**2))+ c
     return y
 
+
+def der_lorentzian(x,center,width,amplitude):
+    pass
+
 def lorentzian_normalised(x, center, width, amplitude, c):
     """
     Calculate the Lorentzian function for the given x values.

@@ -59,13 +59,56 @@ fp_second = c4[x_axis>0.0225]
 c1B_second = c1_B[x_axis>0.0225]
 x_second = x_axis[x_axis>0.0225]
 
+peaks, _= find_peaks(c4, prominence=1)
+c4_peaks = c4[peaks]
+x_axis_peaks = x_axis[peaks]
+spacing = np.diff(x_axis_peaks)
+mid = (x_axis_peaks[1:] +x_axis_peaks[:-1])/2
+spacing = spacing - min(spacing)
+spacing = spacing/max(spacing)
+
+
+lorentzian_array = np.zeros(len(x_axis))
+FP_lorenzian_x_axis_peaks = []
+FP_lorenzian_x_axis_peaks_amplitude = []
+for i in range(len(x_axis_peaks)):
+    inital_guess = [x_axis_peaks[i], 0.00004,c4_peaks[i], 0]  
+    para, cov = curve_fit(lorentzian,x_axis, c4, inital_guess)
+    y_data = lorentzian(x_axis,para[0], para[1], para[2], para[3])
+    FP_lorenzian_x_axis_peaks.append(para[0])
+    FP_lorenzian_x_axis_peaks_amplitude.append(max(y_data) - para[3])
+    lorentzian_array += y_data - para[3]
+
+FP_lorenzian_x_axis_peaks = np.array(FP_lorenzian_x_axis_peaks)
+FP_lorenzian_x_axis_peaks_amplitude = np.array(FP_lorenzian_x_axis_peaks_amplitude)
+
+
+
+# plt.figure()
+# plt.plot(x_axis,c4)
+# plt.scatter(x_axis_peaks,c4_peaks)
+# plt.show()
 # Plots to check the splitting worked-------------------------------------------------------------------------------
 
+def normalize(x):
+    # So True!
+    x= x - min(x)
+    return x/max(x)
+min_value = min(c4)
+plt.figure()
 plt.plot(x_first,c1_first,color='black',label="First")
-plt.plot(x_first,fp_first,color='black')
+plt.plot(x_first,normalize(fp_first),color='black')
 plt.plot(x_second,c1_second,color='red',label="Second")
-plt.plot(x_second,fp_second,color='red')
-# plt.legend(loc='upper right')
+plt.plot(x_second,normalize(fp_second),color='red')
+# plt.plot(x_axis,c4)
+plt.plot(x_axis,c3)
+plt.scatter(FP_lorenzian_x_axis_peaks[1:],np.diff(FP_lorenzian_x_axis_peaks)/max(np.diff(FP_lorenzian_x_axis_peaks)), label = 'Lauren Spacing')
+plt.scatter(x_axis_peaks[1:],spacing/max(spacing), label = 'Peak Finder Spacing')
+#plt.scatter(mid,spacing)
+# plt.plot(x_axis,lorentzian_array, label = 'Lorenzian Fitting')
+# plt.scatter(FP_lorenzian_x_axis_peaks,FP_lorenzian_x_axis_peaks_amplitude, label = 'Lorenzian centers')
+# plt.scatter(x_axis_peaks,c4_peaks-min_value, label = 'peak finder')
+plt.legend(loc='upper right')
 plt.show()
 
 iterations = 100
