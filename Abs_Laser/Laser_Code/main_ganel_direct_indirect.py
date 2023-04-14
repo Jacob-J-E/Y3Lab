@@ -25,7 +25,7 @@ import scipy.stats as stats
 
 # Min Max Values are inclusive
 iterations = 20
-max_poly_order = 4
+max_poly_order = 5
 min_poly_order = 2
 if min_poly_order > max_poly_order:
     print('Make sure max poly order is higher or equal to min poly order')
@@ -157,6 +157,7 @@ c3 = np.array(c3)
 c4 = np.array(c4)
 c1 = np.array(c1)
 x_axis = np.array(x_axis)
+
 
 c1_B = c1_B[(x_axis > -0.01749) & (x_axis < 0.01573)]
 c1 = c1[(x_axis > -0.01749) & (x_axis < 0.01573)]
@@ -473,7 +474,8 @@ for i in range(len(array_of_coeffients)):
     Rb_87_2_to_3_THEORY = 266.6500
     Rb_87_1_to_2_THEORY = 156.9470
 
-    direct_Rb_87_2_to_3 = (params[12] - params[3])/ 1E6
+    direct_Rb_87_2_to_3 = (params[12] - params[3])/ 1e6
+    direct_Rb_87_2_to_3_error = np.sqrt(cov[12][12] + cov[3][3])/1e6
     direct_Rb_87_2_to_3_Difference_THEORY_PD = 100* ((direct_Rb_87_2_to_3 - Rb_87_2_to_3_THEORY) / Rb_87_2_to_3_THEORY)
 
     c1_2 = params[0]
@@ -485,16 +487,18 @@ for i in range(len(array_of_coeffients)):
     # print(indirect_Rb_87_g2_to_2, 'MONEY')
 
     indirect_Rb_87_1_to_2 = 2*(c2_3 - c1_3)/1e6
+    indirect_Rb_87_1_to_2_error = np.sqrt(cov[9][9] + cov[6][6])/1e6
     indirect_Rb_87_2_to_3 = 2*(c1_3 - c1_2)/1e6
+    indirect_Rb_87_2_to_3_error = np.sqrt(cov[6][6] + cov[0][0])/1e6
 
     indirect_Rb_87_1_to_2_Difference_THEORY_PD = 100*((indirect_Rb_87_1_to_2 - Rb_87_1_to_2_THEORY)/Rb_87_1_to_2_THEORY)
     indirect_Rb_87_2_to_3_Difference_THEORY_PD = 100*((indirect_Rb_87_2_to_3 - Rb_87_2_to_3_THEORY)/Rb_87_2_to_3_THEORY)
 
     print('************************************')
     print(f'Poly Order: {min_poly_order + i}')
-    print(f'(Direct Method) Hyperfine Structure Rb 87 excited - F=2 -> 3 : {direct_Rb_87_2_to_3:.4g} MHz, Theory P.D: {direct_Rb_87_2_to_3_Difference_THEORY_PD:.4g}%')
-    print(f'(Indirect Method) Hyperfine Structure Rb 87 excited - F=2 -> 3 : {indirect_Rb_87_2_to_3:.4g} MHz, Theory P.D: {indirect_Rb_87_2_to_3_Difference_THEORY_PD:.4g}%')
-    print(f'(Indirect Method) Hyperfine Structure Rb 87 excited - F=1 -> 2 : {indirect_Rb_87_1_to_2:.4g} MHz, Theory P.D: {indirect_Rb_87_1_to_2_Difference_THEORY_PD:.4g}%')
+    print(f'(Direct Method) Hyperfine Structure Rb 87 excited - F=2 -> 3 : {direct_Rb_87_2_to_3:.4g} +/- {direct_Rb_87_2_to_3_error:.4g} MHz, Theory P.D: {direct_Rb_87_2_to_3_Difference_THEORY_PD:.4g}%')
+    print(f'(Indirect Method) Hyperfine Structure Rb 87 excited - F=2 -> 3 : {indirect_Rb_87_2_to_3:.4g} +/- {indirect_Rb_87_2_to_3_error:.4g} MHz, Theory P.D: {indirect_Rb_87_2_to_3_Difference_THEORY_PD:.4g}%')
+    print(f'(Indirect Method) Hyperfine Structure Rb 87 excited - F=1 -> 2 : {indirect_Rb_87_1_to_2:.4g} +/- {indirect_Rb_87_1_to_2_error:.4g}  MHz, Theory P.D: {indirect_Rb_87_1_to_2_Difference_THEORY_PD:.4g}%')
     print('************************************')
     plt.scatter(freq_peaks,subtracted_peaks, marker= 'x',label = f'Peak Points (poly order {min_poly_order + i})')
 plt.legend()
