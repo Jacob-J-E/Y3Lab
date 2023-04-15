@@ -347,6 +347,8 @@ for i in range(len(array_of_coeffients)):
         ax[1,j].vlines(space[k], 0, residuals_[k], color = 'black')
 
     ax[1,j].scatter(space, residuals_, label = 'Residuals',color=colors[i],zorder = 2)
+    if j != 0:
+        ax[1,j].set_ylim([-1e7,+1e7])
 
     
 
