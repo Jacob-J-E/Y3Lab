@@ -21,6 +21,7 @@ from scipy.ndimage import convolve1d
 from alive_progress import alive_bar
 import statsmodels.api as sm
 import scipy.stats as stats
+from sklearn.metrics import r2_score 
 
 
 # Min Max Values are inclusive
@@ -279,12 +280,14 @@ for i in range(len(array_of_coeffients)):
 plt.xticks(np.arange(0, max(freqency_array)+fsr_theoretical, fsr_theoretical))
 plt.legend()
 
-
-
 plt.figure()
-plt.title('Frequency Scaled FP Peak Spacings vs Time space')
+heights = [3,1]
+fig = plt.figure()
+gs = fig.add_gridspec(2, 4, hspace=0, wspace=0.2,height_ratios=heights)
+ax = gs.subplots(sharey=False, sharex=True)
+fig.suptitle('Calibration Graph')
+
 colors = plt.cm.rainbow(np.linspace(0, 1, len(array_of_coeffients)))
-fig, ax = plt.subplots(1,4)
 
 peaks, _= find_peaks(c4, distance=2000)
 c4_peaks = c4[peaks]
@@ -297,12 +300,29 @@ inital_guess_straight = [m,c]
 
 para,cov = curve_fit(straight_line,space,x_axis_peaks,inital_guess_straight)
 domain = np.linspace(min(space),max(space),100000)
-ax[0].scatter(space,x_axis_peaks, label = 'Original Data '+str(i+min_poly_order),color='orange')
-ax[0].plot(domain,straight_line(domain,*para), label = 'Line of Best Fit Original Data', color='black')
-ax[0].legend(loc='upper right')
-print(f'Chi squared: {chi_squared(x_axis_peaks,straight_line(space,*para))}')
+ax[0,0].scatter(space,x_axis_peaks, label = 'Original Data',color='orange')
+ax[0,0].plot(domain,straight_line(domain,*para), label = r'Line of Best Fit Original Data $R^{2}$: '+f'{r2_score(x_axis_peaks,straight_line(space,*para)):.4g}', color='black')
+ax[0,0].legend(loc='best')
+print(f'r squared: {r2_score(x_axis_peaks,straight_line(space,*para))}')
+
+residuals_ = x_axis_peaks - straight_line(space,*para)
+
+for i in range(len(residuals_)):
+    ax[1,0].vlines(space[i], 0, residuals_[i], color = 'black')
+
+ax[1,0].scatter(space, residuals_, label = 'Residuals',color='orange',zorder = 2)
+
+
+ax[1,0].hlines(0, min(space), max(space), linestyle="dashed", color = 'black', alpha = 0.5)
+
+ax[1,0].legend(loc='best')
+# ax[1,0].grid()
+# ax[0,0].grid()
 
 for i in range(len(array_of_coeffients)):
+    j = i +1
+    # ax[0,j].grid()
+    # ax[1,j].grid()
     freqency_array = f(normalized_x_axis,*array_of_coeffients[i])
     freq_peaks = freqency_array[peaks]
     freq_peaks = freq_peaks[1:]
@@ -314,12 +334,28 @@ for i in range(len(array_of_coeffients)):
 
     para,cov = curve_fit(straight_line,space,freq_peaks,inital_guess_straight)
 
+    
     # plt.scatter(x_axis_peaks,freq_peaks, label = 'Data')
     colors = ['b','g','r']
-    ax[i+1].scatter(space,freq_peaks, label = 'Data Polyorder '+str(i+min_poly_order),color=colors[i])
-    ax[i+1].plot(domain,straight_line(domain,*para), label = 'Line of Best Fit Polyorder '+str(i+min_poly_order),color='black')
-    ax[i+1].legend(loc='upper right')
-    print(f'Chi squared: {chi_squared(freq_peaks,straight_line(space,*para))}')
+    ax[0,j].scatter(space,freq_peaks, label = 'Data Polyorder '+str(i+min_poly_order),color=colors[i])
+    ax[0,j].plot(domain,straight_line(domain,*para), label = 'Line of Best Fit Polyorder '+str(i+min_poly_order)+r' $R^{2}$: '+f'{r2_score(freq_peaks,straight_line(space,*para)):.4g}',color='black')
+    ax[0,j].legend(loc='best')
+    print(f'r squared: {r2_score(freq_peaks,straight_line(space,*para))}')
 
-# plt.legend()
+    residuals_ = freq_peaks - straight_line(space,*para)
+    for k in range(len(residuals_)):
+        ax[1,j].vlines(space[k], 0, residuals_[k], color = 'black')
+
+    ax[1,j].scatter(space, residuals_, label = 'Residuals',color=colors[i],zorder = 2)
+
+    
+
+    ax[1,j].hlines(0, min(space), max(space), linestyle="dashed", color = 'black', alpha = 0.5)
+    ax[1,j].legend(loc='best')
+    
+
+
+
+
+
 plt.show()
