@@ -285,7 +285,7 @@ plt.legend()
 
 plt.figure()
 height_title = 1.05
-heights = [3,1]
+heights = [1,1]
 fig = plt.figure()
 gs = fig.add_gridspec(2, max_poly_order, hspace=0, wspace=0.2,height_ratios=heights)
 ax = gs.subplots(sharey=False, sharex=True)
@@ -316,7 +316,7 @@ ax[0,0].fill_between(space, fit_up, fit_dw, alpha=.25, label=str(nstd) + r'$\sig
 domain = np.linspace(min(space),max(space),100000)
 ax[0,0].scatter(space,x_axis_peaks, label = 'Original Data',color='orange')
 ax[0,0].plot(domain,straight_line(domain,*para), label = r'Best Fit $R^{2}$: '+f'{r2_score(x_axis_peaks,straight_line(space,*para)):.4g}', color='black')
-ax[0,0].set_title(r"$\bf{A.}$" + ' Original Data',loc='left', y=height_title)
+ax[0,0].set_title(r"$\bf{(A)}$" + ' Original Data',loc='left', y=height_title)
 ax[1,0].set_ylim(min(x_axis_peaks)-0.1,(max(x_axis_peaks)+0.1))
 ax[0,0].legend(loc='best')
 print(f'r squared: {r2_score(x_axis_peaks,straight_line(space,*para))}')
@@ -344,7 +344,7 @@ for i in range(len(array_of_coeffients)):
     j = i +1
     # ax[0,j].grid()
     # ax[1,j].grid()
-    ax[0,j].set_title(r"$\bf{" + str(letters[i]) + ".}$"+ f' Polyorder {i+min_poly_order}',loc='left', y=height_title)
+    ax[0,j].set_title(r"$\bf{(" + str(letters[i]) + ")}$"+ f' Polyorder {i+min_poly_order}',loc='left', y=height_title)
     freqency_array = f(normalized_x_axis,*array_of_coeffients[i])
     freq_peaks = freqency_array[peaks]
     freq_peaks = freq_peaks[1:]

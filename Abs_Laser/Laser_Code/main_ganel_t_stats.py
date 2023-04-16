@@ -428,7 +428,7 @@ ax[0,1].axvline(t_val, label = f'T Statistic: {t_val}')
 ax[0,0].plot(mid_point, straight_line(mid_point,*para), color=colors[0], label='Fitted line')
 
 ax[0,0].scatter(mid_point,spacing, label = f'FP spacing', color = colors[0])
-ax[0,0].legend(loc = 'best',prop={'size': LEGEND_SIZE})
+ax[0,0].legend(loc = 'lower right',prop={'size': LEGEND_SIZE})
 ax[0,1].yaxis.tick_right()
 
 ax[0,0].set_xlabel('Time Scale (s)')
@@ -450,7 +450,7 @@ x_ = np.linspace(stats.t.ppf(0.0001, df), stats.t.ppf(0.9999, df), 10000)
 y_ = stats.t.pdf(x_, df)
 
 
-title = ax[0,0].set_title(r"$\bf{A.}$" + ' Original Data',loc='center', y=1.05)
+title = ax[0,0].set_title(r"$\bf{(A)}$" + ' Original Data',loc='center', y=1.05)
 
 offset = np.array([-0.15, -0.45])
 title.set_position(ylabel.get_position() + offset)
@@ -482,7 +482,7 @@ for i in range(len(array_of_coeffients)):
     ax[j,0].set_xlabel('Relative Frequency (Hz)')
     ylabel = ax[j,0].set_ylabel('Relative Frequency (Hz)')
 
-    title = ax[j,0].set_title(r"$\bf{" + str(letters[i]) + ".}$"+ f' Polyorder {i+min_poly_order}',loc='center', y=1.05)
+    title = ax[j,0].set_title(r"$\bf{(" + str(letters[i]) + ")}$"+ f' Polyorder {i+min_poly_order}',loc='center', y=1.05)
 
     offset = np.array([-0.15, -0.45])
     title.set_position(ylabel.get_position() + offset)
@@ -524,4 +524,43 @@ for i in range(len(array_of_coeffients)):
 
 
 plt.legend(prop={'size': LEGEND_SIZE})
+
+
+
+plt.figure()
+height = [2,1]
+fig = plt.figure(figsize = (4,8))
+LEGEND_SIZE = 8
+gs = fig.add_gridspec(2, 1, hspace=0, wspace=0,height_ratios=height)
+ax = gs.subplots(sharey=False, sharex=False)
+
+ax[0].scatter(x_axis_peaks[1:],spacing,label = 'FP Spacing')
+title1 = ax[0].set_title(r"$\bf{(A)}$",loc='right', y=0.95)
+
+offset = np.array([+0.1, 0])
+title1.set_position(title1.get_position() + offset)
+ax[0].legend(loc = 'upper left')
+ax[0].set_ylabel('Time Scale (s)')
+ax[1].scatter(normalized_x_axis,c4,s = 0.5, color = 'blue')
+ax[1].plot([min(normalized_x_axis),max(normalized_x_axis)],[0,0],label = 'FP Data', color = 'blue')
+ax[1].legend(loc = 'upper left')
+ax[1].set_xlabel('Time Scale (s)')
+ax[1].set_ylabel('Time Scale (s)')
+title2 = ax[1].set_title(r"$\bf{(B)}$",loc='right', y=0.85)
+
+offset = np.array([+0.1, 0])
+title2.set_position(title2.get_position() + offset)
+
+
+plt.figure(figsize = (13,10))
+plt.plot(normalized_x_axis,c1,color = 'blue', label = 'Doppler Free Spectrum')
+plt.plot(normalized_x_axis,c1_B, color = 'orange', label = 'broadened Spectrum')
+plt.text(-0.7, -0.275, r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$', horizontalalignment='center', size='large', color='black', weight='bold')
+plt.text(-0.27, -0.62, r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 3 \rightarrow F_{e} = 2,3,4}$', horizontalalignment='center', size='large', color='black', weight='bold')
+plt.text(0.13, -0.15-0.05, r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$', horizontalalignment='center', size='large', color='black', weight='bold')
+plt.text(0.675, -0.075-0.05, r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 1 \rightarrow F_{e} = 0,1,2}$', horizontalalignment='center', size='large', color='black', weight='bold')
+plt.ylabel('Transmission (a.u)')
+plt.xlabel('Time Scale (s)')
+plt.legend()
+
 plt.show()
