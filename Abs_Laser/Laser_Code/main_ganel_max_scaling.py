@@ -21,7 +21,7 @@ from scipy.ndimage import convolve1d
 from alive_progress import alive_bar
 import statsmodels.api as sm
 import scipy.stats as stats
-
+from sklearn.metrics import r2_score 
 
 # Min Max Values are inclusive
 iterations = 20
@@ -37,7 +37,7 @@ elif min_poly_order < 2:
 
 R_1_R_2 = 0.995*0.995
 F = 0.5 * (4 * (R_1_R_2)**(1/4))/(1-(R_1_R_2)**(1/2))
-F = (np.pi/2)*((np.arcsin((1-np.sqrt(R_1_R_2))/(2*(R_1_R_2))**(1/4)))**(-1))
+#F = (np.pi/2)*((np.arcsin((1-np.sqrt(R_1_R_2))/(2*(R_1_R_2))**(1/4)))**(-1))
 fsr_theoretical = (3e8/(4*20e-2))
 
 
@@ -130,6 +130,10 @@ def airy_modified_function(x,*args):
 def straight_line(x,a,b):
     return a*x+b
 
+
+def four_lor(x,f1,w1,a1,f2,w2,a2,f3,w3,a3,f4,w4,a4,f5,w5,a5,):
+    return lorentzian(x,f1,w1,a1,0) + lorentzian(x,f2,w2,a2,0) + lorentzian(x,f3,w3,a3,0) + lorentzian(x,f4,w4,a4,0) + lorentzian(x,f5,w5,a5,0)
+
 def five_lor_x(x,f1,w1,a1,f2,w2,a2,f3,w3,a3,f4,w4,a4,f5,w5,a5, a,b,c):
     return lorentzian(x,f1,w1,a1,0) + lorentzian(x,f2,w2,a2,0) + lorentzian(x,f3,w3,a3,0) + lorentzian(x,f4,w4,a4,0) + lorentzian(x,f5,w5,a5,0) - (a*x**2 + b*x) + c
 
@@ -138,6 +142,15 @@ def five_lor_x_update(x,f1,w1,a1,f2,w2,a2,f3,w3,a3,f4,w4,a4,f5,w5,a5,f6,w6,a6,m,
 
 def four_lor_x_update(x,f1,w1,a1,f2,w2,a2,f3,w3,a3,f4,w4,a4,m,c):
     return lorentzian_normalised(x,f1,w1,a1,0) + lorentzian_normalised(x,f2,w2,a2,0) + lorentzian_normalised(x,f3,w3,a3,0) + lorentzian_normalised(x,f4,w4,a4,0) + straight_line(x,m,c)
+
+def four_lor_x_update_noline(x,f1,w1,a1,f2,w2,a2,f3,w3,a3,f4,w4,a4):
+    return lorentzian_normalised(x,f1,w1,a1,0) + lorentzian_normalised(x,f2,w2,a2,0) + lorentzian_normalised(x,f3,w3,a3,0) + lorentzian_normalised(x,f4,w4,a4,0)
+
+def three_lor_x_update_withline(x,f1,w1,a1,f2,w2,a2,f3,w3,a3,m,c):
+    return lorentzian_normalised(x,f1,w1,a1,0) + lorentzian_normalised(x,f2,w2,a2,0) + lorentzian_normalised(x,f3,w3,a3,0) + straight_line(x,m,c)
+
+def three_lor_x_update(x,f1,w1,a1,f2,w2,a2,f3,w3,a3):
+    return lorentzian_normalised(x,f1,w1,a1,0) + lorentzian_normalised(x,f2,w2,a2,0) + lorentzian_normalised(x,f3,w3,a3,0) 
 
 data = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1B.CSV")
 data_DB_free = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1.CSV")
@@ -157,7 +170,6 @@ c3 = np.array(c3)
 c4 = np.array(c4)
 c1 = np.array(c1)
 x_axis = np.array(x_axis)
-
 
 c1_B = c1_B[(x_axis > -0.01749) & (x_axis < 0.01573)]
 c1 = c1[(x_axis > -0.01749) & (x_axis < 0.01573)]
@@ -249,9 +261,11 @@ for i in range(min_poly_order,max_poly_order+1):
             bar()
             #bounds= ((0,0,0,0,0,0,0),(np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf))
             para_airy_modified, cov_airy_modified = curve_fit(airy_modified_function,normalized_x_axis,lorentzian_array,inital_guess_airy_modified)
+            print('R22222: '+ str(r2_score(lorentzian_array,airy_modified_function(normalized_x_axis,*para_airy_modified))))
             inital_guess_airy_modified = para_airy_modified
 
-    a_coeffients = para_airy_modified[:poly_order+1]
+    err = np.sqrt(np.diag(cov_airy_modified))
+    a_coeffients = np.array(para_airy_modified[:poly_order+1]) + 3*np.array(err[:poly_order+1])
     b_coeff = [para_airy_modified[-2],para_airy_modified[-1]]
     array_of_coeffients.append(a_coeffients)
     b_values.append(b_coeff)
@@ -445,7 +459,7 @@ for i in range(len(array_of_coeffients)):
     hyper_fine_structure = hyper_fine_structure - min(hyper_fine_structure)
     hyper_fine_structure = hyper_fine_structure/max(hyper_fine_structure)
 
-    plt.plot(freqency_array,hyper_fine_structure,label = f'Data Hyperfine Structure (poly order {min_poly_order + i})')
+    plt.scatter(freqency_array,hyper_fine_structure,label = f'Data Hyperfine Structure (poly order {min_poly_order + i})',s = 0.5)
 
     peaks_fine, _= find_peaks(hyper_fine_structure, distance=400)
     subtracted_peaks = hyper_fine_structure[peaks_fine]
@@ -463,18 +477,56 @@ for i in range(len(array_of_coeffients)):
     maybe_peak = 2*freq_values[0] - freq_values[1]
     initial_guess = [freq_values[0],width+8e6,peaks_values_inital_guess[0],freq_values[1],width+30e6,peaks_values_inital_guess[1]+0.8e6,freq_values[2],width,peaks_values_inital_guess[2],freq_values[3],width,peaks_values_inital_guess[3],freq_values[4],width,peaks_values_inital_guess[4],maybe_peak,width,peaks_values_inital_guess[5],m,c]
     params, cov = curve_fit(five_lor_x_update,freqency_array,hyper_fine_structure,initial_guess)
-    plt.plot(freqency_array,five_lor_x_update(freqency_array,*params),color='black')
+
+    perr = np.sqrt(np.diag(cov))
+    nstd = 5
+    para_up = params + nstd * perr
+    para_down = params - nstd * perr
+
+    fit_up = five_lor_x_update(freqency_array, *para_up)
+    fit_dw = five_lor_x_update(freqency_array, *para_down)
+    plt.fill_between(freqency_array, fit_up, fit_dw, alpha=.4, label= str(nstd) + r'$\sigma$ Interval', color = 'red',zorder = 1)
+
+    plt.plot(freqency_array,five_lor_x_update(freqency_array,*params),color='black', label = r'Fit $R^{2}$:'+f'{r2_score(hyper_fine_structure,five_lor_x_update(freqency_array,*params)):.4g}')
     # plt.plot(freqency_array,five_lor_x_update(freqency_array,*params) - np.array((params[-3]*freqency_array**2 + params[-2]*freqency_array - params[-1])),color='red')
-    plt.plot(freqency_array,five_lor_x_update(freqency_array,*initial_guess),label = 'Inital Guess', color = 'orange')
-    plt.plot(freqency_array,hyper_fine_structure - straight_line(freqency_array,initial_guess[-2],initial_guess[-1]), label = 'SHIFTED', color = 'purple')
-    print((freq_values[4] - freq_values[1])/1e6)
-    print((freq_values[1] - maybe_peak)/1e6)
+    # plt.plot(freqency_array,five_lor_x_update(freqency_array,*initial_guess),label = 'Inital Guess', color = 'orange')
+    # plt.plot(freqency_array,hyper_fine_structure - straight_line(freqency_array,initial_guess[-2],initial_guess[-1]), label = 'SHIFTED', color = 'purple')
+    # print((freq_values[4] - freq_values[1])/1e6)
+    # print((freq_values[1] - maybe_peak)/1e6)
+    freq_ponts = []
+    for j in range(len(peaks_values)):
+        x0,gamma,amplitude = params[j*3:j*3+3]
+        freq_ponts.append(x0)
+        print(x0,gamma,amplitude)
+        fwhm = 0.5*np.abs(gamma)
+        x_ = freqency_array[(freqency_array > x0 - fwhm) & (freqency_array < x0 + fwhm)]
+        other_params = list(params[:j*3]) + list(params[j*3+3:-2])
+        y_ = hyper_fine_structure[(freqency_array > x0 - fwhm) & (freqency_array < x0 + fwhm)] - straight_line(x_, params[-2], params[-1]) -four_lor(x_,*other_params)
+        y_peak = lorentzian(x_, x0, gamma, amplitude,0) 
+        if len(y_) == 0 or len(y_peak) == 0:
+            R_square = 0
+        else:
+            R_square = r2_score(y_, y_peak) 
+
+        if R_square < 0.8:
+            text_color = 'red'
+        else:
+            text_color = 'black'
+        if j == 0 or j==1 or j== 5:
+            plt.text(x0, peaks_values[j]+0.005, r'$R^{2}_{'+r'\bf{V_{'+str(j)+'}'+r'}}: $'+f'{R_square:.4f}', horizontalalignment='right', size='large', color=text_color, weight='bold')
+        else:
+            plt.text(x0+5e6, peaks_values[j]-0.02, r'$R^{2}_{'+r'\bf{V_{'+str(j)+'}'+r'}}: $'+f'{R_square:.4f}', horizontalalignment='left', size='large', color=text_color, weight='bold')
+        plt.plot(freqency_array, lorentzian(freqency_array, x0, gamma, amplitude,0) + straight_line(freqency_array, params[-2], params[-1]), linestyle='--', alpha=.35)
+        plt.axvline(x0, linestyle = 'dotted', color = 'black',alpha = 0.8)
+        plt.text(x0, 0.03, r'$\bf{V_{'+str(j)+r'}}$', horizontalalignment='center', size='large', color=text_color, weight='bold',zorder = 3)
+        plt.ylim(bottom = 0)
+
 
 
     Rb_87_2_to_3_THEORY = 266.6500
     Rb_87_1_to_2_THEORY = 156.9470
 
-    direct_Rb_87_2_to_3 = (params[12] - params[3])/ 1e6
+    direct_Rb_87_2_to_3 = (params[12] - params[3])/ 1E6
     direct_Rb_87_2_to_3_error = np.sqrt(cov[12][12] + cov[3][3])/1e6
     direct_Rb_87_2_to_3_Difference_THEORY_PD = 100* ((direct_Rb_87_2_to_3 - Rb_87_2_to_3_THEORY) / Rb_87_2_to_3_THEORY)
 
@@ -496,11 +548,13 @@ for i in range(len(array_of_coeffients)):
 
     print('************************************')
     print(f'Poly Order: {min_poly_order + i}')
-    print(f'(Direct Method) Hyperfine Structure Rb 87 excited - F=2 -> 3 : {direct_Rb_87_2_to_3:.4g} +/- {direct_Rb_87_2_to_3_error:.4g} MHz, Theory P.D: {direct_Rb_87_2_to_3_Difference_THEORY_PD:.4g}%')
+    print(f'(Direct Method) Hyperfine Structure Rb 87 excited - F=2 -> 3 : {direct_Rb_87_2_to_3:.8g} +/- {direct_Rb_87_2_to_3_error:.8g} MHz, Theory P.D: {direct_Rb_87_2_to_3_Difference_THEORY_PD:.4g}%')
     print(f'(Indirect Method) Hyperfine Structure Rb 87 excited - F=2 -> 3 : {indirect_Rb_87_2_to_3:.4g} +/- {indirect_Rb_87_2_to_3_error:.4g} MHz, Theory P.D: {indirect_Rb_87_2_to_3_Difference_THEORY_PD:.4g}%')
-    print(f'(Indirect Method) Hyperfine Structure Rb 87 excited - F=1 -> 2 : {indirect_Rb_87_1_to_2:.4g} +/- {indirect_Rb_87_1_to_2_error:.4g}  MHz, Theory P.D: {indirect_Rb_87_1_to_2_Difference_THEORY_PD:.4g}%')
+    print(f'(Indirect Method) Hyperfine Structure Rb 87 excited - F=1 -> 2 : {indirect_Rb_87_1_to_2:.4g} +/- {indirect_Rb_87_1_to_2_error:.4g} MHz, Theory P.D: {indirect_Rb_87_1_to_2_Difference_THEORY_PD:.4g}%')
     print('************************************')
-    plt.scatter(freq_peaks,subtracted_peaks, marker= 'x',label = f'Peak Points (poly order {min_poly_order + i})')
+    #plt.scatter(freq_ponts,peaks_values, marker= 'x',label = f'Peak Points (poly order {min_poly_order + i})', color = 'red',zorder = 2)
+    plt.xlabel('Relative Frequency (Hz)')
+    plt.ylabel('Intensity (Arbitrary Units)')
 plt.legend()
 
 plt.figure()
@@ -515,7 +569,7 @@ for i in range(len(array_of_coeffients)):
     hyper_fine_structure = hyper_fine_structure - min(hyper_fine_structure)
     hyper_fine_structure = hyper_fine_structure/max(hyper_fine_structure)
 
-    plt.plot(freqency_array,hyper_fine_structure,label = f'Data Hypserfine Structure (poly order {min_poly_order + i})')
+    plt.scatter(freqency_array,hyper_fine_structure,label = f'Data Hypserfine Structure (poly order {min_poly_order + i})',s = 0.5)
 
     peaks_fine, _= find_peaks(hyper_fine_structure, distance=150)
     subtracted_peaks = hyper_fine_structure[peaks_fine]
@@ -529,33 +583,89 @@ for i in range(len(array_of_coeffients)):
     width = 1.2e7
     #initial_guess = [freq_values[0]-0.005e9,width+30e6,peaks_values_inital_guess[0]+3e6,freq_values[1],width+20e6,peaks_values_inital_guess[1]+30e6,freq_values[2],width,peaks_values_inital_guess[2]+3e6,freq_values[3],width,peaks_values_inital_guess[3],m,c]
     initial_guess = [freq_values[0],width+100e6,peaks_values_inital_guess[0],freq_values[1],width,peaks_values_inital_guess[1],freq_values[2],width,peaks_values_inital_guess[2],freq_values[3],width,peaks_values_inital_guess[3],m,c]
-    params, cov = curve_fit(four_lor_x_update,freqency_array,hyper_fine_structure,initial_guess)
+    
+    #I DID SOMETHING SUS WITH THE BOUNDS BUT IT WORKS
+    bounds_= ((freq_values[0]-0.005e9,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf,-np.inf),(freq_values[0]+0.005e9,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf))
+    params, cov = curve_fit(four_lor_x_update,freqency_array,hyper_fine_structure,initial_guess,bounds = bounds_)
+
+    perr = np.sqrt(np.diag(cov))
+    nstd = 5
+    para_up = params + nstd * perr
+    para_down = params - nstd * perr
+
+    fit_up = four_lor_x_update(freqency_array, *para_up)
+    fit_dw = four_lor_x_update(freqency_array, *para_down)
+    plt.fill_between(freqency_array, fit_up, fit_dw, alpha=.4, label= str(nstd) + r'$\sigma$ Interval', color = 'red',zorder = 1)
+
     # initial_guess = params
     # params, cov = curve_fit(four_lor_x_update,freqency_array,hyper_fine_structure,initial_guess)
-    plt.plot(freqency_array,four_lor_x_update(freqency_array,*params),color='black')
-    plt.plot(freqency_array,four_lor_x_update(freqency_array,*initial_guess),label = 'Inital Guess', color = 'orange')
-    plt.plot(freqency_array,hyper_fine_structure - straight_line(freqency_array,initial_guess[-2],initial_guess[-1]), label = 'SHIFTED', color = 'purple')
-    plt.scatter(freq_values,peaks_values, marker= 'x',label = f'Peak Points (poly order {min_poly_order + i})')
-    plt.scatter(freq_peaks,subtracted_peaks, marker= 'x', color = 'red',label = f'Peak Points (poly order {min_poly_order + i})')
+    plt.plot(freqency_array,four_lor_x_update(freqency_array,*params),color='black', label = r'Fit $R^{2}$:'+f'{r2_score(hyper_fine_structure,four_lor_x_update(freqency_array,*params)):.4g}')
+    #plt.plot(freqency_array,four_lor_x_update(freqency_array,*initial_guess),label = 'Inital Guess', color = 'orange')
+    #plt.plot(freqency_array,hyper_fine_structure - straight_line(freqency_array,initial_guess[-2],initial_guess[-1]), label = 'SHIFTED', color = 'purple')
+    #plt.scatter(freq_peaks,subtracted_peaks, marker= 'x', color = 'red',label = f'Peak Points (poly order {min_poly_order + i})')
+
+    freq_ponts = []
+    amplitudes = []
+    for j in range(len(peaks_values)):
+        x0,gamma,amplitude = params[j*3:j*3+3]
+        freq_ponts.append(x0)
+        #amplitudes.append(max(four_lor_x_update(np.array([x0,x0+0.1]),*params)))
+        print(x0,gamma,amplitude)
+        fwhm = 2*np.abs(gamma)
+        x_ = freqency_array[(freqency_array > x0 - fwhm) & (freqency_array < x0 + fwhm)]
+        other_params = list(params[:j*3]) + list(params[j*3+3:-2])
+        y_ = hyper_fine_structure - straight_line(freqency_array, params[-2], params[-1]) -three_lor_x_update(freqency_array,*other_params)
+        y_ = y_[(freqency_array > x0 - fwhm) & (freqency_array < x0 + fwhm)] 
+        y_peak = lorentzian_normalised(x_, x0, gamma, amplitude,0) 
+
+        # plt.figure()
+        # plt.plot(freqency_array,hyper_fine_structure)
+        # plt.plot(x_,y_)
+        # plt.plot(x_,y_peak)
+        # plt.show()
+        if len(y_) == 0 or len(y_peak) == 0:
+            R_square = 0
+        else:
+            R_square = r2_score(y_, y_peak) 
+        if R_square < 0.8:
+            text_color = 'red'
+        else:
+            text_color = 'black'
+        if j == 0 or j==1 or j== 5:
+            plt.text(x0-1e7, peaks_values[j]+0.005, r'$R^{2}_{'+r'\bf{V_{'+str(j)+'}'+r'}}: $'+f'{R_square:.4f}', horizontalalignment='right', size='large', color=text_color, weight='bold')
+        else:
+            plt.text(x0+1e7, peaks_values[j]+0.005, r'$R^{2}_{'+r'\bf{V_{'+str(j)+'}'+r'}}: $'+f'{R_square:.4f}', horizontalalignment='left', size='large', color=text_color, weight='bold')
+        plt.plot(freqency_array, lorentzian_normalised(freqency_array, x0, gamma, amplitude,0) + straight_line(freqency_array, params[-2], params[-1]), linestyle='--',alpha = 0.35)
+        plt.axvline(x0, linestyle = 'dotted', color = 'black',alpha = 0.8)
+        plt.text(x0, 0.05, r'$\bf{V_{'+str(j)+r'}}$', horizontalalignment='center', size='large', color=text_color, weight='bold',zorder = 3)
+
+    #plt.scatter(freq_ponts,amplitudes, marker= 'x',label = f'Peak Points (poly order {min_poly_order + i})', color = 'red',zorder = 2)
     Rb_85_2_to_3_THEORY = 63.401
     Rb_85_3_to_4_THEORY = 120.640
 
     c_2_4 = params[3]
     c_3_4 = params[6]
     v_4 = params[9]
+    v_1 = params[0]
     
 
     indirect_Rb_85_2_to_3 = 2*(c_3_4 - c_2_4)/1e6
     indirect_Rb_85_3_to_4 = 2*(v_4 - c_3_4)/1e6
+    direct_Rb_85_3_to_4 = (v_4 -v_1)/1e6
 
     indirect_Rb_85_2_to_3_Difference_THEORY_PD = 100*((indirect_Rb_85_2_to_3 - Rb_85_2_to_3_THEORY)/Rb_85_2_to_3_THEORY)
     indirect_Rb_85_3_to_4_Difference_THEORY_PD = 100*((indirect_Rb_85_3_to_4 - Rb_85_3_to_4_THEORY)/Rb_85_3_to_4_THEORY)
+    direct_Rb_85_3_to_4_Difference_THEORY_PD = 100*((direct_Rb_85_3_to_4 - Rb_85_3_to_4_THEORY)/Rb_85_3_to_4_THEORY)
 
     print('************************************')
     print(f'Poly Order: {min_poly_order + i}')
     print(f'(Indirect Method) Hyperfine Structure Rb 85 excited - F=2 -> 3 : {indirect_Rb_85_2_to_3:.4g} MHz, Theory P.D: {indirect_Rb_85_2_to_3_Difference_THEORY_PD:.4g}%')
     print(f'(Indirect Method) Hyperfine Structure Rb 85 excited - F=3 -> 4 : {indirect_Rb_85_3_to_4:.4g} MHz, Theory P.D: {indirect_Rb_85_3_to_4_Difference_THEORY_PD:.4g}%')
+    print(f'(Direct Method) Hyperfine Structure Rb 85 excited - F=3 -> 4 : {direct_Rb_85_3_to_4:.4g} MHz, Theory P.D: {direct_Rb_85_3_to_4_Difference_THEORY_PD:.4g}%')
     print('************************************')
+    plt.ylim(bottom = 0)
+    plt.xlabel('Relative Frequency (Hz)')
+    plt.ylabel('Intensity (Arbitrary Units)')
 
 plt.legend()
 
