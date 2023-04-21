@@ -73,12 +73,9 @@ for i in range(len(mag_field)):
 B_field = np.array(B_field)
 mag_field = B_field
 mag_field = mag_field -6.93
-print("AHHH MAGNETIC FIELD",B_field)
-# find_peaks
+# print("AHHH MAGNETIC FIELD",B_field)
 
 fig,ax = plt.subplots(1,2)
-# freq_0, hfs_0 = freq_scale(data_0,data_0_B)
-# ax[0].plot(freq_0[(freq_0 > low_cut) & (freq_0 < high_cut)],-hfs_0[(freq_0 > low_cut) & (freq_0 < high_cut)],label=r"$v_{app}= $"+str(0)+r"$V$")
 
 
 peak_x = []
@@ -95,10 +92,6 @@ for i in range(1,60):
     data_B = pd.read_csv(r"Abs_Laser\Data\21-03-2023\ZB"+str(i)+".CSV")
 
 
-
-    # freq, hf = freq_scale(data,data_B)
-
-    # hf = data['C1 in V']
     c1 = data['C1 in V']
     c1_B = data_B['C1 in V']
     freq = data['in s']
@@ -109,25 +102,9 @@ for i in range(1,60):
 
     hf=  (-c1 + c1_B)/(max(c1_B))*max(c1)
 
-  
-
     hf = np.array(hf)
     freq = np.array(freq)
     
-
-    # hf = hf[(freq < 0.048) & (freq > 0.042)]
-    # freq = freq[(freq < 0.048) & (freq > 0.042)]
-
-    # hf = hf[(freq < 0.0500) & (freq > 0.0400)]
-    # freq = freq[(freq < 0.0500) & (freq > 0.0400)]
-
-    # hf = hf[(freq < 0.01475) & (freq > 0.01275)]
-    # freq = freq[(freq < 0.01475) & (freq > 0.01275)]
-
-
-
-    # hf_cut = hf[(freq > low_cut) & (freq < high_cut)]
-    # freq_cut = freq[(freq > low_cut) & (freq < high_cut)]
     hf_cut = hf
     freq_cut = freq
 
@@ -158,10 +135,6 @@ for i in range(1,60):
             ax[1].scatter(mag_field[i],point,color='blue',marker='x')
             peak_y.append(point)
             peak_x.append(mag_field[i])
-            # ax[1].scatter(i*0.8,point,color='blue',marker='x')
-            # peak_y.append(point)
-            # peak_x.append(mag_field[2*i+1]-7)
-
 
 ax[0].axvline(freq_min)
 ax[0].set_xlabel("Frequency (Hz)")
@@ -177,31 +150,4 @@ plt.show()
 
 plt.scatter(peak_x,peak_y)
 plt.show()
-
-
-
-    # ax[0].plot(freq_cut,hf_smooth,color='black')
-    # max_ind = argrelextrema(hf_smooth,np.greater,order=3)
-    # max_ind = find_peaks(hf_smooth,distance=200,prominence=10)
-
-
-    # print(max_ind)
-    # print("///")
-    # print(max_ind[0])
-    # peak_y = hf_smooth[max_ind[0]]
-    # peak_x = freq_cut[max_ind[0]]
-
-    # peak_y = list(peak_y)
-    # peak_x = list(peak_x)
-
-    # length = len(peak_y)
-    # new_peak_y = []
-    # new_peak_x = []
-
-    # for j in range(0,length-1):
-    #     if peak_y[j] > i/4:
-    #         new_peak_y.append(peak_y[j])
-    #         new_peak_x.append(peak_x[j])
-
-    # hf = savgol_filter(-hf_cut,window_length=301,polyorder=3)
 
