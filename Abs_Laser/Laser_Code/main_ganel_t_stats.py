@@ -25,7 +25,7 @@ from sklearn.metrics import r2_score
 
 # Min Max Values are inclusive
 iterations = 20
-max_poly_order = 4
+max_poly_order = 2
 min_poly_order = 2
 if min_poly_order > max_poly_order:
     print('Make sure max poly order is higher or equal to min poly order')
@@ -552,15 +552,128 @@ offset = np.array([+0.1, 0])
 title2.set_position(title2.get_position() + offset)
 
 
-plt.figure(figsize = (13,10))
-plt.plot(normalized_x_axis,c1,color = 'blue', label = 'Doppler Free Spectrum')
-plt.plot(normalized_x_axis,c1_B, color = 'orange', label = 'broadened Spectrum')
-plt.text(-0.7, -0.275, r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$', horizontalalignment='center', size='large', color='black', weight='bold')
-plt.text(-0.27, -0.62, r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 3 \rightarrow F_{e} = 2,3,4}$', horizontalalignment='center', size='large', color='black', weight='bold')
-plt.text(0.13, -0.15-0.05, r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$', horizontalalignment='center', size='large', color='black', weight='bold')
-plt.text(0.675, -0.075-0.05, r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 1 \rightarrow F_{e} = 0,1,2}$', horizontalalignment='center', size='large', color='black', weight='bold')
-plt.ylabel('Transmission (a.u)')
-plt.xlabel('Time Scale (s)')
-plt.legend()
+# from mpl_toolkits.axes_grid.inset_locator import (inset_axes, InsetPosition,
+#                                                   mark_inset)
+from mpl_toolkits.axes_grid.inset_locator import (inset_axes, InsetPosition)
+fig, ax1 = plt.subplots(figsize=(13,10))
+# plt.figure(figsize = (13,10))
+ax1.plot(normalized_x_axis,c1,color = 'blue', label = 'Doppler Free Spectrum',zorder=5)
+ax1.plot(normalized_x_axis,c1_B, color = 'orange', label = 'broadened Spectrum',zorder=5)
+ax1.text(-0.75, -0.275, r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$', horizontalalignment='center', size='large', color='black', weight='bold')
+ax1.text(-0.24, -0.62, r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 3 \rightarrow F_{e} = 2,3,4}$', horizontalalignment='center', size='large', color='black', weight='bold')
+ax1.text(0.13, -0.15-0.05, r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$', horizontalalignment='center', size='large', color='black', weight='bold')
+ax1.text(0.675, -0.075-0.05, r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 1 \rightarrow F_{e} = 0,1,2}$', horizontalalignment='center', size='large', color='black', weight='bold')
+ax1.set_ylabel('Transmission (a.u)')
+ax1.set_xlabel('Time Scale (s)')
+ax1.legend()
 
+# [(normalized_x_axis < -0.66) & (normalized_x_axis > -0.8)]
+c1_plot = c1[(normalized_x_axis < -0.66) & (normalized_x_axis > -0.8)]
+c1_B_plot = c1_B[(normalized_x_axis < -0.66) & (normalized_x_axis > -0.8)]
+
+width = 0.2
+height = 0.4
+ax2 = plt.axes([0.8-width,height/2,width,height])
+# ax3 = plt.axes([.3,.3,0.1,0.4])
+size_x = .35
+size_y = 0.35
+ip2 = InsetPosition(ax1, [0.95-size_y,0.1,size_x,size_y])
+ax2.set_axes_locator(ip2)
+ax2.plot(normalized_x_axis[(normalized_x_axis < -0.66) & (normalized_x_axis > -0.8)],-0.15+(c1_plot-c1_B_plot/max(c1_B_plot)*max(c1_plot)),color='blue',zorder=2)
+ax2.set_title("Hyperfine Structure")
+# mark_inset(ax1, ax2, loc1=1, loc2=3, fc="none", ec='0.5',clip_on=False,snap=False)
+ax3 = plt.axes([0.1,0.1,0.1,0.1])
+ip3 = InsetPosition(ax1, [0.14,0.54,0.07,0.43])
+ax3.set_axes_locator(ip3)
+
+from mpl_toolkits.axes_grid1.inset_locator import TransformedBbox, BboxPatch, BboxConnector 
+def mark_inset(parent_axes,lim_axes, inset_axes, loc1a=4, loc1b=3, loc2a=4, loc2b=3, **kwargs):
+
+    rect = TransformedBbox(lim_axes.viewLim, lim_axes.transData)
+    # rect = TransformedBbox(axin1, parent_axes.transData)
+
+
+    pp = BboxPatch(rect, fill=False, **kwargs)
+    parent_axes.add_patch(pp)
+
+    p1 = BboxConnector(inset_axes.bbox, rect, loc1=loc1a, loc2=loc1b, **kwargs)
+    inset_axes.add_patch(p1)
+    p1.set_clip_on(False)
+    p2 = BboxConnector(inset_axes.bbox, rect, loc1=loc2a, loc2=loc2b, **kwargs)
+    inset_axes.add_patch(p2)
+    p2.set_clip_on(False)
+
+    return pp, p1, p2
+
+mark_inset(parent_axes=ax1, lim_axes=ax3, inset_axes=ax2, loc1a=1, loc1b=1, loc2a=3, loc2b=4, fc="none", ec="0.5",alpha=0.6,linestyle='--') 
+
+# pp, p1, p2 = mark_inset(ax1, ax2, loc1=1, loc2=3, fc="none", ec='0.5',alpha=0.5,zorder=1)
+ax2.set_xlabel('Time Scale (s)')
+ax2.set_ylabel('Transmission (a.u.)')
+ax3.set_visible(not ax3.get_visible())
+plt.draw()
 plt.show()
+
+
+
+# from mpl_toolkits.axes_grid.inset_locator import (inset_axes, InsetPosition,
+#                                                   mark_inset)
+# domain_airy_modified = np.linspace(min(normalized_x_axis),max(normalized_x_axis), 100000)
+# fig, ax1 = plt.subplots(figsize=(15, 15))
+# # plt.title('Fitted FP using Modified Airy Function')
+# ax2 = plt.axes([0,0,.1,.2])
+# ax3 = plt.axes([0,0,.1,.2])
+# # Manually set the position and relative size of the inset axes within ax1
+# size_x = .45
+# size_y = 0.9
+# ip2 = InsetPosition(ax1, [0.0,1.2,size_x,size_y])
+# ip3 = InsetPosition(ax1, [1-size_x,1.2,size_x,size_y])
+
+# ax2.set_axes_locator(ip2)
+# ax3.set_axes_locator(ip3)
+
+# mark_inset(ax1, ax2, loc1=1, loc2=3, fc="none", ec='0.5')
+# mark_inset(ax1, ax3, loc1=1, loc2=3, fc="none", ec='0.5')
+# ax2.set_title(r"$\bf{(C)}$",loc='right', y=1.05)
+# ax3.set_title(r"$\bf{(B)}$",loc='right', y=1.05)
+# title1 = ax1.set_title(r"$\bf{(A)}$",loc='right', y=0.95)
+
+# offset = np.array([+0.05, 0])
+# title1.set_position(title1.get_position() + offset)
+
+# c4 = c4 -0.2
+# down_2 = -0.1
+# up_2 =  -0.082
+# down_3 = 0.978
+# up_3 = 1
+# ax1.plot(normalized_x_axis,c4, label =  "Data" )
+# ax2.plot(normalized_x_axis[(normalized_x_axis < up_2) & (normalized_x_axis > down_2)], c4[(normalized_x_axis < up_2) & (normalized_x_axis > down_2)], alpha=1, label="Data")
+# ax3.plot(normalized_x_axis[(normalized_x_axis < up_3) & (normalized_x_axis > down_3)], c4[(normalized_x_axis < up_3) & (normalized_x_axis > down_3)], alpha=1, label="Data")
+
+# for i in range(len(array_of_coeffients)):
+#     para = list(array_of_coeffients[i]) + list(b_values[i])
+#     y_data = airy_modified_function(domain_airy_modified,*para)
+
+#     ax1.plot(domain_airy_modified,airy_modified_function(domain_airy_modified,*para), label =  f"Fitted Airy (f(x) poly order {min_poly_order + i})" )
+#     ax2.plot(domain_airy_modified[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)],y_data[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)], label =  f"Fitted Airy (f(x) poly order {min_poly_order + i})")
+#     ax3.plot(domain_airy_modified[(domain_airy_modified < up_3) & (domain_airy_modified > down_3)],y_data[(domain_airy_modified < up_3) & (domain_airy_modified > down_3)], label =  f"Fitted Airy (f(x) poly order {min_poly_order + i})" )
+
+
+# # Create a set of inset Axes: these should fill the bounding box allocated to
+# # them.
+
+# ax1.set_xlabel("Normalized Time Scale (Arb.)")
+# ax2.set_xlabel("Normalized Time Scale (Arb.)")
+# ax3.set_xlabel("Normalized Time Scale (Arb.)")
+
+# ax1.set_ylabel("Intensity (Arb.)")
+# ax2.set_ylabel("Intensity (Arb.)")
+# ax3.set_ylabel("Intensity (Arb.)")
+
+
+# ax1.legend(loc='lower left').set_zorder(100)
+# # ax2.legend(loc=0)
+# # ax3.legend(loc=0)
+# plt.subplots_adjust(top=.5)
+# plt.show()
+
