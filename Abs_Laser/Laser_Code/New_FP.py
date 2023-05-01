@@ -24,8 +24,8 @@ import scipy.stats as stats
 from sklearn.metrics import r2_score 
 
 # Min Max Values are inclusive
-iterations = 20
-max_poly_order = 4
+iterations = 3
+max_poly_order = 2
 min_poly_order = 2
 if min_poly_order > max_poly_order:
     print('Make sure max poly order is higher or equal to min poly order')
@@ -56,7 +56,7 @@ def chi_squared(o,e):
     chi_squared_val = 0
     for i in range(len(o)):
         chi_squared_val += (o[i] - e[i])**2/e[i]
-    
+   
     return chi_squared_val
 
 def lorentzian(x, center, width, amplitude, c):
@@ -124,7 +124,7 @@ def airy_modified_function(x,*args):
     num = args[-2] + x*args[-1]
     f_values = f(x,*args[:-2])
     dom = 1 + F*(np.sin((np.pi/fsr_theoretical)*f_values))**2
-    return (num/dom) 
+    return (num/dom)
 
 
 def straight_line(x,a,b):
@@ -143,8 +143,8 @@ data = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1B.CSV")
 data_DB_free = pd.read_csv(r"Abs_Laser\Data\10-03-2023\NEW1.CSV")
 
 x_axis = data_DB_free['in s']
-c1 = data_DB_free['C1 in V']           
-c2 = data_DB_free['C2 in V'] 
+c1 = data_DB_free['C1 in V']          
+c2 = data_DB_free['C2 in V']
 c3 = data_DB_free['C3 in V']
 c4 = data_DB_free['C4 in V']
 c1_B = data['C1 in V']
@@ -195,16 +195,22 @@ spacing = np.diff(x_axis_peaks)
 lorentzian_array = np.zeros(len(normalized_x_axis))
 FP_lorenzian_x_axis_peaks = []
 FP_lorenzian_x_axis_peaks_amplitude = []
+FP_lorenzian_x_axis_peaks_amplitude_true = []
+FP_freq_peak_errors = []
 for i in range(len(x_axis_peaks)):
     inital_guess = [x_axis_peaks[i], 0.00004,c4_peaks[i], 0]  
     para, cov = curve_fit(lorentzian,normalized_x_axis, c4, inital_guess)
     y_data = lorentzian(normalized_x_axis,para[0], para[1], para[2], para[3])
     FP_lorenzian_x_axis_peaks.append(para[0])
+    FP_freq_peak_errors.append(cov[0][0])
     FP_lorenzian_x_axis_peaks_amplitude.append(max(y_data) - para[3])
+    FP_lorenzian_x_axis_peaks_amplitude_true.append(max(y_data))
     lorentzian_array += y_data - para[3]
 
+FP_freq_peak_errors = np.array(FP_freq_peak_errors)
 FP_lorenzian_x_axis_peaks = np.array(FP_lorenzian_x_axis_peaks)
 FP_lorenzian_x_axis_peaks_amplitude = np.array(FP_lorenzian_x_axis_peaks_amplitude)
+FP_lorenzian_x_axis_peaks_amplitude_true = np.array(FP_lorenzian_x_axis_peaks_amplitude_true)
 
 
 #FINDING A_0 AND A_1 ----------------------------------------------------------------------------
@@ -249,14 +255,15 @@ for i in range(min_poly_order,max_poly_order+1):
             #bounds= ((0,0,0,0,0,0,0),(np.inf,np.inf,np.inf,np.inf,np.inf,np.inf,np.inf))
             para_airy_modified, cov_airy_modified = curve_fit(airy_modified_function,normalized_x_axis,lorentzian_array,inital_guess_airy_modified)
             inital_guess_airy_modified = para_airy_modified
-
+       
+    errors_of_a = np.sqrt(np.diag(cov_airy_modified[:poly_order+1][:poly_order+1]))
     a_coeffients = para_airy_modified[:poly_order+1]
     b_coeff = [para_airy_modified[-2],para_airy_modified[-1]]
     array_of_coeffients.append(a_coeffients)
     b_values.append(b_coeff)
     print('****************************')
     print(f'COMPLETED BOOTSTRAPING with Poly Order {poly_order}')
-    print(f'Poly Order {poly_order} - a coeffients {a_coeffients}')
+    print(f'Poly Order {poly_order} - a coeffients {a_coeffients} +/- {errors_of_a}')
     print(f'Poly Order {poly_order} - b coeffients {b_coeff}')
     print('****************************')
 
@@ -294,7 +301,7 @@ for i in range(len(array_of_coeffients)):
 
     x = sm.add_constant(mid_val)
     model = sm.OLS(spacing_freq, x).fit()
-    
+   
     # Obtain the estimated slope (beta1) and its standard error (SE_beta1)
     beta1 = model.params[1]
     SE_beta1 = model.bse[1]
@@ -360,7 +367,7 @@ for i in range(len(array_of_coeffients)):
 
     x = sm.add_constant(mid_val)
     model = sm.OLS(spacing_freq, x).fit()
-    
+   
     # Obtain the estimated slope (beta1) and its standard error (SE_beta1)
     beta1 = model.params[1]
     SE_beta1 = model.bse[1]
@@ -526,163 +533,58 @@ for i in range(len(array_of_coeffients)):
 plt.legend(prop={'size': LEGEND_SIZE})
 
 
+
 plt.figure()
-height = [1,1]
+height = [2,1]
 fig = plt.figure(figsize = (4,8))
 LEGEND_SIZE = 8
 gs = fig.add_gridspec(2, 1, hspace=0, wspace=0,height_ratios=height)
-ax = gs.subplots(sharey=False, sharex=False)
+ax = gs.subplots(sharey=False, sharex=True)
 
-ax[0].scatter(x_axis_peaks[1:],spacing,label = 'FP Spacing',color='blue',marker='x')
-title1 = ax[0].set_title(r"$\bf{(B)}$",loc='right', y=0.02)
+midpoint = (FP_lorenzian_x_axis_peaks[1:] + FP_lorenzian_x_axis_peaks[:-1]) /2
+midpoint = []
+for i in range(len(FP_lorenzian_x_axis_peaks)):
+    if i+1 != len(FP_lorenzian_x_axis_peaks):
+        print(FP_lorenzian_x_axis_peaks[i])
+        print(FP_lorenzian_x_axis_peaks[i+1])
+        midpoint.append((FP_lorenzian_x_axis_peaks[i] + FP_lorenzian_x_axis_peaks[i+1])/2)
 
-offset = np.array([+0.1, 0])
-title1.set_position(title1.get_position() + offset)
-ax[0].legend(loc = 'upper left')
-label0 = ax[0].set_ylabel('Time Scale (s)')
-ax[1].scatter(normalized_x_axis,c4,s = 0.5, color = 'blue',marker='x')
-ax[1].plot([0,0],[0,0],label = 'FP Data', color = 'blue')
-ax[1].legend(loc = 'upper left')
-ax[1].set_xlabel('Time Scale (s)')
-label1 = ax[1].set_ylabel('Intensity (a.u.)')
-title2 = ax[1].set_title(r"$\bf{(A)}$",loc='right', y=0.01)
+midpoint = np.array(midpoint)
+spacing_errors = np.sqrt(FP_freq_peak_errors[1:] + FP_freq_peak_errors[:-1])*3
 
-offset1 = np.array([-0.01, 0])
-offset2 = np.array([-0.11, -0.02])
-title2.set_position(title2.get_position() + offset1)
-title1.set_position(title1.get_position() + offset2)
-pos_0 = np.array(label0.get_position())
-pos_1 = np.array(label1.get_position())
+spacing_fp_lor = np.diff(FP_lorenzian_x_axis_peaks)
+ax[0].errorbar(midpoint,spacing_fp_lor,yerr=spacing_errors,color='red',ls='none',capsize=5,fmt = 'none')
+ax[0].scatter(midpoint,spacing_fp_lor,label = 'FP Spacing',marker='o', color = 'blue',zorder = 2)
 
-# print("pos",
-label_offset=np.array(pos_1)
-# label1.set_position([pos_0[0]+.9,pos_1[1]])
-# axPres.yaxis.set_label_coords(-0.1,1.02)
+# title1 = ax[0].set_title(r"$\bf{(A)}$",loc='right', y=0.95)
 
-ax[1].yaxis.set_label_coords(pos_1[0]-0.09,pos_1[1])
-# from mpl_toolkits.axes_grid.inset_locator import (inset_axes, InsetPosition,
-#                                                   mark_inset)
-from mpl_toolkits.axes_grid.inset_locator import (inset_axes, InsetPosition)
-fig, ax1 = plt.subplots(figsize=(13,10))
-# plt.figure(figsize = (13,10))
-ax1.plot(normalized_x_axis,c1,color = 'blue', label = 'Doppler Free Spectrum',zorder=5)
-ax1.plot(normalized_x_axis,c1_B, color = 'orange', label = 'Broadened Spectrum',zorder=5)
-ax1.text(-0.8, -0.275, r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$', horizontalalignment='center', size='large', color='black', weight='bold',fontsize=10)
-ax1.text(-0.19, -0.68, r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 3 \rightarrow F_{e} = 2,3,4}$', horizontalalignment='center', size='large', color='black', weight='bold',fontsize=10)
-ax1.text(0.13, -0.15-0.05, r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$', horizontalalignment='center', size='large', color='black', weight='bold',fontsize=10)
-ax1.text(0.675, -0.075-0.05, r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 1 \rightarrow F_{e} = 0,1,2}$', horizontalalignment='center', size='large', color='black', weight='bold',fontsize=10)
-ax1.set_ylabel('Transmission (a.u)')
-ax1.set_xlabel('Time Scale (s)')
-ax1.legend()
-
-# [(normalized_x_axis < -0.66) & (normalized_x_axis > -0.8)]
-c1_plot = c1[(normalized_x_axis < -0.66) & (normalized_x_axis > -0.8)]
-c1_B_plot = c1_B[(normalized_x_axis < -0.66) & (normalized_x_axis > -0.8)]
-
-width = 0.2
-height = 0.4
-ax2 = plt.axes([0.8-width,height/2,width,height])
-# ax3 = plt.axes([.3,.3,0.1,0.4])
-size_x = .35
-size_y = 0.35
-ip2 = InsetPosition(ax1, [0.95-size_y,0.1,size_x,size_y])
-ax2.set_axes_locator(ip2)
-ax2.plot(normalized_x_axis[(normalized_x_axis < -0.66) & (normalized_x_axis > -0.8)],-0.15+(c1_plot-c1_B_plot/max(c1_B_plot)*max(c1_plot)),color='blue',zorder=2)
-ax2.set_title("Hyperfine Structure")
-# mark_inset(ax1, ax2, loc1=1, loc2=3, fc="none", ec='0.5',clip_on=False,snap=False)
-ax3 = plt.axes([0.1,0.1,0.1,0.1])
-ip3 = InsetPosition(ax1, [0.14,0.54,0.07,0.43])
-ax3.set_axes_locator(ip3)
-
-from mpl_toolkits.axes_grid1.inset_locator import TransformedBbox, BboxPatch, BboxConnector 
-
-def mark_inset(parent_axes,lim_axes, inset_axes, loc1a=4, loc1b=3, loc2a=4, loc2b=3, **kwargs):
-
-    rect = TransformedBbox(lim_axes.viewLim, lim_axes.transData)
-    # rect = TransformedBbox(axin1, parent_axes.transData)
-
-
-    pp = BboxPatch(rect, fill=False, **kwargs)
-    parent_axes.add_patch(pp)
-
-    p1 = BboxConnector(inset_axes.bbox, rect, loc1=loc1a, loc2=loc1b, **kwargs)
-    inset_axes.add_patch(p1)
-    p1.set_clip_on(False)
-    p2 = BboxConnector(inset_axes.bbox, rect, loc1=loc2a, loc2=loc2b, **kwargs)
-    inset_axes.add_patch(p2)
-    p2.set_clip_on(False)
-
-    return pp, p1, p2
-
-mark_inset(parent_axes=ax1, lim_axes=ax3, inset_axes=ax2, loc1a=1, loc1b=1, loc2a=3, loc2b=4, fc="none", ec="0.5",alpha=0.6,linestyle='--') 
-
-# pp, p1, p2 = mark_inset(ax1, ax2, loc1=1, loc2=3, fc="none", ec='0.5',alpha=0.5,zorder=1)
-# ax2.set_xlabel('Time Scale (s)')
-# ax2.set_ylabel('Transmission (a.u.)')
-ax3.set_visible(not ax3.get_visible())
-plt.draw()
-plt.show()
-
-
-
-# from mpl_toolkits.axes_grid.inset_locator import (inset_axes, InsetPosition,
-#                                                   mark_inset)
-# domain_airy_modified = np.linspace(min(normalized_x_axis),max(normalized_x_axis), 100000)
-# fig, ax1 = plt.subplots(figsize=(15, 15))
-# # plt.title('Fitted FP using Modified Airy Function')
-# ax2 = plt.axes([0,0,.1,.2])
-# ax3 = plt.axes([0,0,.1,.2])
-# # Manually set the position and relative size of the inset axes within ax1
-# size_x = .45
-# size_y = 0.9
-# ip2 = InsetPosition(ax1, [0.0,1.2,size_x,size_y])
-# ip3 = InsetPosition(ax1, [1-size_x,1.2,size_x,size_y])
-
-# ax2.set_axes_locator(ip2)
-# ax3.set_axes_locator(ip3)
-
-# mark_inset(ax1, ax2, loc1=1, loc2=3, fc="none", ec='0.5')
-# mark_inset(ax1, ax3, loc1=1, loc2=3, fc="none", ec='0.5')
-# ax2.set_title(r"$\bf{(C)}$",loc='right', y=1.05)
-# ax3.set_title(r"$\bf{(B)}$",loc='right', y=1.05)
-# title1 = ax1.set_title(r"$\bf{(A)}$",loc='right', y=0.95)
-
-# offset = np.array([+0.05, 0])
+offset = np.array([+0.05, 0])
 # title1.set_position(title1.get_position() + offset)
-
-# c4 = c4 -0.2
-# down_2 = -0.1
-# up_2 =  -0.082
-# down_3 = 0.978
-# up_3 = 1
-# ax1.plot(normalized_x_axis,c4, label =  "Data" )
-# ax2.plot(normalized_x_axis[(normalized_x_axis < up_2) & (normalized_x_axis > down_2)], c4[(normalized_x_axis < up_2) & (normalized_x_axis > down_2)], alpha=1, label="Data")
-# ax3.plot(normalized_x_axis[(normalized_x_axis < up_3) & (normalized_x_axis > down_3)], c4[(normalized_x_axis < up_3) & (normalized_x_axis > down_3)], alpha=1, label="Data")
-
-# for i in range(len(array_of_coeffients)):
-#     para = list(array_of_coeffients[i]) + list(b_values[i])
-#     y_data = airy_modified_function(domain_airy_modified,*para)
-
-#     ax1.plot(domain_airy_modified,airy_modified_function(domain_airy_modified,*para), label =  f"Fitted Airy (f(x) poly order {min_poly_order + i})" )
-#     ax2.plot(domain_airy_modified[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)],y_data[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)], label =  f"Fitted Airy (f(x) poly order {min_poly_order + i})")
-#     ax3.plot(domain_airy_modified[(domain_airy_modified < up_3) & (domain_airy_modified > down_3)],y_data[(domain_airy_modified < up_3) & (domain_airy_modified > down_3)], label =  f"Fitted Airy (f(x) poly order {min_poly_order + i})" )
+ax[0].legend(loc = 'upper left',frameon=False, fontsize = '16')
+ax[0].set_ylabel('Normalized Time Scale (arb.)', fontsize = '16')
+ax[1].scatter(normalized_x_axis,c4,s = 0.5, color = 'blue')
+ax[1].scatter(FP_lorenzian_x_axis_peaks,FP_lorenzian_x_axis_peaks_amplitude_true,marker = 'x', color = 'red')
+ax[1].plot([min(normalized_x_axis),min(normalized_x_axis)],[0,0],label = 'FP Data', color = 'blue')
+ax[1].legend(loc = 'upper left',frameon=False, fontsize = '16')
+ax[1].set_xlabel('Normalized Time Scale (arb.)', fontsize = '16')
+ax[1].set_ylabel('Intensity (a.u)', fontsize = '16')
+# title2 = ax[1].set_title(r"$\bf{(B)}$",loc='right', y=0.85)
+fig.align_ylabels(ax)
+offset = np.array([+0.05, 0])
+# title2.set_position(title2.get_position() + offset)
 
 
-# # Create a set of inset Axes: these should fill the bounding box allocated to
-# # them.
+plt.figure(figsize = (13,10))
+plt.plot(normalized_x_axis,c1,color = 'blue', label = 'Doppler Free Spectrum')
+plt.plot(normalized_x_axis,c1_B, color = 'orange', label = 'broadened Spectrum')
+plt.text(-0.7, -0.275, r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$', horizontalalignment='center', size='large', color='black', weight='bold')
+plt.text(-0.27, -0.62, r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 3 \rightarrow F_{e} = 2,3,4}$', horizontalalignment='center', size='large', color='black', weight='bold')
+plt.text(0.13, -0.15-0.05, r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$', horizontalalignment='center', size='large', color='black', weight='bold')
+plt.text(0.675, -0.075-0.05, r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 1 \rightarrow F_{e} = 0,1,2}$', horizontalalignment='center', size='large', color='black', weight='bold')
+plt.ylabel('Transmission (a.u)')
+plt.xlabel('Time Scale (s)')
+plt.legend()
 
-# ax1.set_xlabel("Normalized Time Scale (Arb.)")
-# ax2.set_xlabel("Normalized Time Scale (Arb.)")
-# ax3.set_xlabel("Normalized Time Scale (Arb.)")
-
-# ax1.set_ylabel("Intensity (Arb.)")
-# ax2.set_ylabel("Intensity (Arb.)")
-# ax3.set_ylabel("Intensity (Arb.)")
 
 
-# ax1.legend(loc='lower left').set_zorder(100)
-# # ax2.legend(loc=0)
-# # ax3.legend(loc=0)
-# plt.subplots_adjust(top=.5)
-# plt.show()
-
+plt.show()

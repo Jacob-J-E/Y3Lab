@@ -283,13 +283,121 @@ for i in range(len(array_of_coeffients)):
 plt.xticks(np.arange(0, max(freqency_array)+fsr_theoretical, fsr_theoretical))
 plt.legend()
 
+# plt.figure()
+# height_title = 1.05
+# heights = [1,1]
+# fig = plt.figure()
+# gs = fig.add_gridspec(2, max_poly_order, hspace=0, wspace=0.2,height_ratios=heights)
+# ax = gs.subplots(sharey=False, sharex=True)
+# fig.suptitle('Calibration Graph')
+
+# colors = plt.cm.rainbow(np.linspace(0, 1, len(array_of_coeffients)))
+
+# peaks, _= find_peaks(c4, distance=2000)
+# c4_peaks = c4[peaks]
+# x_axis_peaks = normalized_x_axis[peaks]
+# x_axis_peaks = x_axis_peaks[1:]
+# space = np.arange(0,len(x_axis_peaks),1)
+# m = (x_axis_peaks[-1] - x_axis_peaks[0])/ (space[-1] - space[0])
+# c = x_axis_peaks[0] - m*space[0]
+# inital_guess_straight = [m,c]
+
+# para,cov = curve_fit(straight_line,space,x_axis_peaks,inital_guess_straight)
+# perr = np.sqrt(np.diag(cov))
+# nstd = 3
+# para_up = para + nstd * perr
+# para_down = para - nstd * perr
+
+# fit_up = straight_line(space, *para_up)
+# fit_dw = straight_line(space, *para_down)
+# ax[0,0].fill_between(space, fit_up, fit_dw, alpha=.25, label=str(nstd) + r'$\sigma$ Interval', color = 'orange')
+
+
+# domain = np.linspace(min(space),max(space),100000)
+# ax[0,0].scatter(space,x_axis_peaks, label = 'Original Data',color='orange')
+# ax[0,0].plot(domain,straight_line(domain,*para), label = r'Best Fit $R^{2}$: '+f'{r2_score(x_axis_peaks,straight_line(space,*para)):.4g}', color='black')
+# ax[0,0].set_title(r"$\bf{(A)}$" + ' Original Data',loc='left', y=height_title)
+# ax[1,0].set_ylim(min(x_axis_peaks)-0.1,(max(x_axis_peaks)+0.1))
+# ax[0,0].legend(loc='best')
+# print(f'r squared: {r2_score(x_axis_peaks,straight_line(space,*para))}')
+
+# residuals_ = x_axis_peaks - straight_line(space,*para)
+# residuals_upper_ = fit_up - straight_line(space,*para)
+# residuals_lower_ = fit_dw - straight_line(space,*para)
+
+# for i in range(len(residuals_)):
+#     ax[1,0].vlines(space[i], 0, residuals_[i], color = 'black')
+
+# ax[1,0].scatter(space, residuals_, label = 'Residuals',color='orange',zorder = 2)
+# ax[1,0].fill_between(space, residuals_lower_, residuals_upper_, alpha=.1, label=str(nstd) + r'$\sigma$ interval', color = 'orange')
+# ax[1,0].set_ylim(min(residuals_lower_)-0.02,(max(residuals_upper_)+0.02))
+# ax[1,0].hlines(0, min(space), max(space), linestyle="dashed", color = 'black', alpha = 0.5)
+# ax[1,0].set_xlabel('Peak Number (No Units)')
+# ax[1,0].set_ylabel('Timescale (s)')
+# ax[0,0].set_ylabel('Timescale (s)')
+
+# ax[1,0].legend(loc='best')
+# # ax[1,0].grid()
+# # ax[0,0].grid()
+# letters = [chr(i) for i in range(ord('B'), ord('Z')+1)]
+# for i in range(len(array_of_coeffients)):
+#     j = i +1
+#     # ax[0,j].grid()
+#     # ax[1,j].grid()
+#     ax[0,j].set_title(r"$\bf{(" + str(letters[i]) + ")}$"+ f' Polyorder {i+min_poly_order}',loc='left', y=height_title)
+#     freqency_array = f(normalized_x_axis,*array_of_coeffients[i])
+#     freq_peaks = freqency_array[peaks]
+#     freq_peaks = freq_peaks[1:]
+
+
+#     m = (freq_peaks[-1] - freq_peaks[0])/ (space[-1] - space[0])
+#     c = freq_peaks[0] - m*space[0]
+#     inital_guess_straight = [m,c]
+
+#     para,cov = curve_fit(straight_line,space,freq_peaks,inital_guess_straight)
+#     perr = np.sqrt(np.diag(cov))
+#     nstd = 3
+#     para_up = para + nstd * perr
+#     para_down = para - nstd * perr
+
+#     fit_up = straight_line(space, *para_up)
+#     fit_dw = straight_line(space, *para_down)
+#     ax[0,j].fill_between(space, fit_up, fit_dw, alpha=.25, label= str(nstd) + r'$\sigma$ Residual Interval', color = colors[i])
+
+    
+#     # plt.scatter(x_axis_peaks,freq_peaks, label = 'Data')
+#     colors = ['b','g','r', 'purple']
+#     ax[0,j].scatter(space,freq_peaks, label = 'Data Polyorder '+str(i+min_poly_order),color=colors[i])
+#     ax[0,j].plot(domain,straight_line(domain,*para), label = r'Best Fit $R^{2}$: '+f'{r2_score(freq_peaks,straight_line(space,*para)):.4g}',color='black')
+#     ax[0,j].legend(loc='best')
+#     ax[0,j].set_ylim(min(freq_peaks)-1e9,max(freq_peaks)+1e9)
+#     print(f'r squared: {r2_score(freq_peaks,straight_line(space,*para))}')
+
+#     residuals_ = freq_peaks - straight_line(space,*para)
+#     residuals_upper_ = fit_up - straight_line(space,*para)
+#     residuals_lower_ = fit_dw - straight_line(space,*para)
+#     for k in range(len(residuals_)):
+#         ax[1,j].vlines(space[k], 0, residuals_[k], color = 'black')
+
+#     ax[1,j].scatter(space, residuals_, label = 'Residuals',color=colors[i],zorder = 2)
+#     ax[1,j].fill_between(space, residuals_lower_, residuals_upper_, alpha=.1, label=str(nstd) + r'$\sigma$ Residual Interval', color=colors[i])
+
+#     ax[1,j].set_ylim(min(residuals_lower_)-1e6,max(residuals_upper_)+1e6)
+
+#     ax[1,j].hlines(0, min(space), max(space), linestyle="dashed", color = 'black', alpha = 0.5)
+
+
+#     ax[1,j].set_xlabel('Peak Number (No Units)')
+#     ax[1,j].set_ylabel('Frequency (Hz)')
+#     ax[0,j].set_ylabel('Frequency (Hz)')
+#     ax[1,j].legend(loc='best')
+    
 plt.figure()
 height_title = 1.05
-heights = [1,1]
-fig = plt.figure()
-gs = fig.add_gridspec(2, max_poly_order, hspace=0, wspace=0.2,height_ratios=heights)
-ax = gs.subplots(sharey=False, sharex=True)
-fig.suptitle('Calibration Graph')
+# fig = plt.figure()
+# gs = fig.add_gridspec(1, max_poly_order, wspace=0.2,)
+# ax = gs.subplots(sharey=False, sharex=True)
+fig,ax = plt.subplots(1,max_poly_order)
 
 colors = plt.cm.rainbow(np.linspace(0, 1, len(array_of_coeffients)))
 
@@ -310,15 +418,11 @@ para_down = para - nstd * perr
 
 fit_up = straight_line(space, *para_up)
 fit_dw = straight_line(space, *para_down)
-ax[0,0].fill_between(space, fit_up, fit_dw, alpha=.25, label=str(nstd) + r'$\sigma$ Interval', color = 'orange')
 
 
 domain = np.linspace(min(space),max(space),100000)
-ax[0,0].scatter(space,x_axis_peaks, label = 'Original Data',color='orange')
-ax[0,0].plot(domain,straight_line(domain,*para), label = r'Best Fit $R^{2}$: '+f'{r2_score(x_axis_peaks,straight_line(space,*para)):.4g}', color='black')
-ax[0,0].set_title(r"$\bf{(A)}$" + ' Original Data',loc='left', y=height_title)
-ax[1,0].set_ylim(min(x_axis_peaks)-0.1,(max(x_axis_peaks)+0.1))
-ax[0,0].legend(loc='best')
+ax[0].set_title(r"$\bf{(A)}$" + ' Original Data',loc='right', y=height_title)
+ax[0].set_ylim(min(x_axis_peaks)-0.1,(max(x_axis_peaks)+0.1))
 print(f'r squared: {r2_score(x_axis_peaks,straight_line(space,*para))}')
 
 residuals_ = x_axis_peaks - straight_line(space,*para)
@@ -326,17 +430,16 @@ residuals_upper_ = fit_up - straight_line(space,*para)
 residuals_lower_ = fit_dw - straight_line(space,*para)
 
 for i in range(len(residuals_)):
-    ax[1,0].vlines(space[i], 0, residuals_[i], color = 'black')
+    ax[0].vlines(space[i], 0, residuals_[i], color = 'black')
 
-ax[1,0].scatter(space, residuals_, label = 'Residuals',color='orange',zorder = 2)
-ax[1,0].fill_between(space, residuals_lower_, residuals_upper_, alpha=.1, label=str(nstd) + r'$\sigma$ interval', color = 'orange')
-ax[1,0].set_ylim(min(residuals_lower_)-0.02,(max(residuals_upper_)+0.02))
-ax[1,0].hlines(0, min(space), max(space), linestyle="dashed", color = 'black', alpha = 0.5)
-ax[1,0].set_xlabel('Peak Number (No Units)')
-ax[1,0].set_ylabel('Timescale (s)')
-ax[0,0].set_ylabel('Timescale (s)')
+ax[0].scatter(space, residuals_, label = 'Residuals',color='orange',zorder = 2)
+ax[0].fill_between(space, residuals_lower_, residuals_upper_, alpha=.1, label=str(nstd) + r'$\sigma$ interval', color = 'orange')
+ax[0].set_ylim(min(residuals_lower_)-0.02,(max(residuals_upper_)+0.02))
+ax[0].hlines(0, min(space), max(space), linestyle="dashed", color = 'black', alpha = 0.5)
+ax[0].set_xlabel('Peak Number (No Units)')
+ax[0].set_ylabel('Timescale (s)')
 
-ax[1,0].legend(loc='best')
+ax[0].legend(loc='best')
 # ax[1,0].grid()
 # ax[0,0].grid()
 letters = [chr(i) for i in range(ord('B'), ord('Z')+1)]
@@ -344,7 +447,7 @@ for i in range(len(array_of_coeffients)):
     j = i +1
     # ax[0,j].grid()
     # ax[1,j].grid()
-    ax[0,j].set_title(r"$\bf{(" + str(letters[i]) + ")}$"+ f' Polyorder {i+min_poly_order}',loc='left', y=height_title)
+    ax[j].set_title(r"$\bf{(" + str(letters[i]) + ")}$"+ f' Polyorder {i+min_poly_order}',loc='right', y=height_title)
     freqency_array = f(normalized_x_axis,*array_of_coeffients[i])
     freq_peaks = freqency_array[peaks]
     freq_peaks = freq_peaks[1:]
@@ -362,39 +465,33 @@ for i in range(len(array_of_coeffients)):
 
     fit_up = straight_line(space, *para_up)
     fit_dw = straight_line(space, *para_down)
-    ax[0,j].fill_between(space, fit_up, fit_dw, alpha=.25, label= str(nstd) + r'$\sigma$ Residual Interval', color = colors[i])
 
-    
+   
     # plt.scatter(x_axis_peaks,freq_peaks, label = 'Data')
     colors = ['b','g','r', 'purple']
-    ax[0,j].scatter(space,freq_peaks, label = 'Data Polyorder '+str(i+min_poly_order),color=colors[i])
-    ax[0,j].plot(domain,straight_line(domain,*para), label = r'Best Fit $R^{2}$: '+f'{r2_score(freq_peaks,straight_line(space,*para)):.4g}',color='black')
-    ax[0,j].legend(loc='best')
-    ax[0,j].set_ylim(min(freq_peaks)-1e9,max(freq_peaks)+1e9)
     print(f'r squared: {r2_score(freq_peaks,straight_line(space,*para))}')
 
     residuals_ = freq_peaks - straight_line(space,*para)
     residuals_upper_ = fit_up - straight_line(space,*para)
     residuals_lower_ = fit_dw - straight_line(space,*para)
     for k in range(len(residuals_)):
-        ax[1,j].vlines(space[k], 0, residuals_[k], color = 'black')
+        ax[j].vlines(space[k], 0, residuals_[k], color = 'black')
 
-    ax[1,j].scatter(space, residuals_, label = 'Residuals',color=colors[i],zorder = 2)
-    ax[1,j].fill_between(space, residuals_lower_, residuals_upper_, alpha=.1, label=str(nstd) + r'$\sigma$ Residual Interval', color=colors[i])
+    ax[j].scatter(space, residuals_, label = 'Residuals',color=colors[i],zorder = 2)
+    ax[j].fill_between(space, residuals_lower_, residuals_upper_, alpha=.1, label=str(nstd) + r'$\sigma$ Residual Interval', color=colors[i])
 
-    ax[1,j].set_ylim(min(residuals_lower_)-1e6,max(residuals_upper_)+1e6)
+    ax[j].set_ylim(min(residuals_lower_)-1e6,max(residuals_upper_)+1e6)
 
-    ax[1,j].hlines(0, min(space), max(space), linestyle="dashed", color = 'black', alpha = 0.5)
+    ax[j].hlines(0, min(space), max(space), linestyle="dashed", color = 'black', alpha = 0.5)
 
 
-    ax[1,j].set_xlabel('Peak Number (No Units)')
-    ax[1,j].set_ylabel('Frequency (Hz)')
-    ax[0,j].set_ylabel('Frequency (Hz)')
-    ax[1,j].legend(loc='best')
-    
+    ax[j].set_xlabel('Peak Number (No Units)')
+    ax[j].set_ylabel('Relative Frequency (Hz)')
+    ax[j].legend(loc='best')
 
 
 
-
-
+plt.tight_layout()
 plt.show()
+
+

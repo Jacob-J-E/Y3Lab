@@ -526,6 +526,7 @@ for i in range(len(array_of_coeffients)):
     #initial_guess = [freq_values[0]-0.005e9,width+30e6,peaks_values_inital_guess[0]+3e6,freq_values[1],width+20e6,peaks_values_inital_guess[1]+30e6,freq_values[2],width,peaks_values_inital_guess[2]+3e6,freq_values[3],width,peaks_values_inital_guess[3],m,c]
     initial_guess = [freq_values[0],width+100e6,peaks_values_inital_guess[0],freq_values[1],width,peaks_values_inital_guess[1],freq_values[2],width,peaks_values_inital_guess[2],freq_values[3],width,peaks_values_inital_guess[3],m,c]
     params, cov = curve_fit(four_lor_x_update,freqency_array,hyper_fine_structure,initial_guess)
+    print("AHH the params",params[4]/1e6)
     # initial_guess = params
     # params, cov = curve_fit(four_lor_x_update,freqency_array,hyper_fine_structure,initial_guess)
     plt.plot(freqency_array,four_lor_x_update(freqency_array,*params),color='black')

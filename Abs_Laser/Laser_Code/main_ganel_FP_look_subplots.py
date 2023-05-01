@@ -24,7 +24,7 @@ import scipy.stats as stats
 
 
 # Min Max Values are inclusive
-iterations = 3
+iterations = 20
 max_poly_order = 4
 min_poly_order = 2
 if min_poly_order > max_poly_order:
@@ -234,7 +234,12 @@ a_1_guess = para_straight[0]
 
 
 array_of_coeffients = []
+coeff_up = []
+coeff_down = []
+
 b_values = []
+# b_up = []
+# b_down = []
 for i in range(min_poly_order,max_poly_order+1):
     poly_order = i 
     # ordering -> a_0,a_1, a_2, a_3, a_4, b_0, b_1)
@@ -250,10 +255,21 @@ for i in range(min_poly_order,max_poly_order+1):
             para_airy_modified, cov_airy_modified = curve_fit(airy_modified_function,normalized_x_axis,lorentzian_array,inital_guess_airy_modified)
             inital_guess_airy_modified = para_airy_modified
 
+    # a_coeffients = para_airy_modified[:poly_order+1]
+    # b_coeff = [para_airy_modified[-2],para_airy_modified[-1]]
+
+
     a_coeffients = para_airy_modified[:poly_order+1]
     b_coeff = [para_airy_modified[-2],para_airy_modified[-1]]
     array_of_coeffients.append(a_coeffients)
     b_values.append(b_coeff)
+
+    # array_of_coeffients.append(a_coeffients)
+    coeff_up.append(para_airy_modified+5*np.sqrt(np.diag(cov_airy_modified)))
+    coeff_down.append(para_airy_modified-5*np.sqrt(np.diag(cov_airy_modified)))
+
+
+
     print('****************************')
     print(f'COMPLETED BOOTSTRAPING with Poly Order {poly_order}')
     print(f'Poly Order {poly_order} - a coeffients {a_coeffients}')
@@ -263,31 +279,32 @@ for i in range(min_poly_order,max_poly_order+1):
 from mpl_toolkits.axes_grid.inset_locator import (inset_axes, InsetPosition,
                                                   mark_inset)
 domain_airy_modified = np.linspace(min(normalized_x_axis),max(normalized_x_axis), 100000)
-fig, ax1 = plt.subplots(figsize=(15, 15))
+# fig, ax1 = plt.subplots(figsize=(15, 15))
+fig, ax = plt.subplots(1,2,sharey=True)
 # plt.title('Fitted FP using Modified Airy Function')
-ax2 = plt.axes([0,0,.1,.2])
-ax3 = plt.axes([0,0,.1,.2])
+# ax2 = plt.axes([0,0,.1,.2])
+# ax3 = plt.axes([0,0,.1,.2])
 # Manually set the position and relative size of the inset axes within ax1
 size_x = .45
 size_y = 0.9
-ip2 = InsetPosition(ax1, [0.0,1.2,size_x,size_y])
-ip3 = InsetPosition(ax1, [1-size_x,1.2,size_x,size_y])
+# ip2 = InsetPosition(ax1, [0.0,1.2,size_x,size_y])
+# ip3 = InsetPosition(ax1, [1-size_x,1.2,size_x,size_y])
 
-ax2.set_axes_locator(ip2)
-ax3.set_axes_locator(ip3)
+# ax2.set_axes_locator(ip2)
+# ax3.set_axes_locator(ip3)
 
-mark_inset(ax1, ax2, loc1=1, loc2=3, fc="none", ec='0.5')
-mark_inset(ax1, ax3, loc1=1, loc2=3, fc="none", ec='0.5')
-title2 = ax2.set_title(r"$\bf{(C)}$",loc='right', y=0.85)
-title3 = ax3.set_title(r"$\bf{(B)}$",loc='right', y=0.85)
-title1 = ax1.set_title(r"$\bf{(A)}$",loc='right', y=0.85)
+# mark_inset(ax1, ax2, loc1=1, loc2=3, fc="none", ec='0.5')
+# mark_inset(ax1, ax3, loc1=1, loc2=3, fc="none", ec='0.5')
+# title2 = ax2.set_title(r"$\bf{(C)}$",loc='right', y=0.85)
+title1 = ax[1].set_title(r"$\bf{(B)}$",loc='right', y=0.90)
+title0 = ax[0].set_title(r"$\bf{(A)}$",loc='right', y=0.90)
 
 offset = np.array([-0.05, -0.00])
 offsetA = np.array([-0.005, -0.00])
 
-title1.set_position(title1.get_position() + offsetA)
-title2.set_position(title2.get_position() + offset)
-title3.set_position(title3.get_position() + offset)
+title1.set_position(title1.get_position() + offset)
+title0.set_position(title0.get_position() + offset)
+# title3.set_position(title3.get_position() + offset)
 
 
 c4 = c4 -0.2
@@ -295,34 +312,42 @@ down_2 = -0.1
 up_2 =  -0.082
 down_3 = 0.978
 up_3 = 1
-ax1.plot(normalized_x_axis,c4, label =  "Data" )
-ax2.plot(normalized_x_axis[(normalized_x_axis < up_2) & (normalized_x_axis > down_2)], c4[(normalized_x_axis < up_2) & (normalized_x_axis > down_2)], alpha=1, label="Data")
-ax3.plot(normalized_x_axis[(normalized_x_axis < up_3) & (normalized_x_axis > down_3)], c4[(normalized_x_axis < up_3) & (normalized_x_axis > down_3)], alpha=1, label="Data")
+# ax1.plot(normalized_x_axis,c4, label =  "Data" )
+ax[0].plot(10*normalized_x_axis[(normalized_x_axis < up_2) & (normalized_x_axis > down_2)], c4[(normalized_x_axis < up_2) & (normalized_x_axis > down_2)], alpha=1, label="Data")
+ax[1].plot(10*normalized_x_axis[(normalized_x_axis < up_3) & (normalized_x_axis > down_3)], c4[(normalized_x_axis < up_3) & (normalized_x_axis > down_3)], alpha=1, label="Data")
 
 for i in range(len(array_of_coeffients)):
     para = list(array_of_coeffients[i]) + list(b_values[i])
+    para_up = list(coeff_up[i])
+    para_down = list(coeff_down[i])
+
     y_data = airy_modified_function(domain_airy_modified,*para)
+    y_data_up = airy_modified_function(domain_airy_modified,*para_up)
+    y_data_down = airy_modified_function(domain_airy_modified,*para_down)
 
-    ax1.plot(domain_airy_modified,airy_modified_function(domain_airy_modified,*para), label =  f"Fitted Airy (f(x) poly order {min_poly_order + i})" )
-    ax2.plot(domain_airy_modified[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)],y_data[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)], label =  f"Fitted Airy (f(x) poly order {min_poly_order + i})")
-    ax3.plot(domain_airy_modified[(domain_airy_modified < up_3) & (domain_airy_modified > down_3)],y_data[(domain_airy_modified < up_3) & (domain_airy_modified > down_3)], label =  f"Fitted Airy (f(x) poly order {min_poly_order + i})" )
+    # ax1.plot(domain_airy_modified,airy_modified_function(domain_airy_modified,*para), label =  f"Fitted Airy (f(x) poly order {min_poly_order + i})" )
+    plot_0 = ax[0].plot(10*domain_airy_modified[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)],y_data[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)], label =  f"Polyorder {min_poly_order + i}")
+    plot_1 = ax[1].plot(10*domain_airy_modified[(domain_airy_modified < up_3) & (domain_airy_modified > down_3)],y_data[(domain_airy_modified < up_3) & (domain_airy_modified > down_3)], label =  f"Polyorder {min_poly_order + i}" )
 
+    # ax[0].plot(10*domain_airy_modified[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)],y_data_2[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)], label =  f"Fitted polyorder {min_poly_order + i}",color='black')
+    # ax[1].plot(10*domain_airy_modified[(domain_airy_modified < up_3) & (domain_airy_modified > down_3)],y_data_2[(domain_airy_modified < up_3) & (domain_airy_modified > down_3)], label =  f"Fitted polyorder {min_poly_order + i}",color='black')
+    # ax[0].fill_between(10*domain_airy_modified[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)],y_data_up[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)],y_data_down[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)],label=r"$5\sigma$ Interval "+f"Polyorder {min_poly_order + i}",alpha=0.35,color=plot_0[0].get_color())
+    ax[0].fill_between(10*domain_airy_modified[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)],y_data_up[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)],y_data_down[(domain_airy_modified < up_2) & (domain_airy_modified > down_2)],alpha=0.35,color=plot_0[0].get_color())
+    ax[1].fill_between(10*domain_airy_modified[(domain_airy_modified < up_3) & (domain_airy_modified > down_3)],y_data_down[(domain_airy_modified < up_3) & (domain_airy_modified > down_3)],y_data_up[(domain_airy_modified < up_3) & (domain_airy_modified > down_3)],alpha=0.35,color=plot_1[0].get_color())
 
 # Create a set of inset Axes: these should fill the bounding box allocated to
 # them.
 
-ax1.set_xlabel("Normalized Time Scale (Arb.)")
-ax2.set_xlabel("Normalized Time Scale (Arb.)")
-ax3.set_xlabel("Normalized Time Scale (Arb.)")
+ax[0].set_xlabel("Normalized Time Scale (Arb.)",fontsize=14)
+ax[1].set_xlabel("Normalized Time Scale (Arb.)",fontsize=14)
 
-ax1.set_ylabel("Intensity (Arb.)")
-ax2.set_ylabel("Intensity (Arb.)")
-ax3.set_ylabel("Intensity (Arb.)")
+ax[0].set_ylabel("Intensity (Arb.)",fontsize=14)
+# ax3.set_ylabel("Intensity (Arb.)")
 
 
-ax1.legend(loc='lower left').set_zorder(100)
-# ax2.legend(loc=0)
+# ax1.legend(loc='lower left').set_zorder(100)
+ax[0].legend(loc='upper left',fontsize=14,frameon=False)
 # ax3.legend(loc=0)
-plt.subplots_adjust(top=.5)
+# plt.subplots_adjust(top=.5)
 plt.show()
 

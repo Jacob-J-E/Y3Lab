@@ -81,7 +81,7 @@ fig,ax = plt.subplots(1,2)
 peak_x = []
 peak_y = []
 freq_min = -0.008
-for i in range(1,60):
+for i in range(0,60):
     # data = pd.read_csv(r"Abs_Laser\Data\17-03-2023\ZEEMAN"+str(i)+".CSV")
     # data_B = pd.read_csv(r"Abs_Laser\Data\17-03-2023\ZEEMAN"+str(i)+"B.CSV")
     # data_B = pd.read_csv(r"Abs_Laser\Data\17-03-2023\ZEEMAN"+str(3*i)+".CSV")
@@ -121,33 +121,80 @@ for i in range(1,60):
 
     CB_peaks = CB_plot[freq>freq_min]
     freq_peaks = freq[freq>freq_min]
-    max_ind_cb = find_peaks(CB_peaks,prominence=0.1)
+    max_ind_cb = find_peaks(CB_peaks,prominence=0.15)
 
     cb_x_peak = freq_peaks[max_ind_cb[0]]
     cb_y_peak = CB_peaks[max_ind_cb[0]]
 
-    if mag_field[i] > 0:
-        if i%4 == 0:
-            ax[0].plot(freq,CB_plot,label=r"$v_{app}= $"+str(i)+r"$V$",color='black')
-            ax[0].scatter(cb_x_peak,cb_y_peak,color='red')
+    # if i == 4:
+    #     ax[0].plot(freq,-c1_B/5,label=r"$B=0 mT$",color='black')
 
+    # if i == 45:
+    #     ax[0].plot(freq,-c1_B+0.4,label=r"$B=0 mT$",color='black')
+
+    # if i == 59:
+    #     ax[0].plot(freq,-c1_B+0.8,label=r"$B=0 mT$",color='black')
+
+    # if i%2 == 0:
+    #         ax[0].plot(freq,CB_plot,label=r"$v_{app}= $"+str(i)+r"$V$",color='black')
+    #         ax[0].scatter(cb_x_peak,cb_y_peak,color='red')
+
+
+    if mag_field[i] > 12:
         for point in cb_x_peak:
-            ax[1].scatter(mag_field[i],point,color='blue',marker='x')
+            # ax[1].scatter(mag_field[i],point,color='blue',marker='x')
             peak_y.append(point)
             peak_x.append(mag_field[i])
 
-ax[0].axvline(freq_min)
-ax[0].set_xlabel("Frequency (Hz)")
+
+# for i in range(len(peak_x)):
+#     print("("+str(peak_x[i])+","+str(1000*peak_y[i])+")")
+# ax[0].axvline(freq_min)
+ax[0].set_xlabel("Relative Frequency (Hz)")
 ax[0].set_ylabel("Voltage")
 
 ax[1].set_xlabel("Applied Magnetic Field (mT)")
-ax[1].set_ylabel("Frequency (Hz)")
+ax[1].set_ylabel("Relative Frequency (Hz)")
 
-ax[0].set_title("Peak Structure")
-ax[1].set_title("Zeeman Splitting")
 
+zero_data_B = pd.read_csv(r"Abs_Laser\Data\21-03-2023\ZB"+str(0)+".CSV")
+four_five_data_B = pd.read_csv(r"Abs_Laser\Data\21-03-2023\ZB"+str(40)+".CSV")
+five_nine_data_B = pd.read_csv(r"Abs_Laser\Data\21-03-2023\ZB"+str(59)+".CSV")
+
+freq = zero_data_B['in s']
+zero_B = zero_data_B['C1 in V']
+four_five_B = four_five_data_B['C1 in V']
+five_nine_B = five_nine_data_B['C1 in V']
+
+
+zero_B = zero_B[(freq>-0.015) & (freq < 0.008)]
+four_five_B = four_five_B[(freq>-0.015) & (freq < 0.008)]
+five_nine_B = five_nine_B[(freq>-0.015) & (freq < 0.008)]
+freq = freq[(freq>-0.015) & (freq < 0.008)]
+
+
+# import matplotlib as mpl
+# mpl.rcParams['text.usetex'] = True
+# mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}'] #for \text command
+
+
+ax[0].plot(freq,-zero_B/5,color='black',label=r"$\mathrm{B} = 0 \ \mathrm{mT}$")
+ax[0].plot(freq,-four_five_B+0.5,color='blue',label=r"$\mathrm{B} = 33 \  \mathrm{mT}$")
+ax[0].plot(freq,-five_nine_B+1,color='red',label=r"$\mathrm{B} = 59 \ \mathrm{mT}$")
+
+ax[1].scatter(peak_x,peak_y,marker='x',color='blue')
+
+# ax[0].set_title("Peak Structure")
+# ax[1].set_title("Zeeman Splitting")
+ax[0].legend(loc='upper left')
 plt.show()
 
-plt.scatter(peak_x,peak_y)
+#   c1 = c1[(freq>-0.015) & (freq < 0.008)]
+#     c1_B = c1_B[(freq>-0.015) & (freq < 0.008)]
+#     freq = freq[(freq>-0.015) & (freq < 0.008)]
+# plt.scatter(peak_x,peak_y)
 plt.show()
 
+    # if i == 4:
+    # if i == 45:
+    # if i == 59:
