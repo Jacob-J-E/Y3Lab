@@ -571,10 +571,10 @@ for i in range(len(array_of_coeffients)):
     print(f'(Indirect Method) Hyperfine Structure Rb 87 excited - F=1 -> 2 : {indirect_Rb_87_1_to_2:.4g} +/- {indirect_Rb_87_1_to_2_error:.4g} MHz, Theory P.D: {indirect_Rb_87_1_to_2_Difference_THEORY_PD:.4g}%')
     print('************************************')
     #plt.scatter(freq_ponts,peaks_values, marker= 'x',label = f'Peak Points (poly order {min_poly_order + i})', color = 'red',zorder = 2)
-    ax[0].set_xlabel('Relative Frequency (Hz)')
-    ax[0].set_ylabel('Intensity (Arbitrary Units)')
+    ax[0].set_xlabel('Relative Frequency (Hz)',fontsize=14)
+    ax[0].set_ylabel('Intensity (Arbitrary Units)',fontsize=14)
 
-ax[0].text(0.90,0.90,r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$',transform=ax[0].transAxes,horizontalalignment='center', size='large', color='black', weight='bold')
+ax[0].text(0.90,0.92,r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$',transform=ax[0].transAxes,horizontalalignment='center', size='large', color='black', weight='bold')
 ax[0].legend(loc = 'center right')
 # plt.figure(figsize = (13,10))'
 #plt.title('Frequency Scaled Hyperfine Structure (Rb 85 Ground State F = 3 -> F=2,3,4)')
@@ -690,12 +690,12 @@ for i in range(len(array_of_coeffients)):
     print(f'(Direct Method) Hyperfine Structure Rb 85 excited - F=3 -> 4 : {direct_Rb_85_3_to_4:.4g} MHz, Theory P.D: {direct_Rb_85_3_to_4_Difference_THEORY_PD:.4g}%')
     print('************************************')
     # ax[1].text(1,1,r'$\bf{^{85}Rb} \bf{F_{g} = 3 \rightarrow F_{e} = 2,3,3}$')
-    ax[1].text(0.90,0.90,r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 3 \rightarrow F_{e} = 2,3,3}$',transform=ax[1].transAxes,horizontalalignment='center', size='large', color='black', weight='bold')
+    ax[1].text(0.90,0.92,r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 3 \rightarrow F_{e} = 2,3,3}$',transform=ax[1].transAxes,horizontalalignment='center', size='large', color='black', weight='bold')
 # ax1.text(-0.8, -0.275, r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$', horizontalalignment='center', size='large', color='black', weight='bold',fontsize=10)
 
 
     ax[1].set_ylim(bottom = -0.02,top = 1.1)
-    ax[1].set_xlabel('Relative Frequency (Hz)')
+    ax[1].set_xlabel('Relative Frequency (Hz)',fontsize=14)
     # ax[1].set_ylabel('Intensity (Arbitrary Units)')
 
 ax[1].legend(loc = 'center right')

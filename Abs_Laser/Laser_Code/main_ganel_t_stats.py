@@ -571,9 +571,9 @@ ax1.text(-0.8, -0.275, r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e}
 ax1.text(-0.19, -0.68, r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 3 \rightarrow F_{e} = 2,3,4}$', horizontalalignment='center', size='large', color='black', weight='bold',fontsize=10)
 ax1.text(0.13, -0.15-0.05, r'$\bf{^{85}Rb}$'+'\n'+r'$\bf{F_{g} = 2 \rightarrow F_{e} = 1,2,3}$', horizontalalignment='center', size='large', color='black', weight='bold',fontsize=10)
 ax1.text(0.675, -0.075-0.05, r'$\bf{^{87}Rb}$'+'\n'+r'$\bf{F_{g} = 1 \rightarrow F_{e} = 0,1,2}$', horizontalalignment='center', size='large', color='black', weight='bold',fontsize=10)
-ax1.set_ylabel('Transmission (a.u)')
-ax1.set_xlabel('Time Scale (s)')
-ax1.legend()
+ax1.set_ylabel('Intensity (arb.)')
+ax1.set_xlabel('Normalized Time Scale (arb.)')
+ax1.legend(frameon=False)
 
 # [(normalized_x_axis < -0.66) & (normalized_x_axis > -0.8)]
 c1_plot = c1[(normalized_x_axis < -0.66) & (normalized_x_axis > -0.8)]
